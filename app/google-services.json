@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "997786438725",
+    "project_id": "snkrsapp-cec6f",
+    "storage_bucket": "snkrsapp-cec6f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:997786438725:android:188eaefe01e0a55541e72c",
+        "android_client_info": {
+          "package_name": "com.example.snkrsapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC6xMv0VPNY3R1raY4EV4xNjDVNKp7UpRM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

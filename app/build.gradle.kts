@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.ksp)
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -19,7 +20,10 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
-
+    dependencies {
+        // ... tus otras dependencias
+        implementation("androidx.core:core-ktx:1.15.0") // Prueba con la 1.15.0 o la última estable
+    }
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -30,8 +34,10 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-    kotlinOptions {
-        jvmTarget = "11"
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11)
+        }
     }
 }
 
@@ -75,4 +81,8 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+
+    //Firebase
+    implementation(platform("com.google.firebase:firebase-bom:34.1.0"))
+    implementation("com.google.firebase:firebase-analytics")
 }
