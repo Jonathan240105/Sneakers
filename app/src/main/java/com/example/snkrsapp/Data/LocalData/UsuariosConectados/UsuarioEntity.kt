@@ -1,11 +1,12 @@
 package com.example.snkrsapp.Data.LocalData.UsuariosConectados
 
 import androidx.room.Entity
+import androidx.room.PrimaryKey
 import com.example.snkrsapp.Data.RemoteData.InicioSesion.UsuarioSolicitud
 
 @Entity(tableName = "UsuariosConectados")
 data class UsuarioEntity(
-    val UID: String = "",
+    @PrimaryKey val UID: String = "",
     val nombreUsuario: String = "",
     val email: String = "",
     val apellidos: String = "",
