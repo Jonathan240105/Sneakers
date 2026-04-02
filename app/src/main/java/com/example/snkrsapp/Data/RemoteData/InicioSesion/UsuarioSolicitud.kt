@@ -1,6 +1,6 @@
-package com.example.snkrsapp.Domain
+package com.example.snkrsapp.Data.RemoteData.InicioSesion
 
-data class Usuario(
+data class UsuarioSolicitud(
     val UID: String = "",
     val nombreUsuario: String = "",
     val email: String = "",
