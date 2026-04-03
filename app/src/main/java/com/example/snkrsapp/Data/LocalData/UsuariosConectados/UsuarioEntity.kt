@@ -2,6 +2,7 @@ package com.example.snkrsapp.Data.LocalData.UsuariosConectados
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.example.snkrsapp.Data.RemoteData.InicioSesion.Usuario
 import com.example.snkrsapp.Data.RemoteData.InicioSesion.UsuarioSolicitud
 
 @Entity(tableName = "UsuariosConectados")
@@ -13,8 +14,8 @@ data class UsuarioEntity(
     val fechaNacimiento: String = ""
 )
 
-fun UsuarioEntity.toUsuario(usuario: UsuarioEntity): UsuarioSolicitud {
-    return UsuarioSolicitud(
+fun EntityToUsuario(usuario: UsuarioEntity): Usuario {
+    return Usuario(
         UID = usuario.UID,
         nombreUsuario = usuario.nombreUsuario,
         email = usuario.email,
@@ -23,7 +24,7 @@ fun UsuarioEntity.toUsuario(usuario: UsuarioEntity): UsuarioSolicitud {
     )
 }
 
-fun UsuarioSolicitud.toUsuarioEntity(usuario: UsuarioSolicitud): UsuarioEntity {
+fun UsuarioToEntity(usuario: Usuario): UsuarioEntity {
     return UsuarioEntity(
         UID = usuario.UID,
         nombreUsuario = usuario.nombreUsuario,
