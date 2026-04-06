@@ -1,6 +1,6 @@
 package com.example.snkrsapp.Domain
 
-import com.example.snkrsapp.Data.RemoteData.InicioSesion.Usuario
+import com.example.snkrsapp.Data.RemoteData.AutorizacionDao.Usuario
 
 sealed class EstadoLogin {
     object Cargando : EstadoLogin()

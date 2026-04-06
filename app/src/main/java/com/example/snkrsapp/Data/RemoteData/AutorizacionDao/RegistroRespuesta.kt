@@ -1,4 +1,8 @@
-package com.example.snkrsapp.Data.RemoteData.InicioSesion
+package com.example.snkrsapp.Data.RemoteData.AutorizacionDao
+
+data class RegistroRespuesta(
+    val exito: Boolean = false
+)
 
 data class UsuarioSolicitud(
     val UID: String = "",

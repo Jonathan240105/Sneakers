@@ -2,8 +2,7 @@ package com.example.snkrsapp.Data.LocalData.UsuariosConectados
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.example.snkrsapp.Data.RemoteData.InicioSesion.Usuario
-import com.example.snkrsapp.Data.RemoteData.InicioSesion.UsuarioSolicitud
+import com.example.snkrsapp.Data.RemoteData.AutorizacionDao.Usuario
 
 @Entity(tableName = "UsuariosConectados")
 data class UsuarioEntity(
