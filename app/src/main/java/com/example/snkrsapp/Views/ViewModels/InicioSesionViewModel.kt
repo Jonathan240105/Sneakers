@@ -26,12 +26,16 @@ class InicioSesionViewModel @Inject constructor(
 
                 if (resultado is EstadoLogin.Exito) {
                     _model.update { it.copy(exito = true, cargando = false) }
+                    println("Todo fue bien")
                 } else if (resultado is EstadoLogin.Error && resultado.errorFirebase) {
                     _model.update { it.copy(exito = false, errorFirebase = true, cargando = false) }
+                    println("Algo fue mal,culpa de firebase")
                 } else if (resultado is EstadoLogin.Error) {
                     _model.update {
                         it.copy(exito = false, errorFirebase = false, cargando = false)
                     }
+                    println("Algo fue mal con el servidor")
+
                 }
             }
         }
