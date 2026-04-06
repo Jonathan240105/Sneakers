@@ -15,8 +15,8 @@ class ModelInicioSesionTest {
 
         val model = ModelInicioSesion(false, false)
 
-        assertFalse(model.success)
-        assertFalse(model.loading)
+        assertFalse(model.exito)
+        assertFalse(model.cargando)
     }
 
     //Test que comprueba que la función copy,
@@ -27,8 +27,8 @@ class ModelInicioSesionTest {
 
         val model2 = model.copy(true)
 
-        assertFalse(model.loading)
-        assertTrue(model2.success)
+        assertFalse(model.cargando)
+        assertTrue(model2.exito)
 
     }
 
