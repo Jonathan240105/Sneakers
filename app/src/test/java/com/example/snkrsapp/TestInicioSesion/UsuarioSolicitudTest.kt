@@ -1,8 +1,9 @@
 package com.example.snkrsapp.TestInicioSesion
 
-import com.example.snkrsapp.Data.LocalData.UsuariosConectados.UsuarioEntity
-import com.example.snkrsapp.Data.RemoteData.InicioSesion.UsuarioSolicitud
+import com.example.snkrsapp.Data.RemoteData.AutorizacionDao.RegistroRespuesta
+import com.example.snkrsapp.Data.RemoteData.AutorizacionDao.UsuarioSolicitud
 import junit.framework.TestCase.assertEquals
+import junit.framework.TestCase.assertTrue
 import org.junit.Test
 
 class UsuarioSolicitudTest {
@@ -62,5 +63,12 @@ class UsuarioSolicitudTest {
         )
 
         assertEquals(usuario1, usuario2)
+    }
+
+    @Test
+    fun Creacion_RegistroRespuesta() {
+        val respuesta = RegistroRespuesta(true)
+
+        assertTrue(respuesta.exito)
     }
 }
