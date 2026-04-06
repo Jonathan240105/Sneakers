@@ -30,6 +30,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.tooling.preview.Preview
@@ -56,12 +57,14 @@ fun PantallaInicioSesion(myViewModel: InicioSesionViewModel, cambiarAListado: ()
         Spacer(Modifier.height(40.dp))
         TextoConTextFieldLogin(
             "Email",
+            "textFieldEmail",
             nombreUsuario,
             { nombreUsuario = it },
             { Icon(Icons.Default.Email, "") })
         Spacer(Modifier.height(25.dp))
         TextoConTextFieldLogin(
             "Contraseña",
+            "textFieldContra",
             contra,
             { contra = it },
             { Icon(Icons.Default.Lock, "") })
@@ -79,11 +82,13 @@ fun PantallaInicioSesion(myViewModel: InicioSesionViewModel, cambiarAListado: ()
         }
         BotonLogin(
             "Iniciar sesión",
+            "botonInicioSesion",
             { myViewModel.iniciarSesion(nombreUsuario, contra) },
             !nombreUsuario.isEmpty() && !contra.isEmpty()
         )
         BotonLogin(
             "Invitado",
+            "",
             { cambiarAListado() },
             !nombreUsuario.isEmpty() && !contra.isEmpty()
         )
@@ -101,6 +106,7 @@ fun TextoCentradoLogIn(texto: String) {
     ) {
         Text(
             texto,
+            modifier = Modifier.testTag("tituloInicioSesion"),
             fontSize = 32.sp,
             color = Color.White,
             fontWeight = FontWeight.ExtraBold,
@@ -112,6 +118,7 @@ fun TextoCentradoLogIn(texto: String) {
 @Composable
 fun TextoConTextFieldLogin(
     texto: String,
+    tag: String,
     textoTexField: String,
     cambiarTextField: (String) -> Unit,
     icon: @Composable () -> Unit
@@ -119,7 +126,8 @@ fun TextoConTextFieldLogin(
     OutlinedTextField(
         textoTexField, cambiarTextField, Modifier
             .fillMaxWidth()
-            .padding(horizontal = 15.dp),
+            .padding(horizontal = 15.dp)
+            .testTag(tag),
         label = { Text(texto) },
         trailingIcon = icon,
         shape = RoundedCornerShape(12.dp),
@@ -133,7 +141,7 @@ fun TextoConTextFieldLogin(
 }
 
 @Composable
-fun BotonLogin(texto: String, onClick: () -> Unit, habilitado: Boolean) {
+fun BotonLogin(texto: String, tag: String, onClick: () -> Unit, habilitado: Boolean) {
     Button(
         onClick,
         colors = ButtonDefaults.buttonColors(
@@ -143,7 +151,8 @@ fun BotonLogin(texto: String, onClick: () -> Unit, habilitado: Boolean) {
         ),
         modifier = Modifier
             .fillMaxWidth()
-            .padding(15.dp),
+            .padding(15.dp)
+            .testTag(tag),
         enabled = habilitado
     ) {
         Text(texto, color = Color.Black)
