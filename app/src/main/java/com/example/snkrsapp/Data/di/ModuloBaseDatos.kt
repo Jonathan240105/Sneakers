@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.room.Room
 import com.example.snkrsapp.Data.LocalData.BaseDatos
 import com.example.snkrsapp.Data.LocalData.UsuariosConectados.UsuariosConectadosDao
-import com.example.snkrsapp.Data.RemoteData.InicioSesion.InicioSesionDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
