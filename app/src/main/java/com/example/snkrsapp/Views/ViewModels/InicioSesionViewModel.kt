@@ -2,8 +2,9 @@ package com.example.snkrsapp.Views.ViewModels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.snkrsapp.Data.Repository.Repository
+import com.example.snkrsapp.Data.Repository.UsuarioRepository.UsuarioRepository
 import com.example.snkrsapp.Domain.EstadoLogin
+import com.example.snkrsapp.Domain.EstadoRegistro
 import com.example.snkrsapp.Domain.ModelInicioSesion
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,7 +15,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class InicioSesionViewModel @Inject constructor(
-    private val repository: Repository
+    private val usuarioRepository: UsuarioRepository
 ) : ViewModel() {
 
     private val _model = MutableStateFlow(ModelInicioSesion())
@@ -22,7 +23,7 @@ class InicioSesionViewModel @Inject constructor(
 
     fun iniciarSesion(email: String, contra: String) {
         viewModelScope.launch {
-            repository.iniciarSesion(email, contra).collect { resultado ->
+            usuarioRepository.iniciarSesion(email, contra).collect { resultado ->
 
                 if (resultado is EstadoLogin.Exito) {
                     _model.update { it.copy(exito = true, cargando = false) }
