@@ -39,6 +39,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.FontWeight.Companion.ExtraBold
@@ -152,7 +153,7 @@ fun TituloRegistro(titulo: String) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center
     ) {
-        Text(titulo, fontSize = 32.sp, color = Color.White, fontWeight = ExtraBold)
+        Text(titulo, fontSize = 32.sp, color = Color.White, fontWeight = ExtraBold, modifier = Modifier.testTag("tituloRegistro"))
     }
 }
 
@@ -172,7 +173,8 @@ fun PrimerPaso(
             email,
             cambiarEmail,
             Modifier
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .testTag("textFieldEmail"),
             trailingIcon = { Icon(Icons.Default.Email, "") },
             shape = RoundedCornerShape(12.dp),
             label = { Text("Email") },
@@ -191,7 +193,7 @@ fun PrimerPaso(
             contra,
             cambiarContra,
             Modifier
-                .fillMaxWidth(),
+                .fillMaxWidth().testTag("textFieldContra"),
             trailingIcon = { Icon(Icons.Default.Lock, "") },
             visualTransformation = PasswordVisualTransformation(),
             label = { Text("Contraseña") },
@@ -216,7 +218,8 @@ fun PrimerPaso(
             ),
             modifier = Modifier
                 .fillMaxWidth()
-                .height(56.dp),
+                .height(56.dp)
+                .testTag("botonPrimerPaso"),
             shape = RoundedCornerShape(12.dp)
         ) { Text("Continuar", fontWeight = FontWeight.Bold) }
     }
@@ -239,7 +242,8 @@ fun SegundoPaso(
             nombreUsuario,
             cambiarNombreUsuario,
             Modifier
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .testTag("textFieldNombreUsuario"),
             trailingIcon = { Icon(Icons.Default.Person, "") },
             label = { Text("Nombre de usuario") },
             placeholder = { Text("usuario123") },
@@ -258,7 +262,8 @@ fun SegundoPaso(
             apellidos,
             cambiarApellidos,
             Modifier
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .testTag("textFieldApellidos"),
             trailingIcon = { Icon(Icons.Default.Face, "") },
             label = { Text("Apellidos") },
             placeholder = { Text("apellido1") },
@@ -288,6 +293,7 @@ fun SegundoPaso(
                 modifier = Modifier
                     .weight(1f)
                     .height(56.dp)
+                    .testTag("botonVolver1")
             ) {
                 Text("Volver")
             }
@@ -295,7 +301,8 @@ fun SegundoPaso(
                 siguientePaso,
                 modifier = Modifier
                     .weight(1f)
-                    .height(56.dp),
+                    .height(56.dp)
+                    .testTag("botonSegundoPaso"),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.White,
                     contentColor = Color.Black
@@ -341,7 +348,7 @@ fun TercerPaso(
             shape = RoundedCornerShape(12.dp),
             readOnly = true,
             enabled = false,
-            modifier = Modifier.clickable { abrirSelector() })
+            modifier = Modifier.clickable { abrirSelector() }.testTag("SelectorFecha"))
 
         Spacer(Modifier.weight(1f))
         Row(
@@ -352,7 +359,8 @@ fun TercerPaso(
             Button(
                 volver, Modifier
                     .weight(1f)
-                    .height(56.dp),
+                    .height(56.dp)
+                    .testTag("botonVolver2"),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.LightGray,
                     contentColor = Color.Black
