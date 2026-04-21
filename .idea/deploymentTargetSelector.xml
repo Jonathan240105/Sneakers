@@ -13,9 +13,6 @@
         </DropdownSelection>
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="PantallaInicioSesionTestUI">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
       <SelectionState runConfigName="Comprobar_Flujo_Registro_Completo()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>

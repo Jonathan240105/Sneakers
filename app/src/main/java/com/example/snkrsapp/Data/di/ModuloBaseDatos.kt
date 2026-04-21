@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import com.example.snkrsapp.Data.LocalData.BaseDatos
 import com.example.snkrsapp.Data.LocalData.UsuariosConectados.UsuariosConectadosDao
+import com.example.snkrsapp.Data.RemoteData.ProductoDao.ProductoDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -28,5 +29,10 @@ object ModuloBaseDatos {
     @Provides
     fun provideInicioSesionDao(db: BaseDatos): UsuariosConectadosDao {
         return db.UsuariosConectadosDao()
+    }
+
+    @Provides
+    fun provideProductoDao(db: BaseDatos): ProductoDao {
+        return db.ProductoDao()
     }
 }

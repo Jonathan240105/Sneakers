@@ -2,15 +2,18 @@ package com.example.snkrsapp.Data.LocalData
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import com.example.snkrsapp.Data.LocalData.Productos.ProductoEntity
 import com.example.snkrsapp.Data.LocalData.UsuariosConectados.UsuarioEntity
 import com.example.snkrsapp.Data.LocalData.UsuariosConectados.UsuariosConectadosDao
+import com.example.snkrsapp.Data.RemoteData.ProductoDao.ProductoDao
 
 @Database(
-    entities = [UsuarioEntity::class],
-    version = 0,
+    entities = [UsuarioEntity::class, ProductoEntity::class],
+    version = 1,
     exportSchema = false
 )
 abstract class BaseDatos : RoomDatabase() {
     abstract fun UsuariosConectadosDao(): UsuariosConectadosDao
 
+    abstract fun ProductoDao(): ProductoDao
 }
