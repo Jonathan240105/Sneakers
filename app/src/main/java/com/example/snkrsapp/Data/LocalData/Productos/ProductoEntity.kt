@@ -3,6 +3,7 @@ package com.example.snkrsapp.Data.LocalData.Productos
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.example.snkrsapp.Data.RemoteData.ProductoDao.TodosProductosRespuesta
+import com.example.snkrsapp.Domain.Producto
 
 
 @Entity(tableName = "Productos")
@@ -15,8 +16,8 @@ data class ProductoEntity(
     val uidVendedor: String = "",
 )
 
-fun ProductoEntityToProducto(producto: ProductoEntity): TodosProductosRespuesta {
-    return TodosProductosRespuesta(
+fun ProductoEntityToProducto(producto: ProductoEntity): Producto {
+    return Producto(
         idProducto = producto.idProducto,
         idMarca = producto.idMarca,
         modelo = producto.modelo,
@@ -26,7 +27,7 @@ fun ProductoEntityToProducto(producto: ProductoEntity): TodosProductosRespuesta 
     )
 }
 
-fun ProductoToProductoEntity(producto: TodosProductosRespuesta): ProductoEntity {
+fun ProductoRespuestaToProductoEntity(producto: TodosProductosRespuesta): ProductoEntity {
     return ProductoEntity(
         idProducto = producto.idProducto ?: 0,
         idMarca = producto.idMarca,

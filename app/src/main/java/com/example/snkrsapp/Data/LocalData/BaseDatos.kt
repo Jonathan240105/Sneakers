@@ -5,7 +5,7 @@ import androidx.room.RoomDatabase
 import com.example.snkrsapp.Data.LocalData.Productos.ProductoEntity
 import com.example.snkrsapp.Data.LocalData.UsuariosConectados.UsuarioEntity
 import com.example.snkrsapp.Data.LocalData.UsuariosConectados.UsuariosConectadosDao
-import com.example.snkrsapp.Data.RemoteData.ProductoDao.ProductoDao
+import com.example.snkrsapp.Data.LocalData.Productos.ProductoLocalDao
 
 @Database(
     entities = [UsuarioEntity::class, ProductoEntity::class],
@@ -15,5 +15,5 @@ import com.example.snkrsapp.Data.RemoteData.ProductoDao.ProductoDao
 abstract class BaseDatos : RoomDatabase() {
     abstract fun UsuariosConectadosDao(): UsuariosConectadosDao
 
-    abstract fun ProductoDao(): ProductoDao
+    abstract fun ProductoDao(): ProductoLocalDao
 }

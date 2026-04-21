@@ -2,8 +2,9 @@ package com.example.snkrsapp.TestListadoProductos
 
 import com.example.snkrsapp.Data.LocalData.Productos.ProductoEntity
 import com.example.snkrsapp.Data.LocalData.Productos.ProductoEntityToProducto
-import com.example.snkrsapp.Data.LocalData.Productos.ProductoToProductoEntity
+import com.example.snkrsapp.Data.LocalData.Productos.ProductoRespuestaToProductoEntity
 import com.example.snkrsapp.Data.RemoteData.ProductoDao.TodosProductosRespuesta
+import com.example.snkrsapp.Domain.Producto
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertTrue
 import org.junit.Test
@@ -82,14 +83,14 @@ class ProductosTest {
             imagenUrl = "url"
         )
 
-        val entity = ProductoToProductoEntity(producto)
+        val entity = ProductoRespuestaToProductoEntity(producto)
 
         assertTrue(entity is ProductoEntity)
         assertEquals(producto.idProducto, entity.idProducto)
     }
 
     //test que comprueba que la función ProductoEntityToProducto,
-    //convierte un objeto ProductoEntity en un objeto TodosProductosRespuesta
+    //convierte un objeto ProductoEntity en un objeto Producto
     @Test
     fun Convertir_ProductoEntity_a_Producto() {
         val entity = ProductoEntity(
@@ -103,7 +104,7 @@ class ProductosTest {
 
         val producto = ProductoEntityToProducto(entity)
 
-        assertTrue(producto is TodosProductosRespuesta)
+        assertTrue(producto is Producto)
         assertEquals(entity.idProducto, producto.idProducto)
     }
 }
