@@ -1,6 +1,6 @@
 package com.example.snkrsapp.Data.RemoteData
 
-import com.example.snkrsapp.Data.RemoteData.InicioSesion.InicioSesionDao
+import com.example.snkrsapp.Data.RemoteData.AutorizacionDao.AutorizacionDao
 import com.example.snkrsapp.Data.RemoteData.Variables.Urls
 import dagger.Module
 import dagger.Provides
@@ -26,6 +26,6 @@ object ApiSneakers {
 
     @Provides
     @Singleton
-    fun provideInicioSesionApi(retrofit: Retrofit): InicioSesionDao =
-        retrofit.create(InicioSesionDao::class.java)
+    fun provideInicioSesionApi(retrofit: Retrofit): AutorizacionDao =
+        retrofit.create(AutorizacionDao::class.java)
 }

@@ -1,4 +1,4 @@
-package com.example.snkrsapp.Data.RemoteData.InicioSesion
+package com.example.snkrsapp.Data.RemoteData.AutorizacionDao
 
 data class InicioSesionRespuesta(
     val message: String = "",

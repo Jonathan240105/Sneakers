@@ -1,7 +1,7 @@
 package com.example.snkrsapp.TestInicioSesion
 
-import com.example.snkrsapp.Data.RemoteData.InicioSesion.InicioSesionRespuesta
-import com.example.snkrsapp.Data.RemoteData.InicioSesion.Usuario
+import com.example.snkrsapp.Data.RemoteData.AutorizacionDao.InicioSesionRespuesta
+import com.example.snkrsapp.Data.RemoteData.AutorizacionDao.Usuario
 import junit.framework.TestCase.assertEquals
 import org.junit.Test
 

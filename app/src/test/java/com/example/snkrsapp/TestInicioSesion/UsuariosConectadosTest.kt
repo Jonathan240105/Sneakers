@@ -3,7 +3,7 @@ package com.example.snkrsapp.TestInicioSesion
 import com.example.snkrsapp.Data.LocalData.UsuariosConectados.EntityToUsuario
 import com.example.snkrsapp.Data.LocalData.UsuariosConectados.UsuarioEntity
 import com.example.snkrsapp.Data.LocalData.UsuariosConectados.UsuarioToEntity
-import com.example.snkrsapp.Data.RemoteData.InicioSesion.Usuario
+import com.example.snkrsapp.Data.RemoteData.AutorizacionDao.Usuario
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertTrue
 import org.junit.Test
