@@ -13,9 +13,6 @@
         </DropdownSelection>
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="Comprobar_Titulo_Existe()">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
       <SelectionState runConfigName="PantallaInicioSesionTestUI">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
