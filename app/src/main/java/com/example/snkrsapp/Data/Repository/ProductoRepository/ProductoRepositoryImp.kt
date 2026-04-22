@@ -17,8 +17,9 @@ class ProductoRepositoryImp @Inject constructor(
 
         val productosLocales = productoLocalDao.obtenerProductos()
 
-        if (productosLocales.isEmpty()) {
+        if (productosLocales.isNotEmpty()) {
             emit(productosLocales.map { ProductoEntityToProducto(it) })
+            return@flow
         }
 
         try {
