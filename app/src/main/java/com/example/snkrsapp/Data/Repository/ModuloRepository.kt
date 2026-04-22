@@ -1,5 +1,7 @@
 package com.example.snkrsapp.Data.Repository
 
+import com.example.snkrsapp.Data.Repository.ProductoRepository.ProductoRepository
+import com.example.snkrsapp.Data.Repository.ProductoRepository.ProductoRepositoryImp
 import com.example.snkrsapp.Data.Repository.UsuarioRepository.UsuarioRepository
 import com.example.snkrsapp.Data.Repository.UsuarioRepository.UsuarioRepositoryImp
 import dagger.Binds
@@ -17,4 +19,10 @@ abstract class ModuloRepository {
     abstract fun bindRepository(
         repositoryImp: UsuarioRepositoryImp
     ): UsuarioRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindProductoRepository(
+        productoRepositoryImp: ProductoRepositoryImp
+    ): ProductoRepository
 }

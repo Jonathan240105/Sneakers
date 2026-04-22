@@ -21,8 +21,8 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     dependencies {
-        // ... tus otras dependencias
-        implementation("androidx.core:core-ktx:1.15.0") // Prueba con la 1.15.0 o la última estable
+        implementation("androidx.core:core-ktx:1.15.0")
+        testImplementation("androidx.arch.core:core-testing:2.2.0")
     }
     buildTypes {
         release {
