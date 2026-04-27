@@ -19,6 +19,9 @@ class PrincipalViewModel @Inject constructor(
     private val _model = MutableStateFlow(ModelPrincipal())
     val model = _model.asStateFlow()
 
+    init {
+        listarProductos()
+    }
     fun listarProductos() {
         _model.update { it.copy(cargando = true, exito = false) }
         viewModelScope.launch {

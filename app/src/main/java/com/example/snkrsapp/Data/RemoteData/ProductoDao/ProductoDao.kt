@@ -5,6 +5,6 @@ import retrofit2.http.GET
 
 interface ProductoDao {
 
-    @GET("")
+    @GET("/productos")
     suspend fun obtenerProductos(): Response<List<TodosProductosRespuesta>>
 }
