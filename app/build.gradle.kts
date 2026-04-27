@@ -99,4 +99,10 @@ dependencies {
 
     //DatePicker
     implementation(libs.kmp.date.time.picker)
+
+    //Slider
+    implementation(libs.androidx.material3)
+
+    //Coil
+    implementation(libs.coil.compose)
 }
