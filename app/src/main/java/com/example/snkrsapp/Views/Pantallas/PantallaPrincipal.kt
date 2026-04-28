@@ -22,6 +22,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -40,6 +41,7 @@ import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -51,14 +53,17 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.example.snkrsapp.Domain.Producto
 import com.example.snkrsapp.R
 import com.example.snkrsapp.Views.ViewModels.PrincipalViewModel
@@ -71,6 +76,13 @@ fun PantallaPrincipal(myViewModel: PrincipalViewModel) {
     var nombreBuscado by remember { mutableStateOf("") }
     var mostrarFiltros by remember { mutableStateOf(false) }
     val estadoHoja = rememberModalBottomSheetState()
+    val estadoLista = rememberLazyGridState()
+
+    LaunchedEffect(estadoLista.canScrollForward, model.listaDeproductos.size) {
+        if (!estadoLista.canScrollForward && !model.cargando && model.listaDeproductos.isNotEmpty()) {
+            myViewModel.cargarPaginaProductos()
+        }
+    }
 
     val lista = listOf(
         Producto(modelo = "Jordan 1 Chicago", idMarca = 1, precio = 20, talla = 42),
@@ -105,6 +117,7 @@ fun PantallaPrincipal(myViewModel: PrincipalViewModel) {
             contentPadding = PaddingValues(16.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
+            state = estadoLista
         ) {
             item(span = { GridItemSpan(2) }) {
                 Column {
@@ -118,6 +131,18 @@ fun PantallaPrincipal(myViewModel: PrincipalViewModel) {
             }
             items(model.listaDeproductos) {
                 CardProducto(it)
+            }
+            if (model.listaDeproductos.size < 53) {
+                item(span = { GridItemSpan(2) }) {
+                    Text(
+                        "Buscando más zapatillas ...",
+                        Modifier
+                            .padding(20.dp)
+                            .fillMaxWidth(),
+                        textAlign = TextAlign.Center,
+                        color = Color.White
+                    )
+                }
             }
         }
         if (mostrarFiltros) {
@@ -209,7 +234,7 @@ fun CardProducto(producto: Producto) {
                 contentAlignment = Alignment.Center
             ) {
                 AsyncImage(
-                    model = "https://www.pajaricos.es/p/p1/palomazurita.png",
+                    model = producto.imagenUrl,
                     contentDescription = ""
                 )
             }

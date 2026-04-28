@@ -9,7 +9,7 @@ import com.example.snkrsapp.Data.LocalData.Productos.ProductoLocalDao
 
 @Database(
     entities = [UsuarioEntity::class, ProductoEntity::class],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class BaseDatos : RoomDatabase() {

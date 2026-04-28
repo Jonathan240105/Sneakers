@@ -10,37 +10,28 @@ import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
 class ProductoRepositoryImp @Inject constructor(
-    private val productoDao: ProductoDao,
-    private val productoLocalDao: ProductoLocalDao
+    private val productoDao: ProductoDao, private val productoLocalDao: ProductoLocalDao
 ) : ProductoRepository {
-    override suspend fun obtenerProductos(): Flow<List<Producto>> = flow {
 
-        val productosLocales = productoLocalDao.obtenerProductos()
-
-        if (productosLocales.isNotEmpty()) {
-            emit(productosLocales.map { ProductoEntityToProducto(it) })
-            return@flow
-        }
-
-        try {
-            val respuesta =
-                productoDao.obtenerProductos()
-
-            if (respuesta.isSuccessful && respuesta.body() != null) {
-                val productosRemotos = respuesta.body()
-
-                productoLocalDao.insertarLista(productosRemotos?.map {
-                    ProductoRespuestaToProductoEntity(
-                        it
-                    )
-                } ?: emptyList())
-
-                val productosLocalesActualizados = productoLocalDao.obtenerProductos()
-                emit(productosLocalesActualizados.map { ProductoEntityToProducto(it) })
+    override suspend fun traerPaginaProductos(limite: Int, salto: Int): Flow<List<Producto>> =
+        flow {
+            val localesIniciales = productoLocalDao.obtenerPaginaProductos(limite, salto)
+            if (localesIniciales.isNotEmpty()) {
+                emit(localesIniciales.map { ProductoEntityToProducto(it) })
+                return@flow
             }
-        } catch (e: Exception) {
-            println("Error de red, manteniendo caché: ${e.message}")
+            try {
+                val respuesta = productoDao.obtenerPaginaProductos(limite, salto)
+                if (respuesta.isSuccessful && respuesta.body() != null) {
+                    productoLocalDao.insertarLista(respuesta.body()?.map {
+                        ProductoRespuestaToProductoEntity(it)
+                    } ?: emptyList())
+
+                    val localesActualizados = productoLocalDao.obtenerPaginaProductos(limite, salto)
+                    emit(localesActualizados.map { ProductoEntityToProducto(it) })
+                }
+            } catch (e: Exception) {
+            }
         }
-    }
 
 }

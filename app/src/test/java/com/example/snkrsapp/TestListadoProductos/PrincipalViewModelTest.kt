@@ -33,7 +33,7 @@ class PrincipalViewModelTest {
             coEvery { repository.obtenerProductos() } returns flowOf(listaFalsa)
 
             val viewmodel = PrincipalViewModel(repository)
-            viewmodel.listarProductos()
+            viewmodel.cargarPaginaProductos()
 
             val estadoActual = viewmodel.model.value
 
@@ -49,7 +49,7 @@ class PrincipalViewModelTest {
 
         // WHEN
         val viewmodel = PrincipalViewModel(repository)
-        viewmodel.listarProductos()
+        viewmodel.cargarPaginaProductos()
 
         // THEN
         val estadoActual = viewmodel.model.value

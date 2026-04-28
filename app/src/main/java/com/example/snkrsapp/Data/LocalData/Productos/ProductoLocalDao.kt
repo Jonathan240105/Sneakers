@@ -17,6 +17,9 @@ interface ProductoLocalDao {
     @Query("Select * from Productos")
     suspend fun obtenerProductos(): List<ProductoEntity>
 
+    @Query("Select * from Productos limit :limite offset :salto")
+    suspend fun obtenerPaginaProductos(limite: Int, salto: Int): List<ProductoEntity>
+
     @Query("Select * from Productos where idProducto = :idProducto")
     suspend fun obtenerProductoPorId(idProducto: Int): ProductoEntity?
 

@@ -4,5 +4,5 @@ import com.example.snkrsapp.Domain.Producto
 import kotlinx.coroutines.flow.Flow
 
 interface ProductoRepository {
-    suspend fun obtenerProductos(): Flow<List<Producto>>
+    suspend fun traerPaginaProductos(limite: Int, salto: Int): Flow<List<Producto>>
 }
