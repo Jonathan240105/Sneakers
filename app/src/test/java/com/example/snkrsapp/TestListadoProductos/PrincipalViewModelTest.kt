@@ -30,10 +30,9 @@ class PrincipalViewModelTest {
                 Producto(idProducto = 1, modelo = "Jordan 1", precio = 150, imagenUrl = ""),
                 Producto(idProducto = 2, modelo = "Dunk Low", precio = 110, imagenUrl = "")
             )
-            coEvery { repository.obtenerProductos() } returns flowOf(listaFalsa)
+            coEvery { repository.traerPaginaProductos(any(),any()) } returns flowOf(listaFalsa)
 
             val viewmodel = PrincipalViewModel(repository)
-            viewmodel.cargarPaginaProductos()
 
             val estadoActual = viewmodel.model.value
 
@@ -44,14 +43,11 @@ class PrincipalViewModelTest {
 
     @Test
     fun `cuando el repositorio falla, el modelo refleja error`() = runTest {
-        // GIVEN: El repositorio lanza una excepción
-        coEvery { repository.obtenerProductos() } throws Exception("Error de red")
+        coEvery { repository.traerPaginaProductos(any(),any()) } throws Exception("Error de red")
 
-        // WHEN
         val viewmodel = PrincipalViewModel(repository)
         viewmodel.cargarPaginaProductos()
 
-        // THEN
         val estadoActual = viewmodel.model.value
         assertEquals(false, estadoActual.exito)
         assertEquals(false, estadoActual.cargando)

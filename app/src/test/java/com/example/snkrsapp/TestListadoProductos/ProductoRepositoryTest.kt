@@ -26,22 +26,24 @@ class ProductoRepositoryTest {
     @Test
     fun `si_la_bd_tiene_datos_no_se_llama_a_la_api`() = runTest {
         val listaLocal = listOf(ProductoEntity(1, modelo = "Modelo1", precio = 100))
-        coEvery { productoLocalDao.obtenerProductos() } returns listaLocal
+        coEvery { productoLocalDao.obtenerPaginaProductos(any(),any()) } returns listaLocal
 
-        repository.obtenerProductos().collect()
+        repository.traerPaginaProductos(0, 20).collect()
 
-        coVerify(exactly = 1) { productoLocalDao.obtenerProductos() }
-        coVerify(exactly = 0) { productoDao.obtenerProductos() }
+        coVerify(exactly = 1) { productoLocalDao.obtenerPaginaProductos(any(), any()) }
+        coVerify(exactly = 0) { productoDao.obtenerPaginaProductos(any(), any()) }
     }
 
     @Test
     fun `si_la_bd_esta_vacía_se_llama_a_la_api`() = runTest {
-        coEvery { productoLocalDao.obtenerProductos() } returns emptyList()
+        coEvery { productoLocalDao.obtenerPaginaProductos(any(), any()) } returns emptyList()
 
-        coEvery { productoDao.obtenerProductos() } returns Response.success(emptyList())
+        coEvery { productoDao.obtenerPaginaProductos(any(), any()) } returns Response.success(
+            emptyList()
+        )
 
-        repository.obtenerProductos().collect()
+        repository.traerPaginaProductos(0, 20).collect()
 
-        coVerify(exactly = 1) { productoDao.obtenerProductos() }
+        coVerify(exactly = 1) { productoDao.obtenerPaginaProductos(any(), any()) }
     }
 }
