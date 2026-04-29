@@ -3,7 +3,9 @@ package com.example.snkrsapp.Data.di
 import android.content.Context
 import androidx.room.Room
 import com.example.snkrsapp.Data.LocalData.BaseDatos
+import com.example.snkrsapp.Data.LocalData.Marcas.MarcaLocalDao
 import com.example.snkrsapp.Data.LocalData.UsuariosConectados.UsuariosConectadosDao
+import com.example.snkrsapp.Data.LocalData.Productos.ProductoLocalDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -29,4 +31,15 @@ object ModuloBaseDatos {
     fun provideInicioSesionDao(db: BaseDatos): UsuariosConectadosDao {
         return db.UsuariosConectadosDao()
     }
+
+    @Provides
+    fun provideProductoDao(db: BaseDatos): ProductoLocalDao {
+        return db.ProductoDao()
+    }
+
+    @Provides
+    fun provideMarcaDao(db: BaseDatos): MarcaLocalDao {
+        return db.MarcaDao()
+    }
+
 }

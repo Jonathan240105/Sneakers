@@ -21,8 +21,8 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     dependencies {
-        // ... tus otras dependencias
-        implementation("androidx.core:core-ktx:1.15.0") // Prueba con la 1.15.0 o la última estable
+        implementation("androidx.core:core-ktx:1.15.0")
+        testImplementation("androidx.arch.core:core-testing:2.2.0")
     }
     buildTypes {
         release {
@@ -31,12 +31,12 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlin {
         compilerOptions {
-            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11)
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
         }
     }
     packaging {
@@ -99,4 +99,10 @@ dependencies {
 
     //DatePicker
     implementation(libs.kmp.date.time.picker)
+
+    //Slider
+    implementation(libs.androidx.material3)
+
+    //Coil
+    implementation(libs.coil.compose)
 }
