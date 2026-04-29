@@ -1,5 +1,6 @@
 package com.example.snkrsapp.TestListadoProductos
 
+import com.example.snkrsapp.Domain.Marca
 import com.example.snkrsapp.Domain.ModelPrincipal
 import com.example.snkrsapp.Domain.Producto
 import junit.framework.TestCase.assertEquals
@@ -15,18 +16,23 @@ class ModelPrincipalTest {
         val listaProductos = listOf(
             Producto(1, modelo = "Test Sneaker", precio = 100)
         )
-        val listaMarcas = listOf("Nike", "Adidas")
+        val listaMarcas = listOf(
+            Marca(1, "marca", ""),
+            Marca(1, "marca", "")
+        )
 
         val modelo = ModelPrincipal(
             listaDeproductos = listaProductos,
-            exito = true,
-            cargando = false,
+            exitoProductos = true,
+            exitoMarcas = true,
+            cargandoProductos = false,
+            cargandoMarcas = true,
             listaMarcas = listaMarcas
         )
 
         assertEquals(listaProductos, modelo.listaDeproductos)
-        assertTrue(modelo.exito)
-        assertFalse(modelo.cargando)
+        assertTrue(modelo.exitoProductos)
+        assertFalse(modelo.cargandoProductos)
         assertEquals(listaMarcas, modelo.listaMarcas)
         assertEquals(1, modelo.listaDeproductos.size)
     }
@@ -37,20 +43,25 @@ class ModelPrincipalTest {
     fun Actualizar_Model_Principal() {
         val modeloInicial = ModelPrincipal(
             listaDeproductos = emptyList(),
-            exito = false,
-            cargando = true,
-            listaMarcas = listOf("Jordan", "Nike")
+            exitoProductos = false,
+            exitoMarcas = false,
+            cargandoProductos = true,
+            cargandoMarcas = true,
+            listaMarcas = listOf(
+                Marca(1, "marca", "url"),
+                Marca(1, "marca", "url")
+            )
         )
 
         val productosNuevos = listOf(Producto(idProducto = 2, modelo = "Jordan 1", precio = 200))
         val modeloActualizado = modeloInicial.copy(
-            cargando = false,
-            exito = true,
+            cargandoProductos = false,
+            exitoProductos = true,
             listaDeproductos = productosNuevos
         )
 
-        assertFalse(modeloActualizado.cargando)
-        assertTrue(modeloActualizado.exito)
+        assertFalse(modeloActualizado.cargandoProductos)
+        assertTrue(modeloActualizado.exitoProductos)
         assertEquals(productosNuevos, modeloActualizado.listaDeproductos)
         assertEquals(modeloInicial.listaMarcas, modeloActualizado.listaMarcas)
     }
@@ -63,16 +74,26 @@ class ModelPrincipalTest {
 
         val modelo1 = ModelPrincipal(
             listaDeproductos = lista,
-            exito = true,
-            cargando = false,
-            listaMarcas = listOf("Adidas", "Nike")
+            exitoProductos = true,
+            exitoMarcas = true,
+            cargandoProductos = false,
+            cargandoMarcas = true,
+            listaMarcas = listOf(
+                Marca(1, "marca", "url"),
+                Marca(1, "marca", "url")
+            )
         )
 
         val modelo2 = ModelPrincipal(
             listaDeproductos = lista,
-            exito = true,
-            cargando = false,
-            listaMarcas = listOf("Adidas", "Nike")
+            exitoProductos = true,
+            exitoMarcas = true,
+            cargandoProductos = false,
+            cargandoMarcas = true,
+            listaMarcas = listOf(
+                Marca(1, "marca", "url"),
+                Marca(1, "marca", "url")
+            )
         )
 
         assertEquals(modelo1, modelo2)

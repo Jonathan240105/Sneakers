@@ -32,7 +32,7 @@ class PantallaPrincipalTestUI {
         val viewmodel = mockk<PrincipalViewModel>()
         val estadoInicial = MutableStateFlow(
             ModelPrincipal(
-                listaDeproductos = productos, exito = false, cargando = estaCargando
+                listaDeproductos = productos, exitoProductos = false, cargandoProductos = estaCargando
             )
         )
 

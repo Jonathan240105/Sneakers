@@ -53,17 +53,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import coil.request.ImageRequest
+import com.example.snkrsapp.Domain.Marca
 import com.example.snkrsapp.Domain.Producto
 import com.example.snkrsapp.R
 import com.example.snkrsapp.Views.ViewModels.PrincipalViewModel
@@ -79,7 +77,7 @@ fun PantallaPrincipal(myViewModel: PrincipalViewModel) {
     val estadoLista = rememberLazyGridState()
 
     LaunchedEffect(estadoLista.canScrollForward, model.listaDeproductos.size) {
-        if (!estadoLista.canScrollForward && !model.cargando && model.listaDeproductos.isNotEmpty()) {
+        if (!estadoLista.canScrollForward && !model.cargandoProductos && model.listaDeproductos.isNotEmpty()) {
             myViewModel.cargarPaginaProductos()
         }
     }
@@ -122,7 +120,7 @@ fun PantallaPrincipal(myViewModel: PrincipalViewModel) {
             item(span = { GridItemSpan(2) }) {
                 Column {
                     LazyRow {
-                        items(listaMarcas) {
+                        items(model.listaMarcas) {
                             CardMarca(it)
                         }
                     }
@@ -154,8 +152,7 @@ fun PantallaPrincipal(myViewModel: PrincipalViewModel) {
                     BottomSheetDefaults.DragHandle(
                         color = Color.Gray
                     )
-                }
-            ) {
+                }) {
                 CardFiltros({ mostrarFiltros = false })
             }
         }
@@ -163,7 +160,7 @@ fun PantallaPrincipal(myViewModel: PrincipalViewModel) {
 }
 
 @Composable
-fun CardMarca(marca: String) {
+fun CardMarca(marca: Marca) {
 
     var seleccionada by remember { mutableStateOf(false) }
 
@@ -181,14 +178,14 @@ fun CardMarca(marca: String) {
         border = if (seleccionada) BorderStroke(width = 1.dp, color = Color.White) else null
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
-
-            Image(
-                painter = painterResource(R.drawable.ic_launcher_background),
-                contentDescription = null,
+            AsyncImage(
+                marca.logoUrl,
+                "",
                 modifier = Modifier
-                    .fillMaxSize()
+                    .padding(8.dp)
+                    .size(40.dp)
                     .align(Alignment.CenterStart),
-                contentScale = ContentScale.Crop
+                contentScale = ContentScale.Fit
             )
 
             Box(
@@ -206,7 +203,7 @@ fun CardMarca(marca: String) {
             )
 
             Text(
-                text = marca,
+                text = marca.nombre,
                 color = Color.White,
                 fontWeight = Bold,
                 fontSize = 15.sp,
@@ -234,8 +231,7 @@ fun CardProducto(producto: Producto) {
                 contentAlignment = Alignment.Center
             ) {
                 AsyncImage(
-                    model = producto.imagenUrl,
-                    contentDescription = ""
+                    model = producto.imagenUrl, contentDescription = "",
                 )
             }
             Column(
@@ -252,9 +248,7 @@ fun CardProducto(producto: Producto) {
                 )
                 Spacer(Modifier.height(3.dp))
                 Text(
-                    text = "Marca ${producto.idMarca}",
-                    color = Color.Gray,
-                    fontSize = 15.sp
+                    text = "Marca ${producto.idMarca}", color = Color.Gray, fontSize = 15.sp
                 )
 
                 Row(
@@ -271,9 +265,7 @@ fun CardProducto(producto: Producto) {
                         fontWeight = Bold
                     )
                     Icon(
-                        Icons.Default.FavoriteBorder,
-                        "",
-                        tint = Color.White
+                        Icons.Default.FavoriteBorder, "", tint = Color.White
                     )
                 }
             }
@@ -283,9 +275,7 @@ fun CardProducto(producto: Producto) {
 
 @Composable
 fun BuscadorConFiltros(
-    nombreBuscado: String,
-    cambiarBuscador: (String) -> Unit,
-    mostrarFiltros: () -> Unit
+    nombreBuscado: String, cambiarBuscador: (String) -> Unit, mostrarFiltros: () -> Unit
 ) {
     Row(
         Modifier.fillMaxWidth(),
@@ -346,8 +336,7 @@ fun CardFiltros(cerrarFiltros: () -> Unit) {
             .padding(25.dp)
     ) {
         Text(
-            text = "Filtros",
-            style = TextStyle(
+            text = "Filtros", style = TextStyle(
                 fontSize = 25.sp, fontWeight = Bold, color = Color.White
             )
         )
@@ -356,8 +345,7 @@ fun CardFiltros(cerrarFiltros: () -> Unit) {
         Text("Rango de Precio", color = Color.Gray, fontSize = 14.sp)
         Spacer(Modifier.height(8.dp))
         Row(
-            Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+            Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text("${rangoPrecio.start.toInt()}€", color = Color.White)
             Text("${rangoPrecio.endInclusive.toInt()}€", color = Color.White)
@@ -393,8 +381,7 @@ fun CardFiltros(cerrarFiltros: () -> Unit) {
                                 .background(
                                     if (tallaSeleccionada == talla) Color.White else Color(
                                         0xFF1E1E1E
-                                    ),
-                                    RoundedCornerShape(12.dp)
+                                    ), RoundedCornerShape(12.dp)
                                 )
                                 .clickable { tallaSeleccionada = talla },
                             contentAlignment = Alignment.Center
@@ -442,8 +429,7 @@ fun CardFiltros(cerrarFiltros: () -> Unit) {
                 Modifier
                     .fillMaxSize()
                     .clickable(onClick = cerrarFiltros)
-                    .testTag("botonAplicarFiltros"),
-                contentAlignment = Alignment.Center
+                    .testTag("botonAplicarFiltros"), contentAlignment = Alignment.Center
             ) {
                 Text("Aplicar Filtros", color = Color.Black, fontWeight = Bold, fontSize = 16.sp)
             }

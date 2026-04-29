@@ -4,7 +4,7 @@ import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Query
 
-interface ProductoDao {
+interface ProductosDao {
 
     @GET("/productos")
     suspend fun obtenerProductos(): Response<List<TodosProductosRespuesta>>
@@ -14,4 +14,7 @@ interface ProductoDao {
         @Query("limit") limite: Int,
         @Query("offset") salto: Int
     ): Response<List<TodosProductosRespuesta>>
+
+    @GET("/marca")
+    suspend fun obtenerMarcas(): Response<List<MarcaRespuesta>>
 }

@@ -1,7 +1,7 @@
 package com.example.snkrsapp.Data.RemoteData
 
 import com.example.snkrsapp.Data.RemoteData.AutorizacionDao.AutorizacionDao
-import com.example.snkrsapp.Data.RemoteData.ProductoDao.ProductoDao
+import com.example.snkrsapp.Data.RemoteData.ProductoDao.ProductosDao
 import com.example.snkrsapp.Data.RemoteData.Variables.Urls
 import dagger.Module
 import dagger.Provides
@@ -32,7 +32,7 @@ object ApiSneakers {
 
     @Provides
     @Singleton
-    fun provideProductoApi(retrofit: Retrofit): ProductoDao =
-        retrofit.create(ProductoDao::class.java)
+    fun provideProductoApi(retrofit: Retrofit): ProductosDao =
+        retrofit.create(ProductosDao::class.java)
 
 }

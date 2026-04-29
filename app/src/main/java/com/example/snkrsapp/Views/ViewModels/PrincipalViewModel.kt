@@ -7,7 +7,6 @@ import com.example.snkrsapp.Domain.ModelPrincipal
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -24,12 +23,13 @@ class PrincipalViewModel @Inject constructor(
 
     init {
         cargarPaginaProductos()
+        cargarMarcas()
     }
 
     fun cargarPaginaProductos() {
-        if (_model.value.cargando) return
+        if (_model.value.cargandoProductos) return
 
-        _model.update { it.copy(cargando = true) }
+        _model.update { it.copy(cargandoProductos = true) }
 
         viewModelScope.launch {
             try {
@@ -40,17 +40,39 @@ class PrincipalViewModel @Inject constructor(
 
                             it.copy(
                                 listaDeproductos = listaActualizada,
-                                exito = true,
-                                cargando = false
+                                exitoProductos = true,
+                                cargandoProductos = false
                             )
                         }
                     } else {
-                        _model.update { it.copy(cargando = false) }
+                        _model.update { it.copy(cargandoProductos = false) }
                     }
                 }
                 salto += limite
             } catch (e: Exception) {
-                _model.update { it.copy(cargando = false, exito = false) }
+                _model.update { it.copy(cargandoProductos = false, exitoProductos = false) }
+                println(e.message)
+            }
+        }
+    }
+
+    fun cargarMarcas() {
+        if (model.value.cargandoMarcas) return
+        _model.update { it.copy(cargandoMarcas = true) }
+
+        viewModelScope.launch {
+            try {
+                productoRepository.traerMarcas().collect { nuevasMarcas ->
+                    _model.update {
+                        it.copy(
+                            listaMarcas = it.listaMarcas + nuevasMarcas,
+                            exitoMarcas = true,
+                            cargandoMarcas = false
+                        )
+                    }
+                }
+            } catch (e: Exception) {
+                _model.update { it.copy(cargandoMarcas = false, exitoMarcas = false) }
                 println(e.message)
             }
         }
