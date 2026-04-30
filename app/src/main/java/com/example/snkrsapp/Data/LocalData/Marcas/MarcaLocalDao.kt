@@ -12,4 +12,7 @@ interface MarcaLocalDao {
 
     @Query("Select * from Marcas")
     suspend fun obtenerMarcas(): List<MarcaEntity>
+
+    @Query("Select * from Marcas where idMarca = :idMarca")
+    suspend fun obtenerMarcaPorId(idMarca: Int): MarcaEntity
 }

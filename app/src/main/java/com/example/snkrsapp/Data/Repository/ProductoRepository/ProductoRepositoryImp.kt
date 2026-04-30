@@ -70,4 +70,19 @@ class ProductoRepositoryImp @Inject constructor(
         }
     }
 
+    override suspend fun traerProductoPorId(id: Int): Flow<Producto> = flow {
+
+        val productoLocal = productoLocalDao.obtenerProductoPorId(id)
+        if (productoLocal != null) {
+            emit(ProductoEntityToProducto(productoLocal))
+        }
+    }
+
+    override suspend fun traerMarcaPorId(id: Int): Flow<Marca> = flow {
+        val marcaLocal = marcaLocalDao.obtenerMarcaPorId(id)
+
+        if (marcaLocal != null) {
+            emit(EntityToMarca(marcaLocal))
+        }
+    }
 }
