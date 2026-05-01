@@ -1,5 +1,5 @@
 package com.example.snkrsapp.Data.RemoteData.Variables
 
 object Urls {
-    const val urlSneakers = "http://10.0.2.2:3000/"
+    const val urlSneakers = "http://172.20.10.2:3000/"
 }

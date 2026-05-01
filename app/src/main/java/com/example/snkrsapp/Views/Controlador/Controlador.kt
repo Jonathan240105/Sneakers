@@ -7,9 +7,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.snkrsapp.Views.Pantallas.PantallaInicioSesion
 import com.example.snkrsapp.Views.Pantallas.PantallaPrincipal
+import com.example.snkrsapp.Views.Pantallas.PantallaProductoDetallado
 import com.example.snkrsapp.Views.Pantallas.PantallaRegistro
 import com.example.snkrsapp.Views.ViewModels.InicioSesionViewModel
 import com.example.snkrsapp.Views.ViewModels.PrincipalViewModel
+import com.example.snkrsapp.Views.ViewModels.ProductoDetalladoViewModel
 import com.example.snkrsapp.Views.ViewModels.RegistroViewModel
 
 @Composable
@@ -20,17 +22,26 @@ fun Controlador() {
     val iniSesViewModel: InicioSesionViewModel = hiltViewModel()
     val registroViewModel: RegistroViewModel = hiltViewModel()
     val principalViewModel: PrincipalViewModel = hiltViewModel()
+    val productoDetalladoViewModel: ProductoDetalladoViewModel = hiltViewModel()
 
 
     NavHost(navController = navController, startDestination = "Principal") {
         composable("InicioSesion") {
             PantallaInicioSesion(iniSesViewModel, {})
         }
-        composable("registro") {
+        composable("Registro") {
             PantallaRegistro(registroViewModel)
         }
         composable("Principal") {
-            PantallaPrincipal(principalViewModel)
+            PantallaPrincipal(principalViewModel, { navController.navigate("ProductoDetallado") })
+        }
+        composable("ProductoDetallado") {
+            PantallaProductoDetallado(
+                14,
+                1,
+                { navController.navigate("Principal") },
+                productoDetalladoViewModel
+            )
         }
     }
 

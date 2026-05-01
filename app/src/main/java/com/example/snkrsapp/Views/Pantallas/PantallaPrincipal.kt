@@ -68,7 +68,7 @@ import com.example.snkrsapp.Views.ViewModels.PrincipalViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PantallaPrincipal(myViewModel: PrincipalViewModel) {
+fun PantallaPrincipal(myViewModel: PrincipalViewModel, navegarADetalle: () -> Unit) {
 
     val model by myViewModel.model.collectAsState()
     var nombreBuscado by remember { mutableStateOf("") }
@@ -128,7 +128,7 @@ fun PantallaPrincipal(myViewModel: PrincipalViewModel) {
                 }
             }
             items(model.listaDeproductos) {
-                CardProducto(it)
+                CardProducto(it, navegarADetalle)
             }
             if (model.listaDeproductos.size < 53) {
                 item(span = { GridItemSpan(2) }) {
@@ -216,9 +216,11 @@ fun CardMarca(marca: Marca) {
 }
 
 @Composable
-fun CardProducto(producto: Producto) {
+fun CardProducto(producto: Producto, onclick: () -> Unit) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onclick),
         colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E1E)),
         shape = RoundedCornerShape(25.dp)
     ) {
