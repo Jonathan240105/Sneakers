@@ -36,6 +36,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -87,7 +88,8 @@ fun PantallaProductoDetallado(
                     contentDescription = model.productoSeleccionado.modelo,
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(horizontal = 10.dp),
+                        .padding(horizontal = 10.dp)
+                        .testTag("imagenProducto"),
                     contentScale = ContentScale.Fit
                 )
 
@@ -107,6 +109,7 @@ fun PantallaProductoDetallado(
             Column(Modifier.padding(horizontal = 20.dp)) {
                 Text(
                     text = model.productoSeleccionado.modelo,
+                    modifier = Modifier.testTag("modelo"),
                     color = Color.White,
                     fontSize = 28.sp,
                     fontWeight = Bold
@@ -176,7 +179,8 @@ fun BotonTab(texto: String, activo: Boolean, modifier: Modifier, onClick: () -> 
             .height(45.dp)
             .clip(RoundedCornerShape(12.dp))
             .background(if (activo) Color.White else Color.Transparent)
-            .clickable { onClick() },
+            .clickable { onClick() }
+            .testTag("botonTab"),
         contentAlignment = Alignment.Center
     ) {
         Text(
