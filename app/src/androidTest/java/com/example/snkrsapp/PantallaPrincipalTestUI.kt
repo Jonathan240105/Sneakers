@@ -40,7 +40,7 @@ class PantallaPrincipalTestUI {
             every {
                 viewmodel.model
             } returns estadoInicial.asStateFlow()
-            PantallaPrincipal(viewmodel)
+            PantallaPrincipal(viewmodel,{})
         }
     }
 
