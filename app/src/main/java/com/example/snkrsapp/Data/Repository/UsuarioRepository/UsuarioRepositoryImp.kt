@@ -1,5 +1,8 @@
 package com.example.snkrsapp.Data.Repository.UsuarioRepository
 
+import com.example.snkrsapp.Data.LocalData.UsuariosConectados.EntityToUsuario
+import com.example.snkrsapp.Data.LocalData.UsuariosConectados.UsuarioToEntity
+import com.example.snkrsapp.Data.LocalData.UsuariosConectados.UsuariosConectadosDao
 import com.example.snkrsapp.Data.RemoteData.AutorizacionDao.AutorizacionDao
 import com.example.snkrsapp.Data.RemoteData.AutorizacionDao.Usuario
 import com.example.snkrsapp.Data.RemoteData.AutorizacionDao.UsuarioSolicitud
@@ -19,7 +22,8 @@ import java.io.IOException
 import javax.inject.Inject
 
 class UsuarioRepositoryImp @Inject constructor(
-    private val autDao: AutorizacionDao
+    private val autDao: AutorizacionDao,
+    private val usuarioDao: UsuariosConectadosDao,
 ) : UsuarioRepository {
     override suspend fun iniciarSesion(email: String, contra: String): Flow<EstadoLogin> =
         callbackFlow {
@@ -113,6 +117,28 @@ class UsuarioRepositoryImp @Inject constructor(
                 }
             }
             emit(estadoError)
+        }
+    }
+
+    override suspend fun traerPerfil(token: String): Flow<Usuario> = flow {
+
+        val usuarioLocal = usuarioDao.obtenerUsuarioPorUID(token)
+        if (usuarioLocal != null) {
+            emit(EntityToUsuario(usuarioLocal))
+        }
+
+        try {
+            val response = autDao.getPerfil("Bearer $token")
+            if (response.isSuccessful) {
+                val usuarioFresco = response.body()
+                if (usuarioFresco != null) {
+
+                    usuarioDao.añadirUsuario(UsuarioToEntity(usuarioFresco))
+                    emit(usuarioFresco)
+                }
+            }
+        } catch (e: Exception) {
+            println("Error al obtener el perfil: ${e.message}")
         }
     }
 }
