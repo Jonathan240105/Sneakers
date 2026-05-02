@@ -5,11 +5,11 @@ import androidx.lifecycle.viewModelScope
 import com.example.snkrsapp.Data.Repository.UsuarioRepository.UsuarioRepository
 import com.example.snkrsapp.Domain.ModelPerfil
 import dagger.hilt.android.lifecycle.HiltViewModel
-import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @HiltViewModel
 class PerfilViewModel @Inject constructor(

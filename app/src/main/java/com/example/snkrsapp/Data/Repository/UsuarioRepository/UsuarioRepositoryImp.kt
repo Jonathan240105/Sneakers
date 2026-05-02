@@ -125,6 +125,7 @@ class UsuarioRepositoryImp @Inject constructor(
         val usuarioLocal = usuarioDao.obtenerUsuarioPorUID(token)
         if (usuarioLocal != null) {
             emit(EntityToUsuario(usuarioLocal))
+            return@flow
         }
 
         try {

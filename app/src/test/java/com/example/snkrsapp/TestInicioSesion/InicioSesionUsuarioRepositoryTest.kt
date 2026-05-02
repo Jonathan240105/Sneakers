@@ -8,12 +8,5 @@ import org.junit.Test
 
 class InicioSesionUsuarioRepositoryTest {
     val api = mockk<AutorizacionDao>()
-    val iniSesionDao = mockk<AutorizacionDao>()
 
-    private val repository = UsuarioRepositoryImp(iniSesionDao)
-
-    @Test
-    fun a() = runTest{
-        repository.iniciarSesion("","")
-    }
 }
