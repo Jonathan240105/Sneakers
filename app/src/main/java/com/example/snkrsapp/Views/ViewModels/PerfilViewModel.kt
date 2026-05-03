@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.snkrsapp.Data.Repository.UsuarioRepository.UsuarioRepository
 import com.example.snkrsapp.Domain.ModelPerfil
+import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -19,13 +20,35 @@ class PerfilViewModel @Inject constructor(
     private val _model = MutableStateFlow(ModelPerfil())
     val model = _model.asStateFlow()
 
-    fun cargarPerfil(token: String) {
+    fun cargarPerfil() {
         if (_model.value.cargando) return
 
-        _model.update { it.copy(cargando = true) }
-        viewModelScope.launch {
-            perfilRepository.traerPerfil(token).collect { usuario ->
-                _model.update { it.copy(usuarioActual = usuario, exito = true, cargando = false) }
+        val usuario = FirebaseAuth.getInstance().currentUser
+
+        usuario?.getIdToken(true)?.addOnCompleteListener { tarea ->
+            if (tarea.isSuccessful) {
+                val token = tarea.result.token
+                if (token != null) {
+                    _model.update { it.copy(cargando = true) }
+                    viewModelScope.launch {
+                        perfilRepository.traerPerfil(token).collect { usuario ->
+                            _model.update {
+                                it.copy(
+                                    usuarioActual = usuario,
+                                    exito = true,
+                                    cargando = false
+                                )
+                            }
+                        }
+                    }
+                }
+            } else {
+                _model.update {
+                    it.copy(
+                        exito = false,
+                        cargando = false
+                    )
+                }
             }
         }
     }

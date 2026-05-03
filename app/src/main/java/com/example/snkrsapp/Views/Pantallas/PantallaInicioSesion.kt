@@ -22,6 +22,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,9 +41,17 @@ import androidx.compose.ui.unit.sp
 import com.example.snkrsapp.Views.ViewModels.InicioSesionViewModel
 
 @Composable
-fun PantallaInicioSesion(myViewModel: InicioSesionViewModel, cambiarAListado: () -> Unit) {
+fun PantallaInicioSesion(
+    myViewModel: InicioSesionViewModel,
+    cambiarARegistro: () -> Unit,
+    cambiarAListado: () -> Unit
+) {
 
     val model by myViewModel.model.collectAsState()
+
+    LaunchedEffect(model.exito) {
+        cambiarAListado()
+    }
     var nombreUsuario by remember { mutableStateOf("") }
     var contra by remember { mutableStateOf("") }
     Column(
@@ -76,7 +85,7 @@ fun PantallaInicioSesion(myViewModel: InicioSesionViewModel, cambiarAListado: ()
         ) {
             Text(
                 "¿No tienes cuenta?",
-                Modifier.clickable { },
+                Modifier.clickable { cambiarARegistro() },
                 color = Color.White,
             )
         }
