@@ -101,8 +101,11 @@ fun PantallaPerfil(cambiarAConfig: () -> Unit, myViewModel: PerfilViewModel) {
                             Icons.Default.Settings,
                             "",
                             tint = Color.White,
-                            modifier = Modifier.clickable(
-                                onClick = { cambiarAConfig() }))
+                            modifier = Modifier
+                                .clickable(
+                                    onClick = { cambiarAConfig() })
+                                .testTag("BotonConfig")
+                        )
                     }
                 }
                 HorizontalDivider(
@@ -137,15 +140,16 @@ fun PantallaPerfil(cambiarAConfig: () -> Unit, myViewModel: PerfilViewModel) {
             titulo = "Mis Ventas", items = ventasEjemplo, VerTodo = {})
         Spacer(modifier = Modifier.height(24.dp))
         listaProductos(
-            "Favoritos", favoritos, {})
+            "Favoritos", favoritos, {}, Modifier.testTag("listaFavoritos")
+        )
     }
 }
 
 @Composable
 fun listaProductos(
-    titulo: String, items: List<String>, VerTodo: () -> Unit
+    titulo: String, items: List<String>, VerTodo: () -> Unit, modifier: Modifier = Modifier
 ) {
-    Column {
+    Column(modifier) {
         Row(
             Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,

@@ -37,7 +37,9 @@ class PantallaInicioSesionTestUI {
         )
         composeRule.setContent {
             every { viewmodel.model } returns estadoInicial.asStateFlow()
-            PantallaInicioSesion(viewmodel, {})
+            PantallaInicioSesion(
+                viewmodel, {}, {}
+            )
         }
     }
 
