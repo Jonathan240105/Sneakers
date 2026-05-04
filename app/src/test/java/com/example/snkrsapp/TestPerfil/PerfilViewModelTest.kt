@@ -39,7 +39,7 @@ class PerfilViewModelTest {
 
             coEvery { repository.traerPerfil(any()) } returns flowOf(usuarioDummy)
 
-            viewModel.cargarPerfil("token_falso")
+            viewModel.cargarPerfil()
             advanceUntilIdle()
 
             val estadoActual = viewModel.model.value
