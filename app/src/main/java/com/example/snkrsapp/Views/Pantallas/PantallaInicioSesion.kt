@@ -50,7 +50,9 @@ fun PantallaInicioSesion(
     val model by myViewModel.model.collectAsState()
 
     LaunchedEffect(model.exito) {
-        cambiarAListado()
+        if (model.exito) {
+            cambiarAListado()
+        }
     }
     var nombreUsuario by remember { mutableStateOf("") }
     var contra by remember { mutableStateOf("") }
