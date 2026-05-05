@@ -6,7 +6,7 @@ data class ActualizarPerfilRespuesta(
 )
 
 data class ActualizarPerfilSolicitud(
+    val email: String? = null,
     val nombreUsuario: String? = null,
-    val apellidos: String? = null,
-    val password: String? = null
+    val apellidos: String? = null
 )
