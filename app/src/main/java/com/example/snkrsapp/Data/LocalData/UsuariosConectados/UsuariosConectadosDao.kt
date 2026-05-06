@@ -8,7 +8,7 @@ import com.example.snkrsapp.Data.LocalData.Querys.Querys
 
 @Dao
 interface UsuariosConectadosDao {
-    @Insert(onConflict = OnConflictStrategy.Companion.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun añadirUsuario(usuario: UsuarioEntity)
 
     @Query(Querys.obtenerUsuarioConectadoPorUID)

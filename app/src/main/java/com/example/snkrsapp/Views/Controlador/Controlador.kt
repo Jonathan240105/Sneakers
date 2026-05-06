@@ -5,11 +5,15 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.snkrsapp.Views.Pantallas.PantallaActualizarPerfil
 import com.example.snkrsapp.Views.Pantallas.PantallaInicioSesion
+import com.example.snkrsapp.Views.Pantallas.PantallaPerfil
 import com.example.snkrsapp.Views.Pantallas.PantallaPrincipal
 import com.example.snkrsapp.Views.Pantallas.PantallaProductoDetallado
 import com.example.snkrsapp.Views.Pantallas.PantallaRegistro
+import com.example.snkrsapp.Views.ViewModels.ActualizarPerfilViewModel
 import com.example.snkrsapp.Views.ViewModels.InicioSesionViewModel
+import com.example.snkrsapp.Views.ViewModels.PerfilViewModel
 import com.example.snkrsapp.Views.ViewModels.PrincipalViewModel
 import com.example.snkrsapp.Views.ViewModels.ProductoDetalladoViewModel
 import com.example.snkrsapp.Views.ViewModels.RegistroViewModel
@@ -23,11 +27,17 @@ fun Controlador() {
     val registroViewModel: RegistroViewModel = hiltViewModel()
     val principalViewModel: PrincipalViewModel = hiltViewModel()
     val productoDetalladoViewModel: ProductoDetalladoViewModel = hiltViewModel()
+    val perfilViewModel: PerfilViewModel = hiltViewModel()
+    val actuViewModel: ActualizarPerfilViewModel = hiltViewModel()
 
 
-    NavHost(navController = navController, startDestination = "Principal") {
+
+    NavHost(navController = navController, startDestination = "InicioSesion") {
         composable("InicioSesion") {
-            PantallaInicioSesion(iniSesViewModel, {})
+            PantallaInicioSesion(
+                iniSesViewModel,
+                { navController.navigate("Registro") },
+                { navController.navigate("Perfil") })
         }
         composable("Registro") {
             PantallaRegistro(registroViewModel)
@@ -42,6 +52,13 @@ fun Controlador() {
                 { navController.navigate("Principal") },
                 productoDetalladoViewModel
             )
+        }
+
+        composable("Perfil") {
+            PantallaPerfil({ navController.navigate("ActualizarPerfil") }, perfilViewModel)
+        }
+        composable("ActualizarPerfil") {
+            PantallaActualizarPerfil({navController.navigate("Perfil")},{}, perfilViewModel,actuViewModel)
         }
     }
 
