@@ -41,7 +41,7 @@ class UsuarioRepositoryImp @Inject constructor(
 
                     usuario?.getIdToken(true)?.addOnSuccessListener { resultadoToken ->
 
-                        val token = resultadoToken.token
+                            val token = resultadoToken.token
 
                         CoroutineScope(Dispatchers.IO).launch {
                             try {

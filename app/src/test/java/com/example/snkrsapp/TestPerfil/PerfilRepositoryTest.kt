@@ -2,6 +2,7 @@ package com.example.snkrsapp.TestPerfil
 
 import com.example.snkrsapp.Data.LocalData.UsuariosConectados.UsuarioEntity
 import com.example.snkrsapp.Data.LocalData.UsuariosConectados.UsuariosConectadosDao
+import com.example.snkrsapp.Data.RemoteData.ActualizacionDao.ActualizacionDao
 import com.example.snkrsapp.Data.RemoteData.AutorizacionDao.AutorizacionDao
 import com.example.snkrsapp.Data.RemoteData.AutorizacionDao.Usuario
 import com.example.snkrsapp.Data.Repository.UsuarioRepository.UsuarioRepositoryImp
@@ -17,7 +18,8 @@ class PerfilRepositoryTest {
 
     private val usuarioDao = mockk<UsuariosConectadosDao>(relaxed = true)
     private val autDao = mockk<AutorizacionDao>(relaxed = true)
-    private val repository = UsuarioRepositoryImp(autDao, usuarioDao)
+    private val actuDao = mockk<ActualizacionDao>(relaxed = true)
+    private val repository = UsuarioRepositoryImp(autDao, usuarioDao,actuDao)
 
     @Test
     fun `cuando hay datos en bd local no debe llamar a la api`(): Unit = runTest {

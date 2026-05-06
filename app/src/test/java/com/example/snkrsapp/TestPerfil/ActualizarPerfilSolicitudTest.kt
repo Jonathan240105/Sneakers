@@ -10,14 +10,14 @@ class ActualizarPerfilSolicitudTest {
     @Test
     fun Creacion_ActualizarPerfilSolicitud() {
         val solicitud = ActualizarPerfilSolicitud(
+            email = "email",
             nombreUsuario = "Jonathan",
-            apellidos = "apellidos",
-            password = "123"
+            apellidos = "apellidos"
         )
 
         assertEquals("Jonathan", solicitud.nombreUsuario)
         assertEquals("apellidos", solicitud.apellidos)
-        assertEquals("123", solicitud.password)
+        assertEquals("email", solicitud.email)
     }
 
 
