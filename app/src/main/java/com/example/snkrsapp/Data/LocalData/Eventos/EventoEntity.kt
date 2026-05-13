@@ -2,16 +2,17 @@ package com.example.snkrsapp.Data.LocalData.Eventos
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.example.snkrsapp.Data.RemoteData.EventoDao.EventosRespuesta
+import com.example.snkrsapp.Data.RemoteData.EventoDao.EventosSolicitud
 import com.example.snkrsapp.Domain.Evento
 
 @Entity(tableName = "Eventos")
 data class EventoEntity(
-    @PrimaryKey
-    val idEvento: Int = 0,
+    @PrimaryKey val idEvento: Int = 0,
     val titulo: String = "",
     val descripcion: String = "",
     val fechaEvento: String = "",
-    val idOrganizador: Int = 0
+    val idOrganizador: String? = ""
 )
 
 fun EntityToEvento(evento: EventoEntity): Evento {
@@ -24,7 +25,7 @@ fun EntityToEvento(evento: EventoEntity): Evento {
     )
 }
 
-fun EventoToEntity(evento: Evento): EventoEntity {
+fun EventoToEntity(evento: EventosRespuesta): EventoEntity {
     return EventoEntity(
         idEvento = evento.idEvento,
         titulo = evento.titulo,

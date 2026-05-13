@@ -11,10 +11,11 @@ data class EventosRespuesta(
     val titulo: String,
     val descripcion: String,
     val fechaEvento: String,
-    val idOrganizador: Int
+    val idOrganizador: String? = null
 )
 
 data class EventosRespuestaSimple(
     val ok: Boolean,
-    val message: String
+    val message: String,
+    val idAgregado : Int?
 )

@@ -19,6 +19,6 @@ interface EventoLocalDao {
     @Query("Delete from Eventos where idEvento = :idEvento")
     suspend fun eliminarEvento(idEvento: Int)
 
-    @Query("Select * from Eventos")
-    suspend fun listarEventos(): List<EventoEntity>
+    @Query("Select * from eventos where date(fechaEvento) = date(:fecha) and (idOrganizador = :uid or idOrganizador is null)")
+    suspend fun listarEventos(fecha: String,uid : String?): List<EventoEntity>
 }

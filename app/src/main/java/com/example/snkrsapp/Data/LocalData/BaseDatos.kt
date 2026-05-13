@@ -13,7 +13,7 @@ import com.example.snkrsapp.Data.LocalData.UsuariosConectados.UsuariosConectados
 
 @Database(
     entities = [UsuarioEntity::class, ProductoEntity::class, MarcaEntity::class, EventoEntity::class],
-    version = 6,
+    version = 9,
     exportSchema = false
 )
 abstract class BaseDatos : RoomDatabase() {

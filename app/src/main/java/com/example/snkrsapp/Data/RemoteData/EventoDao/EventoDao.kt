@@ -6,13 +6,15 @@ import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface EventoDao {
 
     @GET("/eventos")
     suspend fun getEventos(
-        @Header("Authorization") token: String
-    ): Response<EventosRespuesta>
+        @Header("Authorization") token: String,
+        @Query("fecha") fecha: String
+    ): Response<List<EventosRespuesta>>
 
     @GET("/eventos/eliminar/{id}")
     suspend fun eliminarEvento(

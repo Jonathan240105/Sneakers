@@ -5,5 +5,5 @@ data class Evento(
     val titulo: String = "",
     val descripcion: String = "",
     val fechaEvento: String = "",
-    val idOrganizador: Int = 0
+    val idOrganizador: String? = ""
 )
