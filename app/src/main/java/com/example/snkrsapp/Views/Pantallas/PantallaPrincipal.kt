@@ -104,7 +104,7 @@ fun PantallaPrincipal(myViewModel: PrincipalViewModel, navegarADetalle: () -> Un
             .background((Color(0xFF121212)))
     ) {
         Column(Modifier.padding(horizontal = 16.dp)) {
-            TituloPrincipal("Explorar Sneakers")
+            TituloEventos("Explorar Sneakers")
             Spacer(modifier = Modifier.height(12.dp))
             BuscadorConFiltros(nombreBuscado, { nombreBuscado = it }) { mostrarFiltros = true }
             Spacer(modifier = Modifier.height(12.dp))
@@ -441,9 +441,9 @@ fun CardFiltros(cerrarFiltros: () -> Unit) {
 }
 
 @Composable
-fun TituloPrincipal(texto: String) {
+fun TituloEventos(texto: String) {
     Text(
-        text = texto,
+        texto,
         color = Color.White,
         modifier = Modifier
             .fillMaxWidth()
