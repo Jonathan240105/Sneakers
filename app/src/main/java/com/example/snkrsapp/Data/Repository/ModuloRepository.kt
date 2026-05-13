@@ -1,5 +1,7 @@
 package com.example.snkrsapp.Data.Repository
 
+import com.example.snkrsapp.Data.Repository.EventoRepository.EventoRepository
+import com.example.snkrsapp.Data.Repository.EventoRepository.EventoRepositoryImp
 import com.example.snkrsapp.Data.Repository.ProductoRepository.ProductoRepository
 import com.example.snkrsapp.Data.Repository.ProductoRepository.ProductoRepositoryImp
 import com.example.snkrsapp.Data.Repository.UsuarioRepository.UsuarioRepository
@@ -25,4 +27,10 @@ abstract class ModuloRepository {
     abstract fun bindProductoRepository(
         productoRepositoryImp: ProductoRepositoryImp
     ): ProductoRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindEventoRepository(
+        eventoRepositoryImp: EventoRepositoryImp
+    ): EventoRepository
 }
