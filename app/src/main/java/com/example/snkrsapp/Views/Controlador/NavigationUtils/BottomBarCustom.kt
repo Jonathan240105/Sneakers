@@ -25,9 +25,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.example.snkrsapp.R
 
 
 @Composable
@@ -108,6 +110,36 @@ fun BottomBar(navController: NavController) {
                 colors = NavigationBarItemDefaults.colors(
                     indicatorColor = Color.Transparent
                 )
+
+            )
+            NavigationBarItem(
+                selected = currentRoute == "AgregarProducto",
+                onClick = {
+                    navController.navigate("AgregarProducto")
+                },
+                icon = {
+                    Box(
+                        modifier = Modifier
+                            .size(width = 52.dp, height = 34.dp)
+                            .clip(RoundedCornerShape(20.dp))
+                            .background(
+                                if (currentRoute == "AgregarProducto") cs.primary.copy(alpha = 0.15f)
+                                else Color.Transparent
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            painterResource(R.drawable.editperson),
+                            "",
+                            tint = if (currentRoute == "AgregarProducto") cs.primary else Color.Gray,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                },
+                alwaysShowLabel = false,
+                colors = NavigationBarItemDefaults.colors(
+                    indicatorColor = Color.Transparent
+                )
             )
             NavigationBarItem(
                 selected = currentRoute == "Favoritos",
@@ -120,7 +152,7 @@ fun BottomBar(navController: NavController) {
                             .size(width = 52.dp, height = 34.dp)
                             .clip(RoundedCornerShape(20.dp))
                             .background(
-                                if (currentRoute == "Favoritos" ) cs.primary.copy(alpha = 0.15f)
+                                if (currentRoute == "Favoritos") cs.primary.copy(alpha = 0.15f)
                                 else Color.Transparent
                             ),
                         contentAlignment = Alignment.Center
