@@ -29,12 +29,14 @@ class PrincipalViewModel @Inject constructor(
     fun cargarPaginaProductos() {
         if (_model.value.cargandoProductos) return
 
+        println("Cargando productos")
         _model.update { it.copy(cargandoProductos = true) }
 
         viewModelScope.launch {
             try {
                 productoRepository.traerPaginaProductos(limite, salto).collect { nuevosProductos ->
                     if (nuevosProductos.isNotEmpty()) {
+                        println("Se han cargado ${nuevosProductos.size} productos")
                         _model.update {
                             val listaActualizada = (it.listaDeproductos + nuevosProductos)
 
