@@ -1,5 +1,6 @@
 package com.example.snkrsapp.Data.Repository.UsuarioRepository
 
+import android.util.Log
 import com.example.snkrsapp.Data.LocalData.UsuariosConectados.EntityToUsuario
 import com.example.snkrsapp.Data.LocalData.UsuariosConectados.UsuarioEntity
 import com.example.snkrsapp.Data.LocalData.UsuariosConectados.UsuarioToEntity
@@ -41,7 +42,7 @@ class UsuarioRepositoryImp @Inject constructor(
 
                     usuario?.getIdToken(true)?.addOnSuccessListener { resultadoToken ->
 
-                            val token = resultadoToken.token
+                        val token = resultadoToken.token
 
                         CoroutineScope(Dispatchers.IO).launch {
                             try {
@@ -49,6 +50,7 @@ class UsuarioRepositoryImp @Inject constructor(
                                 val respuesta = autDao.iniciarSesion("Bearer $token")
 
                                 if (respuesta.isSuccessful && respuesta.body() != null) {
+                                    Log.d("TOKEN_DEBUG", token ?: "")
                                     trySend(
                                         EstadoLogin.Exito(
                                             respuesta.body()?.usuario ?: Usuario()
@@ -161,7 +163,7 @@ class UsuarioRepositoryImp @Inject constructor(
             }
 
             val solicitud = ActualizarPerfilSolicitud(
-                email,nombre, apellidos
+                email, nombre, apellidos
             )
 
             val respuesta = actuDao.actualizarPerfil("Bearer $token", solicitud)

@@ -1,14 +1,26 @@
 package com.example.snkrsapp.Data.Repository.ProductoRepository
 
 import com.example.snkrsapp.Data.LocalData.Marcas.EntityToMarca
+import com.example.snkrsapp.Data.LocalData.Marcas.MarcaEntity
 import com.example.snkrsapp.Data.LocalData.Marcas.MarcaLocalDao
 import com.example.snkrsapp.Data.LocalData.Marcas.MarcaRespuestaToEntity
+import com.example.snkrsapp.Data.LocalData.Productos.ProductoEntity
 import com.example.snkrsapp.Data.LocalData.Productos.ProductoEntityToProducto
 import com.example.snkrsapp.Data.LocalData.Productos.ProductoLocalDao
 import com.example.snkrsapp.Data.LocalData.Productos.ProductoRespuestaToProductoEntity
+import com.example.snkrsapp.Data.LocalData.Publicaciones.EntityToPublicacion
+import com.example.snkrsapp.Data.LocalData.Publicaciones.PublicacionEntity
+import com.example.snkrsapp.Data.LocalData.Publicaciones.PublicacionLocalDao
+import com.example.snkrsapp.Data.LocalData.Publicaciones.PublicacionToEntity
+import com.example.snkrsapp.Data.RemoteData.ProductoDao.AgregarProductoSolicitud
 import com.example.snkrsapp.Data.RemoteData.ProductoDao.ProductosDao
+import com.example.snkrsapp.Data.RemoteData.PublicacionDao.AgregarPublicacionesSolicitud
+import com.example.snkrsapp.Data.RemoteData.PublicacionDao.PublicacionDao
+import com.example.snkrsapp.Domain.EstadoProductoNuevo
 import com.example.snkrsapp.Domain.Marca
 import com.example.snkrsapp.Domain.Producto
+import com.example.snkrsapp.Domain.ProductoItem
+import com.example.snkrsapp.Domain.Publicacion
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
@@ -16,7 +28,9 @@ import javax.inject.Inject
 class ProductoRepositoryImp @Inject constructor(
     private val productosDao: ProductosDao,
     private val productoLocalDao: ProductoLocalDao,
-    private val marcaLocalDao: MarcaLocalDao
+    private val marcaLocalDao: MarcaLocalDao,
+    private val publicacionLocalDao: PublicacionLocalDao,
+    private val publicacionDao: PublicacionDao
 ) : ProductoRepository {
 
     override suspend fun traerPaginaProductos(limite: Int, salto: Int): Flow<List<Producto>> =
@@ -85,4 +99,114 @@ class ProductoRepositoryImp @Inject constructor(
             emit(EntityToMarca(marcaLocal))
         }
     }
+
+    override suspend fun traerPublicaciones(idProducto: Int): Flow<List<Publicacion>> = flow {
+
+        val publicacionesLocales = publicacionLocalDao.getPublicaciones(idProducto)
+        if (publicacionesLocales.isNotEmpty()) {
+            emit(publicacionesLocales.map { EntityToPublicacion(it) })
+            return@flow
+        }
+
+        try {
+            val respuesta = publicacionDao.obtenerPublicacionesPorModelo(idProducto)
+            if (respuesta.isSuccessful) {
+                publicacionLocalDao.agregarPublicaciones(respuesta.body()?.map {
+                    PublicacionToEntity(it)
+                } ?: emptyList())
+                emit(publicacionesLocales.map { EntityToPublicacion(it) })
+            }
+        } catch (e: Exception) {
+            emit(emptyList())
+            println("Error al obtener las publicaciones: ${e.message}")
+        }
+    }
+
+    override suspend fun agregarPublicacion(
+        body: AgregarPublicacionesSolicitud, token: String, uid: String
+    ): Flow<EstadoProductoNuevo> = flow {
+        try {
+            val respuesta = publicacionDao.agregarPublicacion("Bearer $token", body)
+
+            if (respuesta.isSuccessful && respuesta.body()?.ok == true) {
+                val datos = respuesta.body()!!
+
+                var idMarcaFinal = body.idMarca
+                if (body.esMarcaNueva && datos.idMarca != null) {
+                    idMarcaFinal = datos.idMarca
+                    marcaLocalDao.insertarListaMarcas(
+                        listOf(
+                            MarcaEntity(
+                                idMarca = datos.idMarca,
+                                nombre = body.nombreMarcaNueva ?: "Desconocido"
+                            )
+                        )
+                    )
+                }
+
+                var idProductoFinal = body.idProducto
+                if (body.esProductoNuevo && datos.idProducto != null) {
+                    idProductoFinal = datos.idProducto
+                    productoLocalDao.añadirProducto(
+                        ProductoEntity(
+                            idProducto = datos.idProducto,
+                            idMarca = idMarcaFinal ?: 0,
+                            modelo = body.nombreProductoNuevo ?: "",
+                            precio = body.precio.toInt(),
+                            talla = body.talla.toInt(),
+                            uidVendedor = "SISTEMA",
+                            imagenUrl = body.urlFoto
+                        )
+                    )
+                }
+
+                if (datos.idPublicacion != null && idProductoFinal != null) {
+                    publicacionLocalDao.agregarPublicaciones(
+                        listOf(
+                            PublicacionEntity(
+                                idPublicacion = datos.idPublicacion,
+                                idProducto = idProductoFinal,
+                                precio = body.precio,
+                                talla = body.talla,
+                                estado = body.estado,
+                                urlFoto = body.urlFoto,
+                                fechaPublicacion = body.fecha_publicacion,
+                                disponible = true,
+                                uidUsuario = uid
+                            )
+                        )
+                    )
+                }
+
+                emit(EstadoProductoNuevo(true, "Publicación agregada con éxito"))
+
+            } else {
+                val msg = respuesta.body()?.message ?: "Error al procesar la publicación"
+                emit(EstadoProductoNuevo(false, msg))
+            }
+        } catch (e: Exception) {
+            emit(EstadoProductoNuevo(false, "Error de red: ${e.message}"))
+        }
+    }
+
+    override suspend fun buscarSugerencias(
+        token: String, idMarca: Int, busqueda: String
+    ): List<ProductoItem> {
+        try {
+            val respuesta =
+                productosDao.buscarSugerenciasModelo("Bearer $token", idMarca, busqueda)
+            if (respuesta.isSuccessful && respuesta.body() != null) {
+                println("Encontrados : ${respuesta.body()}")
+                return respuesta.body()!!.map {
+                    ProductoItem(idProducto = it.idProducto, modelo = it.modelo)
+                }
+            } else {
+                return emptyList()
+            }
+        } catch (e: Exception) {
+            println("Error al buscar sugerencias: ${e.message}")
+            return emptyList()
+        }
+    }
 }
+
