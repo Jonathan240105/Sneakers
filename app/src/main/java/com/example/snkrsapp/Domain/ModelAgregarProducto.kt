@@ -7,6 +7,7 @@ data class ModelAgregarProducto(
     val mensajeError: String? = null,
     val mensajeExito: String? = null,
 
+    val esColeccion : Boolean = false,
     val precioNuevaPublicacion: Double = 0.0,
     val tallaNuevaPublicacion: Double = 0.0,
     val estadoNuevaPublicacion: String = "",
