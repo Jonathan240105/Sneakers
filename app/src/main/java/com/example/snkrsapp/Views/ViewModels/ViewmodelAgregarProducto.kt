@@ -49,9 +49,11 @@ class ViewmodelAgregarProducto @Inject constructor(
     fun cambiarImagenUrl(imagenUrl: String) {
         _model.update { it.copy(urlImagenNuevaPublicacion = imagenUrl) }
     }
+    fun cambiarModoColeccion(esColeccion: Boolean) {
+        _model.update { it.copy(esColeccion = esColeccion) }
+    }
 
     fun agregarPublicacion() {
-
         _model.update { it.copy(cargando = true, mensajeError = null) }
 
         val esMarcaNueva = _model.value.marcaSeleccionada.lowercase() == "otro"
@@ -71,7 +73,8 @@ class ViewmodelAgregarProducto @Inject constructor(
             estado = _model.value.estadoNuevaPublicacion,
             urlFoto = _model.value.urlImagenNuevaPublicacion,
             fecha_publicacion = LocalDateTime.now().toString(),
-            disponible = true
+            disponible = true,
+            esParaColeccion = _model.value.esColeccion
         )
 
         val usuario = FirebaseAuth.getInstance().currentUser
@@ -82,26 +85,31 @@ class ViewmodelAgregarProducto @Inject constructor(
                 val uid = usuario?.uid
                 if (token != null) {
                     viewModelScope.launch {
-                        productoRepository.agregarPublicacion(bodySolicitud, token, uid ?: "")
-                            .collect { resultado ->
-                                if (resultado.exito) {
-                                    _model.update {
-                                        it.copy(
-                                            exito = true,
-                                            cargando = false,
-                                            mensajeExito = resultado.mensaje
-                                        )
-                                    }
-                                } else {
-                                    _model.update {
-                                        it.copy(
-                                            exito = false,
-                                            cargando = false,
-                                            mensajeError = resultado.mensaje
-                                        )
-                                    }
+                        productoRepository.agregarPublicacion(
+                            body = bodySolicitud,
+                            token = token,
+                            uid = uid ?: "",
+                            nombreMarcaSeleccionada = _model.value.marcaSeleccionada,
+                            nombreModeloSeleccionado = _model.value.modeloSeleccionado
+                        ).collect { resultado ->
+                            if (resultado.exito) {
+                                _model.update {
+                                    it.copy(
+                                        exito = true,
+                                        cargando = false,
+                                        mensajeExito = resultado.mensaje
+                                    )
+                                }
+                            } else {
+                                _model.update {
+                                    it.copy(
+                                        exito = false,
+                                        cargando = false,
+                                        mensajeError = resultado.mensaje
+                                    )
                                 }
                             }
+                        }
                     }
                 }
             }
