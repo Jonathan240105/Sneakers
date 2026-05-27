@@ -236,7 +236,7 @@ fun ContenidoMarca(marca: Marca, uidVendedor: String) {
             )
             Spacer(Modifier.width(15.dp))
             Column {
-                Text(marca.nombre, color = Color.White, fontWeight = Bold, fontSize = 18.sp)
+                Text(marca.nombre?:"", color = Color.White, fontWeight = Bold, fontSize = 18.sp)
                 Text("Fundada en 1990", color = Color.Gray, fontSize = 14.sp)
             }
         }

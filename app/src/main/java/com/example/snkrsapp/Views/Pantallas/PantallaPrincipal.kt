@@ -82,21 +82,6 @@ fun PantallaPrincipal(myViewModel: PrincipalViewModel, navegarADetalle: () -> Un
         }
     }
 
-    val lista = listOf(
-        Producto(modelo = "Jordan 1 Chicago", idMarca = 1, precio = 20, talla = 42),
-        Producto(modelo = "Jordan 1 Chicago", idMarca = 1, precio = 20, talla = 42),
-        Producto(modelo = "Jordan 1 Chicago", idMarca = 1, precio = 20, talla = 42),
-        Producto(modelo = "Jordan 1 Chicago", idMarca = 1, precio = 20, talla = 42),
-        Producto(modelo = "Jordan 1 Chicago", idMarca = 1, precio = 20, talla = 42),
-        Producto(modelo = "Jordan 1 Chicago", idMarca = 1, precio = 20, talla = 42),
-        Producto(modelo = "Jordan 1 Chicago", idMarca = 1, precio = 20, talla = 42),
-        Producto(modelo = "Jordan 1 Chicago", idMarca = 1, precio = 20, talla = 42),
-        Producto(modelo = "Jordan 1 Chicago", idMarca = 1, precio = 20, talla = 42),
-        Producto(modelo = "Jordan 1 Chicago", idMarca = 1, precio = 20, talla = 42),
-        Producto(modelo = "Jordan 1 Chicago", idMarca = 1, precio = 20, talla = 42),
-        Producto(modelo = "Jordan 1 Chicago", idMarca = 1, precio = 20, talla = 42),
-    )
-
     val listaMarcas = listOf("Nike", "Adidas", "Puma", "New Balance", "Reebok")
     Column(
         modifier = Modifier
@@ -203,7 +188,7 @@ fun CardMarca(marca: Marca) {
             )
 
             Text(
-                text = marca.nombre,
+                text = marca.nombre?:"",
                 color = Color.White,
                 fontWeight = Bold,
                 fontSize = 15.sp,

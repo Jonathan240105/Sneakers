@@ -17,6 +17,7 @@ import com.example.snkrsapp.Views.Pantallas.PantallaActualizarPerfil
 import com.example.snkrsapp.Views.Pantallas.PantallaAgregarProducto
 import com.example.snkrsapp.Views.Pantallas.PantallaEventos
 import com.example.snkrsapp.Views.Pantallas.PantallaInicioSesion
+import com.example.snkrsapp.Views.Pantallas.PantallaListados
 import com.example.snkrsapp.Views.Pantallas.PantallaPerfil
 import com.example.snkrsapp.Views.Pantallas.PantallaPrincipal
 import com.example.snkrsapp.Views.Pantallas.PantallaProductoDetallado
@@ -24,6 +25,7 @@ import com.example.snkrsapp.Views.Pantallas.PantallaRegistro
 import com.example.snkrsapp.Views.ViewModels.ActualizarPerfilViewModel
 import com.example.snkrsapp.Views.ViewModels.EventosViewModel
 import com.example.snkrsapp.Views.ViewModels.InicioSesionViewModel
+import com.example.snkrsapp.Views.ViewModels.ListadoViewModel
 import com.example.snkrsapp.Views.ViewModels.PerfilViewModel
 import com.example.snkrsapp.Views.ViewModels.PrincipalViewModel
 import com.example.snkrsapp.Views.ViewModels.ProductoDetalladoViewModel
@@ -43,9 +45,11 @@ fun Controlador() {
     val actuViewModel: ActualizarPerfilViewModel = hiltViewModel()
     val evenViewModel: EventosViewModel = hiltViewModel()
     val agregarProductoViewModel: ViewmodelAgregarProducto = hiltViewModel()
+    val listadoViewModel: ListadoViewModel = hiltViewModel()
+
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
-    val listaSinBottombar = listOf("InicioSesion", "Registro","AgregarProducto")
+    val listaSinBottombar = listOf("InicioSesion", "Registro", "AgregarProducto"    )
     var mostrarSheet by remember { mutableStateOf(false) }
 
     Scaffold(
@@ -68,7 +72,7 @@ fun Controlador() {
                 PantallaInicioSesion(
                     iniSesViewModel,
                     { navController.navigate("Registro") },
-                    { navController.navigate("Principal") })
+                    { navController.navigate("Listados") })
             }
             composable("Registro") {
                 PantallaRegistro(registroViewModel)
@@ -109,6 +113,10 @@ fun Controlador() {
                     agregarProductoViewModel,
                     paddingValues
                 )
+            }
+
+            composable("Listados") {
+                PantallaListados({ navController.navigate("Perfil") }, listadoViewModel,paddingValues)
             }
         }
     }
