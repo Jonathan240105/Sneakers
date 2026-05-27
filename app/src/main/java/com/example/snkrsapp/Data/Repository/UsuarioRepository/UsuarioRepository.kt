@@ -4,6 +4,8 @@ import com.example.snkrsapp.Data.RemoteData.ActualizacionDao.ActualizarPerfilRes
 import com.example.snkrsapp.Data.RemoteData.AutorizacionDao.Usuario
 import com.example.snkrsapp.Domain.EstadoLogin
 import com.example.snkrsapp.Domain.EstadoRegistro
+import com.example.snkrsapp.Domain.ProductoColeccionItem
+import com.example.snkrsapp.Domain.PublicacionPerfilItem
 import kotlinx.coroutines.flow.Flow
 import retrofit2.Response
 
@@ -21,9 +23,20 @@ interface UsuarioRepository {
     suspend fun actualizarPerfil(
         token: String,
         nombre: String?,
-        email : String?,
+        email: String?,
         apellidos: String?,
         contra: String?,
         uid: String
     ): Flow<Usuario?>
+
+    suspend fun traerCarrito(token: String, uidUsuario: String): Flow<List<PublicacionPerfilItem>>
+    suspend fun traerColeccionUsuario(
+        token: String,
+        uidObjetivo: String
+    ): Flow<List<ProductoColeccionItem>>
+    suspend fun traerVentasUsuario(
+        token: String,
+        uidObjetivo: String
+    ): Flow<List<PublicacionPerfilItem>>
+
 }
