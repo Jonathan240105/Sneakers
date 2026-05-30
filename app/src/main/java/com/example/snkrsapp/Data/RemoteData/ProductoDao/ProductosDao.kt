@@ -19,6 +19,23 @@ interface ProductosDao {
         @Query("offset") salto: Int
     ): Response<List<TodosProductosRespuesta>>
 
+    @GET("/productos/filtrar")
+    suspend fun obtenerPaginaProductosFiltrados(
+        @Header("Authorization") token: String,
+        @Query("minPrecio") minPrecio: Double?,
+        @Query("maxPrecio") maxPrecio: Double?,
+        @Query("talla") talla: Double?,
+        @Query("marcas") marcas: String?,
+        @Query("limit") limit: Int,
+        @Query("offset") offset: Int
+    ): Response<List<TodosProductosRespuesta>>
+
+    @GET("productos/buscadorPrincipal")
+    suspend fun buscarProductosGlobal(
+        @Header("Authorization") token: String,
+        @Query("busqueda") busqueda: String
+    ): Response<List<TodosProductosRespuesta>>
+
     @GET("/marca")
     suspend fun obtenerMarcas(): Response<List<MarcaRespuesta>>
 
