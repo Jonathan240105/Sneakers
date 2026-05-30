@@ -139,7 +139,7 @@ class ProductoRepositoryImp @Inject constructor(
             if (respuesta.isSuccessful && respuesta.body()?.ok == true) {
                 val datos = respuesta.body()!!
 
-               var idMarcaFinal = body.idMarca
+                var idMarcaFinal = body.idMarca
                 if (body.esMarcaNueva && datos.idMarca != null) {
                     idMarcaFinal = datos.idMarca
                     marcaLocalDao.insertarListaMarcas(
@@ -194,8 +194,10 @@ class ProductoRepositoryImp @Inject constructor(
                                     idPublicacion = datos.idPublicacion,
                                     idProducto = idProductoFinal,
                                     idMarca = idMarcaFinal ?: 0,
-                                    modelo = if (body.esProductoNuevo) body.nombreProductoNuevo ?: "" else nombreModeloSeleccionado,
-                                    marca = if (body.esMarcaNueva) body.nombreMarcaNueva ?: "" else nombreMarcaSeleccionada,
+                                    modelo = if (body.esProductoNuevo) body.nombreProductoNuevo
+                                        ?: "" else nombreModeloSeleccionado,
+                                    marca = if (body.esMarcaNueva) body.nombreMarcaNueva
+                                        ?: "" else nombreMarcaSeleccionada,
                                     precio = body.precio,
                                     talla = body.talla,
                                     urlFoto = body.urlFoto,
@@ -255,6 +257,93 @@ class ProductoRepositoryImp @Inject constructor(
         } catch (e: Exception) {
             println("Error al buscar sugerencias: ${e.message}")
             return emptyList()
+        }
+    }
+
+    override suspend fun traerPaginaProductosFiltrado(
+        token : String,
+        minPrecio: Double?,
+        maxPrecio: Double?,
+        talla: Double?,
+        marcas: List<Int>?,
+        limit: Int,
+        offset: Int
+    ): Flow<List<Producto>> = flow {
+
+        val marcasString = marcas?.joinToString(",")
+        try {
+
+            val respuesta = productosDao.obtenerPaginaProductosFiltrados(
+                "Bearer $token",
+                minPrecio,
+                maxPrecio,
+                talla,
+                marcasString,
+                limit,
+                offset
+            )
+
+            if (respuesta.isSuccessful) {
+                val listaDeFiltrados = respuesta.body()
+                productoLocalDao.insertarLista(listaDeFiltrados?.map {
+                    ProductoRespuestaToProductoEntity(it)
+                } ?: emptyList())
+
+                emit(listaDeFiltrados?.map {
+                    Producto(
+                        idProducto = it.idProducto,
+                        idMarca = it.idMarca,
+                        modelo = it.modelo,
+                        precio = it.precio?:0,
+                        talla = it.talla?:0,
+                        uidVendedor = it.uidVendedor?:"",
+                        imagenUrl = it.imagenUrl?:""
+                    )
+                } ?: emptyList())
+            }
+        } catch (e: Exception) {
+            println("Error al traer productos filtrados: ${e.message}")
+            emit(emptyList())
+        }
+
+    }
+    override suspend fun buscarProductosPorTexto(
+        token: String,
+        busqueda: String
+    ): Flow<List<Producto>> = flow {
+        if (busqueda.isBlank()) {
+            emit(emptyList())
+            return@flow
+        }
+
+        try {
+            val respuesta = productosDao.buscarProductosGlobal("Bearer $token", busqueda)
+
+            if (respuesta.isSuccessful && respuesta.body() != null) {
+                val listaRespuesta = respuesta.body()!!
+
+                productoLocalDao.insertarLista(listaRespuesta.map {
+                    ProductoRespuestaToProductoEntity(it)
+                })
+
+                val listaMapeada = listaRespuesta.map {
+                    Producto(
+                        idProducto = it.idProducto,
+                        idMarca = it.idMarca,
+                        modelo = it.modelo,
+                        precio = it.precio?:0,
+                        talla = it.talla?:0,
+                        uidVendedor = it.uidVendedor?:"",
+                        imagenUrl = it.imagenUrl
+                    )
+                }
+                emit(listaMapeada)
+            } else {
+                emit(emptyList())
+            }
+        } catch (e: Exception) {
+            println("Error al buscar productos globalmente: ${e.message}")
+            emit(emptyList()) // En caso de caída de red o error, emitimos vacío para no romper la UI
         }
     }
 }

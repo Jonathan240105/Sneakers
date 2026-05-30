@@ -3,7 +3,9 @@ package com.example.snkrsapp.Views.ViewModels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.snkrsapp.Data.Repository.ProductoRepository.ProductoRepository
+import com.example.snkrsapp.Domain.Marca
 import com.example.snkrsapp.Domain.ModelPrincipal
+import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -26,36 +28,181 @@ class PrincipalViewModel @Inject constructor(
         cargarMarcas()
     }
 
-    fun cargarPaginaProductos() {
-        if (_model.value.cargandoProductos) return
+    fun cambiarRangoPrecio(minPrecio: Int?, maxPrecio: Int?) {
+        _model.update {
+            it.copy(
+                minPrecio = minPrecio,
+                maxPrecio = maxPrecio
+            )
+        }
+    }
 
-        println("Cargando productos")
-        _model.update { it.copy(cargandoProductos = true) }
+    fun cambiarTalla(talla: Double?) {
+        _model.update { it.copy(talla = talla) }
+    }
 
-        viewModelScope.launch {
-            try {
-                productoRepository.traerPaginaProductos(limite, salto).collect { nuevosProductos ->
-                    if (nuevosProductos.isNotEmpty()) {
-                        println("Se han cargado ${nuevosProductos.size} productos")
-                        _model.update {
-                            val listaActualizada = (it.listaDeproductos + nuevosProductos)
+    fun alternarMarcaTemporal(idMarca: Int) {
+        _model.update {
+            val listaActualizada = if (it.marcas?.contains(idMarca) == true) {
+                it.marcas - idMarca
+            } else {
+                it.marcas?.plus(idMarca) ?: emptyList()
+            }
+            it.copy(marcas = listaActualizada)
+        }
+    }
 
-                            it.copy(
-                                listaDeproductos = listaActualizada,
-                                exitoProductos = true,
-                                cargandoProductos = false
-                            )
+    fun aplicarFiltrosDesdeHoja() {
+        val estado = _model.value
+        aplicarFiltros(
+            minPrecio = estado.minPrecio?.toDouble(),
+            maxPrecio = estado.maxPrecio?.toDouble(),
+            talla = estado.talla,
+            marcas = estado.marcas?.ifEmpty { null }
+        )
+    }
+
+    fun aplicarFiltros(
+        minPrecio: Double?,
+        maxPrecio: Double?,
+        talla: Double?,
+        marcas: List<Int>?
+    ) {
+        salto = 0
+
+        _model.update {
+            it.copy(
+                listaDeproductos = emptyList(),
+                cargandoProductos = true,
+                esListaFiltrada = true,
+                minPrecioSeleccionado = minPrecio,
+                maxPrecioSeleccionado = maxPrecio,
+                tallaSeleccionado = talla,
+                marcasSeleccionadas = marcas
+            )
+        }
+
+        FirebaseAuth.getInstance().currentUser?.getIdToken(true)?.addOnCompleteListener { tarea ->
+
+            if (tarea.isSuccessful) {
+                val token = tarea.result.token
+                if (token != null) {
+
+                    viewModelScope.launch {
+                        try {
+                            productoRepository.traerPaginaProductosFiltrado(
+                                token,
+                                minPrecio,
+                                maxPrecio,
+                                talla,
+                                marcas,
+                                limite,
+                                salto
+                            ).collect { productosFiltrados ->
+
+                                _model.update { state ->
+                                    state.copy(
+                                        listaDeproductos = productosFiltrados, // Coloca los filtrados en pantalla
+                                        exitoProductos = true,
+                                        cargandoProductos = false
+                                    )
+                                }
+
+                                if (productosFiltrados.isNotEmpty()) {
+                                    salto += limite
+                                }
+                            }
+                        } catch (e: Exception) {
+                            _model.update {
+                                it.copy(
+                                    cargandoProductos = false,
+                                    exitoProductos = false
+                                )
+                            }
+                            println("Error en ViewModel al filtrar: ${e.message}")
                         }
-                    } else {
-                        _model.update { it.copy(cargandoProductos = false) }
                     }
                 }
-                salto += limite
-            } catch (e: Exception) {
-                _model.update { it.copy(cargandoProductos = false, exitoProductos = false) }
-                println(e.message)
             }
         }
+    }
+
+    fun getNombreMarca(idMarca : Int) : String{
+        val marca = _model.value.listaMarcas.find { it.idMarca == idMarca }
+        return marca?.nombre ?: ""
+    }
+    fun cargarPaginaProductos() {
+        if (_model.value.cargandoProductos || _model.value.esBusquedaTexto) return
+
+        _model.update { it.copy(cargandoProductos = true) }
+        val estadoActual = _model.value
+
+        FirebaseAuth.getInstance().currentUser?.getIdToken(true)?.addOnCompleteListener { tarea ->
+            if (tarea.isSuccessful) {
+                val token = tarea.result.token
+                if (token != null) {
+
+                    viewModelScope.launch {
+                        try {
+                            // Decidimos qué flujo escuchar según el estado del modelo
+                            val flowProductos = if (estadoActual.esListaFiltrada) {
+                                productoRepository.traerPaginaProductosFiltrado(
+                                    token,
+                                    estadoActual.minPrecioSeleccionado,
+                                    estadoActual.maxPrecioSeleccionado,
+                                    estadoActual.tallaSeleccionado,
+                                    estadoActual.marcasSeleccionadas,
+                                    limite,
+                                    salto
+                                )
+                            } else {
+                                productoRepository.traerPaginaProductos(limite, salto)
+                            }
+
+                            flowProductos.collect { nuevosProductos ->
+                                if (nuevosProductos.isNotEmpty()) {
+                                    _model.update {
+                                        it.copy(
+                                            listaDeproductos = it.listaDeproductos + nuevosProductos,
+                                            exitoProductos = true,
+                                            cargandoProductos = false
+                                        )
+                                    }
+                                    salto += limite
+                                } else {
+                                    _model.update { it.copy(cargandoProductos = false) }
+                                }
+                            }
+                        } catch (e: Exception) {
+                            _model.update {
+                                it.copy(
+                                    cargandoProductos = false,
+                                    exitoProductos = false
+                                )
+                            }
+                            println(e.message)
+                        }
+                    }
+                }
+            }
+
+        }
+    }
+
+    fun limpiarFiltros() {
+        salto = 0
+        _model.update {
+            it.copy(
+                listaDeproductos = emptyList(),
+                esListaFiltrada = false,
+                minPrecioSeleccionado = null,
+                esBusquedaTexto = false,
+                maxPrecioSeleccionado = null,
+                tallaSeleccionado = null,
+                marcasSeleccionadas = null
+            )
+        }
+        cargarPaginaProductos()
     }
 
     fun cargarMarcas() {
@@ -76,6 +223,50 @@ class PrincipalViewModel @Inject constructor(
             } catch (e: Exception) {
                 _model.update { it.copy(cargandoMarcas = false, exitoMarcas = false) }
                 println(e.message)
+            }
+        }
+    }
+
+    fun buscarZapatillasPorTexto(texto: String) {
+        if (texto.isBlank()) {
+            _model.update { it.copy(textoBusquedaActual = "") }
+            limpiarFiltros()
+            return
+        }
+
+        salto = 0
+        _model.update {
+            it.copy(
+                textoBusquedaActual = texto,
+                esBusquedaTexto = true,
+                cargandoProductos = true,
+                listaDeproductos = emptyList()
+            )
+        }
+
+        FirebaseAuth.getInstance().currentUser?.getIdToken(true)?.addOnCompleteListener { tarea ->
+            if (tarea.isSuccessful) {
+                val token = tarea.result.token
+                if (token != null) {
+                    viewModelScope.launch {
+                        try {
+                            productoRepository.buscarProductosPorTexto(token, texto).collect { resultados ->
+                                    _model.update {
+                                        it.copy(
+                                            listaDeproductos = resultados,
+                                            exitoProductos = true,
+                                            cargandoProductos = false
+                                        )
+                                    }
+                            }
+                        } catch (e: Exception) {
+                            _model.update { it.copy(cargandoProductos = false, exitoProductos = false) }
+                            println("Error en ViewModel al buscar por texto: ${e.message}")
+                        }
+                    }
+                }
+            } else {
+                _model.update { it.copy(cargandoProductos = false) }
             }
         }
     }
