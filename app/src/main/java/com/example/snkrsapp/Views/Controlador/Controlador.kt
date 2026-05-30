@@ -72,7 +72,7 @@ fun Controlador() {
                 PantallaInicioSesion(
                     iniSesViewModel,
                     { navController.navigate("Registro") },
-                    { navController.navigate("Listados") })
+                    { navController.navigate("Principal") })
             }
             composable("Registro") {
                 PantallaRegistro(registroViewModel)

@@ -147,7 +147,7 @@ fun PantallaProductoDetallado(
                 if (pestañaSeleccionada == 0) {
                     ContenidoDetalles(model.productoSeleccionado)
                 } else {
-                    ContenidoMarca(model.marcaSeleccionada, model.productoSeleccionado.uidVendedor)
+                    ContenidoMarca(model.marcaSeleccionada, model.productoSeleccionado.uidVendedor?:"")
                 }
             }
 
