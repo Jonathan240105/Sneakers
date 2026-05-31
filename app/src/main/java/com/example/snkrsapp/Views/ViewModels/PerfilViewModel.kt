@@ -52,4 +52,55 @@ class PerfilViewModel @Inject constructor(
             }
         }
     }
+
+    fun cargarListados() {
+        val usuarioFirebase = FirebaseAuth.getInstance().currentUser
+        val uid = usuarioFirebase?.uid ?: return
+
+        usuarioFirebase.getIdToken(true)?.addOnCompleteListener { tarea ->
+            if (tarea.isSuccessful) {
+                val token = tarea.result.token
+                if (token != null) {
+                    _model.update { it.copy(cargandoColeccion = true) }
+                    viewModelScope.launch {
+                        perfilRepository.traerColeccionUsuario(token, uid).collect { lista ->
+                            _model.update {
+                                it.copy(
+                                    listaColeccion = lista,
+                                    cargandoColeccion = false,
+                                    exitoColeccion = true
+                                )
+                            }
+                        }
+                    }
+
+                    _model.update { it.copy(cargandoVentas = true) }
+                    viewModelScope.launch {
+                        perfilRepository.traerVentasUsuario(token, uid).collect { lista ->
+                            _model.update {
+                                it.copy(
+                                    listaVentas = lista,
+                                    cargandoVentas = false,
+                                    exitoVentas = true
+                                )
+                            }
+                        }
+                    }
+
+                    _model.update { it.copy(cargandoCarrito = true) }
+                    viewModelScope.launch {
+                        perfilRepository.traerCarrito(token, uid).collect { lista ->
+                            _model.update {
+                                it.copy(
+                                    listaCarrito = lista,
+                                    cargandoCarrito = false,
+                                    exitoCarrito = true
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

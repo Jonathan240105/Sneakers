@@ -49,7 +49,7 @@ fun Controlador() {
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
-    val listaSinBottombar = listOf("InicioSesion", "Registro", "AgregarProducto"    )
+    val listaSinBottombar = listOf("InicioSesion", "Registro", "AgregarProducto")
     var mostrarSheet by remember { mutableStateOf(false) }
 
     Scaffold(
@@ -92,7 +92,10 @@ fun Controlador() {
             }
 
             composable("Perfil") {
-                PantallaPerfil({ navController.navigate("ActualizarPerfil") }, perfilViewModel)
+                PantallaPerfil(
+                    { navController.navigate("ActualizarPerfil") },
+                    perfilViewModel,
+                    { navController.navigate("Listados/${it}") })
             }
             composable("ActualizarPerfil") {
                 PantallaActualizarPerfil(
@@ -115,8 +118,14 @@ fun Controlador() {
                 )
             }
 
-            composable("Listados") {
-                PantallaListados({ navController.navigate("Perfil") }, listadoViewModel,paddingValues)
+            composable("Listados/{id}") {
+                val id = it.arguments?.getString("id")?.toIntOrNull() ?: 0
+                PantallaListados(
+                    { navController.navigate("Perfil") },
+                    listadoViewModel,
+                    paddingValues,
+                    id
+                )
             }
         }
     }

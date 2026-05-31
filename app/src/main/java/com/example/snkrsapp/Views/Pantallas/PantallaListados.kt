@@ -52,7 +52,8 @@ import com.example.snkrsapp.Views.ViewModels.ListadoViewModel
 fun PantallaListados(
     navegarADetalle: () -> Unit,
     myViewModel: ListadoViewModel,
-    paddingValues: PaddingValues
+    paddingValues: PaddingValues,
+    id : Int = 0
 ) {
     LaunchedEffect(Unit) {
         myViewModel.cargarDatosPerfil()
@@ -60,7 +61,7 @@ fun PantallaListados(
 
     val model by myViewModel.model.collectAsState()
 
-    var pestañaSeleccionada by remember { mutableIntStateOf(0) }
+    var pestañaSeleccionada by remember { mutableIntStateOf(id) }
     val listadoPestañas = listOf("Colección", "Ventas", "Carrito")
 
     Box(modifier = Modifier.fillMaxSize()) {

@@ -21,7 +21,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -39,21 +38,26 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
+import com.example.snkrsapp.Domain.ProductoColeccionItem
+import com.example.snkrsapp.Domain.PublicacionPerfilItem
 import com.example.snkrsapp.Views.ViewModels.PerfilViewModel
 
 @Composable
-fun PantallaPerfil(cambiarAConfig: () -> Unit, myViewModel: PerfilViewModel) {
+fun PantallaPerfil(
+    cambiarAConfig: () -> Unit,
+    myViewModel: PerfilViewModel,
+    navegarAListado: (Int) -> Unit
+) {
 
     LaunchedEffect(Unit) {
         myViewModel.cargarPerfil()
+        myViewModel.cargarListados()
     }
 
     val model by myViewModel.model.collectAsState()
     val estadoScroll = rememberScrollState()
 
-    val coleccionEjemplo = listOf("Jordan 1", "Yeezy 350", "Dunk Low", "Air Max 90", "Forum Low")
-    val ventasEjemplo = listOf("New Balance 550", "Travis Scott AJ1")
-    val favoritos = listOf("Jordan 1", "Yeezy 350", "Dunk Low", "Air Max 90", "Forum Low")
 
     Column(
         Modifier
@@ -102,8 +106,10 @@ fun PantallaPerfil(cambiarAConfig: () -> Unit, myViewModel: PerfilViewModel) {
                             "",
                             tint = Color.White,
                             modifier = Modifier
+                                .clip(RoundedCornerShape(12.dp))
                                 .clickable(
                                     onClick = { cambiarAConfig() })
+                                .padding(15.dp)
                                 .testTag("BotonConfig")
                         )
                     }
@@ -114,40 +120,50 @@ fun PantallaPerfil(cambiarAConfig: () -> Unit, myViewModel: PerfilViewModel) {
                 Row(
                     Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    EstadisticaItem("Colección", coleccionEjemplo.size.toString())
+                    EstadisticaItem("Colección", model.listaColeccion.size.toString())
                     Box(
                         Modifier
                             .width(1.dp)
                             .height(30.dp)
                             .background(Color(0xFF333333))
                     )
-                    EstadisticaItem("En Venta", ventasEjemplo.size.toString())
+                    EstadisticaItem("En Venta", model.listaVentas.size.toString())
                     Box(
                         Modifier
                             .width(1.dp)
                             .height(30.dp)
                             .background(Color(0xFF333333))
                     )
-                    EstadisticaItem("Favoritos", favoritos.size.toString())
+                    EstadisticaItem("En carrito", model.listaCarrito.size.toString())
                 }
             }
         }
         Spacer(Modifier.height(30.dp))
         listaProductos(
-            titulo = "Mi Colección", items = coleccionEjemplo, VerTodo = {})
+            titulo = "Mi Colección",
+            items = model.listaColeccion.take(4),
+            VerTodo = { navegarAListado(0) })
         Spacer(Modifier.height(24.dp))
-        listaProductos(
-            titulo = "Mis Ventas", items = ventasEjemplo, VerTodo = {})
+        listaProductosVentasYCarrito(
+            titulo = "Mis Ventas",
+            items = model.listaVentas.take(4),
+            VerTodo = { navegarAListado(1) })
         Spacer(modifier = Modifier.height(24.dp))
-        listaProductos(
-            "Favoritos", favoritos, {}, Modifier.testTag("listaFavoritos")
+        listaProductosVentasYCarrito(
+            "Carrito",
+            model.listaCarrito.take(4),
+            { navegarAListado(2) },
+            Modifier.testTag("listaFavoritos")
         )
     }
 }
 
 @Composable
 fun listaProductos(
-    titulo: String, items: List<String>, VerTodo: () -> Unit, modifier: Modifier = Modifier
+    titulo: String,
+    items: List<ProductoColeccionItem>,
+    VerTodo: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Column(modifier) {
         Row(
@@ -184,14 +200,68 @@ fun listaProductos(
                         Box(
                             contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()
                         ) {
-                            Icon(
-                                Icons.Default.ShoppingCart,
-                                contentDescription = null,
-                                tint = Color(0xFF333333),
-                                modifier = Modifier.size(40.dp)
-                            )
+                            AsyncImage(item.urlFoto, "")
                             Text(
-                                item,
+                                item.modelo,
+                                color = Color.White,
+                                fontSize = 12.sp,
+                                modifier = Modifier
+                                    .align(Alignment.BottomCenter)
+                                    .padding(bottom = 8.dp)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun listaProductosVentasYCarrito(
+    titulo: String,
+    items: List<PublicacionPerfilItem>,
+    VerTodo: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier) {
+        Row(
+            Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(titulo, color = Color.White, fontSize = 18.sp, fontWeight = Bold)
+            Text(
+                "Ver todo",
+                color = Color.Gray,
+                fontSize = 14.sp,
+                modifier = Modifier.clickable { VerTodo() })
+        }
+        Spacer(Modifier.height(16.dp))
+
+        if (items.isEmpty()) {
+            Text(
+                "No hay artículos todavía",
+                color = Color.DarkGray,
+                fontSize = 14.sp,
+                modifier = Modifier.padding(vertical = 20.dp)
+            )
+        } else {
+            LazyRow(
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                items(items) { item ->
+                    Card(
+                        Modifier.size(width = 140.dp, height = 100.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E1E)),
+                        shape = RoundedCornerShape(16.dp)
+                    ) {
+                        Box(
+                            contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()
+                        ) {
+                            AsyncImage(item.urlFoto, "")
+                            Text(
+                                item.modelo,
                                 color = Color.White,
                                 fontSize = 12.sp,
                                 modifier = Modifier

@@ -142,9 +142,9 @@ fun BottomBar(navController: NavController) {
                 )
             )
             NavigationBarItem(
-                selected = currentRoute == "Listados",
+                selected = currentRoute == "Listados/0",
                 onClick = {
-                    navController.navigate("Listados")
+                    navController.navigate("Listados/0")
                 },
                 icon = {
                     Box(
@@ -152,7 +152,7 @@ fun BottomBar(navController: NavController) {
                             .size(width = 52.dp, height = 34.dp)
                             .clip(RoundedCornerShape(20.dp))
                             .background(
-                                if (currentRoute == "Listados") cs.primary.copy(alpha = 0.15f)
+                                if (currentRoute?.startsWith("Listados") == true) cs.primary.copy(alpha = 0.15f)
                                 else Color.Transparent
                             ),
                         contentAlignment = Alignment.Center
@@ -160,7 +160,7 @@ fun BottomBar(navController: NavController) {
                         Icon(
                             Icons.Default.Favorite,
                             "",
-                            tint = if (currentRoute == "Favoritos") cs.primary else Color.Gray,
+                            tint = if (currentRoute?.startsWith("Listados") == true) cs.primary else Color.Gray,
                             modifier = Modifier.size(24.dp)
                         )
                     }

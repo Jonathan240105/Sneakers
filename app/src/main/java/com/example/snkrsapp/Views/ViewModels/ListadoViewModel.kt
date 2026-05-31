@@ -20,7 +20,6 @@ class ListadoViewModel @Inject constructor(
     private val _model = MutableStateFlow(ModelListados())
     val model = _model.asStateFlow()
 
-    val miPropioUid: String = FirebaseAuth.getInstance().currentUser?.uid ?: ""
     fun cargarDatosPerfil() {
         val usuarioFirebase = FirebaseAuth.getInstance().currentUser
         val uid = usuarioFirebase?.uid ?: return
