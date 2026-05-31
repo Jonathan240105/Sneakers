@@ -34,10 +34,10 @@ fun ProductoRespuestaToProductoEntity(producto: TodosProductosRespuesta): Produc
         idProducto = producto.idProducto ?: 0,
         idMarca = producto.idMarca,
         modelo = producto.modelo,
-        precio = producto.precio,
-        talla = producto.talla,
-        uidVendedor = producto.uidVendedor,
-        imagenUrl = producto.imagenUrl
+        precio = producto.precio?:0,
+        talla = producto.talla?:0,
+        uidVendedor = producto.uidVendedor?:"",
+        imagenUrl = producto.imagenUrl?:""
     )
 
 }

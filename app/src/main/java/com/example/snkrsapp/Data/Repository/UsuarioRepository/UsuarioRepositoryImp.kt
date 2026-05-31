@@ -1,6 +1,10 @@
 package com.example.snkrsapp.Data.Repository.UsuarioRepository
 
 import android.util.Log
+import com.example.snkrsapp.Data.LocalData.Perfil.toCarritoEntity
+import com.example.snkrsapp.Data.LocalData.Perfil.toColeccionEntity
+import com.example.snkrsapp.Data.LocalData.Perfil.toDomain
+import com.example.snkrsapp.Data.LocalData.PublicacionPropia.PublicacionesPropiasLocalDao
 import com.example.snkrsapp.Data.LocalData.UsuariosConectados.EntityToUsuario
 import com.example.snkrsapp.Data.LocalData.UsuariosConectados.UsuarioEntity
 import com.example.snkrsapp.Data.LocalData.UsuariosConectados.UsuarioToEntity
@@ -10,8 +14,11 @@ import com.example.snkrsapp.Data.RemoteData.ActualizacionDao.ActualizarPerfilSol
 import com.example.snkrsapp.Data.RemoteData.AutorizacionDao.AutorizacionDao
 import com.example.snkrsapp.Data.RemoteData.AutorizacionDao.Usuario
 import com.example.snkrsapp.Data.RemoteData.AutorizacionDao.UsuarioSolicitud
+import com.example.snkrsapp.Data.RemoteData.PublicacionDao.PublicacionDao
 import com.example.snkrsapp.Domain.EstadoLogin
 import com.example.snkrsapp.Domain.EstadoRegistro
+import com.example.snkrsapp.Domain.ProductoColeccionItem
+import com.example.snkrsapp.Domain.PublicacionPerfilItem
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
 import kotlinx.coroutines.CoroutineScope
@@ -24,11 +31,16 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.io.IOException
 import javax.inject.Inject
+import com.example.snkrsapp.Data.LocalData.Perfil.toVentasEntity
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 
 class UsuarioRepositoryImp @Inject constructor(
     private val autDao: AutorizacionDao,
     private val usuarioDao: UsuariosConectadosDao,
-    private val actuDao: ActualizacionDao
+    private val actuDao: ActualizacionDao,
+    private val publicacionLocalDao: PublicacionesPropiasLocalDao,
+    private val publicacionDao: PublicacionDao
 ) : UsuarioRepository {
     override suspend fun iniciarSesion(email: String, contra: String): Flow<EstadoLogin> =
         callbackFlow {
@@ -180,6 +192,106 @@ class UsuarioRepositoryImp @Inject constructor(
         } catch (e: Exception) {
             println("Error al actualizar perfil: ${e.message}")
             emit(usuarioLocal)
+        }
+    }
+
+    override suspend fun traerCarrito(
+        token: String,
+        uidUsuario: String
+    ): Flow<List<PublicacionPerfilItem>> = flow {
+
+        try {
+
+
+            val carritoLocal = publicacionLocalDao.obtenerCarritoLocal(uidUsuario).first()
+            if (carritoLocal.isNotEmpty()) {
+                emit(carritoLocal.map { it.toDomain() })
+            }
+        } catch (e: Exception) {
+            println(
+                "Error al traer carrito: ${e.message}"
+            )
+        }
+        try {
+            val respuesta = publicacionDao.obtenerCarritoUsuario("Bearer $token")
+
+            if (respuesta.isSuccessful && respuesta.body() != null) {
+                val listaRemota = respuesta.body()!!
+
+                publicacionLocalDao.vaciarCarritoLocal(uidUsuario)
+                val entidadesALocal = listaRemota.map { it.toCarritoEntity(uidUsuario) }
+                publicacionLocalDao.insertarCarritoLocal(entidadesALocal)
+                emit(entidadesALocal.map { it.toDomain() })
+            }
+        } catch (e: Exception) {
+            println(
+                "Error al traer carrito: ${e.message}"
+            )
+        }
+    }
+
+    override suspend fun traerColeccionUsuario(
+        token: String,
+        uidObjetivo: String
+    ): Flow<List<ProductoColeccionItem>> = flow {
+
+        try {
+            val coleccionLocal = publicacionLocalDao.obtenerColeccionLocal(uidObjetivo).first()
+            if (coleccionLocal.isNotEmpty()) {
+                emit(coleccionLocal.map { it.toDomain() })
+            }
+        } catch (e: Exception) {
+            println("Error en Local: ${e.message}")
+        }
+
+
+        try {
+            val respuesta = publicacionDao.obtenerColeccionUsuario("Bearer $token", uidObjetivo)
+
+            if (respuesta.isSuccessful && respuesta.body() != null) {
+                val listaRemota = respuesta.body()!!
+                publicacionLocalDao.vaciarColeccionLocal(uidObjetivo)
+                val entidadesALocal = listaRemota.map { it.toColeccionEntity(uidObjetivo) }
+                publicacionLocalDao.insertarColeccionLocal(entidadesALocal)
+                emit(entidadesALocal.map { it.toDomain() })
+            }
+        } catch (e: Exception) {
+            println(
+                "Error al traer colección: ${e.message}"
+            )
+        }
+    }
+
+    override suspend fun traerVentasUsuario(
+        token: String,
+        uidObjetivo: String
+    ): Flow<List<PublicacionPerfilItem>> = flow {
+
+        try {
+            val ventasLocales = publicacionLocalDao.obtenerVentasLocal(uidObjetivo).first()
+            if (ventasLocales.isNotEmpty()) {
+                emit(ventasLocales.map { it.toDomain() })
+            }
+        } catch (e: Exception) {
+            println(
+                "Error al traer ventas: ${e.message}"
+            )
+        }
+        try {
+            val respuesta = publicacionDao.obtenerVentasUsuario("Bearer $token", uidObjetivo)
+
+            if (respuesta.isSuccessful && respuesta.body() != null) {
+                val listaRemota = respuesta.body()!!
+
+                publicacionLocalDao.vaciarVentasLocal(uidObjetivo)
+                val entidadesALocal = listaRemota.map { it.toVentasEntity(uidObjetivo) }
+                publicacionLocalDao.insertarVentasLocal(entidadesALocal)
+                emit(entidadesALocal.map { it.toDomain() })
+            }
+        } catch (e: Exception) {
+            println(
+                "Error al traer ventas: ${e.message}"
+            )
         }
     }
 }

@@ -18,8 +18,24 @@ interface ProductoRepository {
     suspend fun agregarPublicacion(
         body: AgregarPublicacionesSolicitud,
         token: String,
-        uid : String
+        uid: String,
+        nombreMarcaSeleccionada: String,
+        nombreModeloSeleccionado: String
     ): Flow<EstadoProductoNuevo>
 
     suspend fun buscarSugerencias(token: String, idMarca: Int, busqueda: String): List<ProductoItem>
+    suspend fun traerPaginaProductosFiltrado(
+        token: String,
+        minPrecio: Double?,
+        maxPrecio: Double?,
+        talla: Double?,
+        marcas: List<Int>?,
+        limit: Int,
+        offset: Int
+    ): Flow<List<Producto>>
+
+    suspend fun buscarProductosPorTexto(
+        token: String,
+        busqueda: String
+    ): Flow<List<Producto>>
 }

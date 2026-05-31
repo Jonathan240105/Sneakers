@@ -4,10 +4,13 @@ import com.example.snkrsapp.Data.LocalData.Marcas.EntityToMarca
 import com.example.snkrsapp.Data.LocalData.Marcas.MarcaEntity
 import com.example.snkrsapp.Data.LocalData.Marcas.MarcaLocalDao
 import com.example.snkrsapp.Data.LocalData.Marcas.MarcaRespuestaToEntity
+import com.example.snkrsapp.Data.LocalData.Perfil.ColeccionEntity
+import com.example.snkrsapp.Data.LocalData.Perfil.VentasEntity
 import com.example.snkrsapp.Data.LocalData.Productos.ProductoEntity
 import com.example.snkrsapp.Data.LocalData.Productos.ProductoEntityToProducto
 import com.example.snkrsapp.Data.LocalData.Productos.ProductoLocalDao
 import com.example.snkrsapp.Data.LocalData.Productos.ProductoRespuestaToProductoEntity
+import com.example.snkrsapp.Data.LocalData.PublicacionPropia.PublicacionesPropiasLocalDao
 import com.example.snkrsapp.Data.LocalData.Publicaciones.EntityToPublicacion
 import com.example.snkrsapp.Data.LocalData.Publicaciones.PublicacionEntity
 import com.example.snkrsapp.Data.LocalData.Publicaciones.PublicacionLocalDao
@@ -30,7 +33,8 @@ class ProductoRepositoryImp @Inject constructor(
     private val productoLocalDao: ProductoLocalDao,
     private val marcaLocalDao: MarcaLocalDao,
     private val publicacionLocalDao: PublicacionLocalDao,
-    private val publicacionDao: PublicacionDao
+    private val publicacionDao: PublicacionDao,
+    private val publicacionPropiaLocalDao: PublicacionesPropiasLocalDao
 ) : ProductoRepository {
 
     override suspend fun traerPaginaProductos(limite: Int, salto: Int): Flow<List<Producto>> =
@@ -123,7 +127,11 @@ class ProductoRepositoryImp @Inject constructor(
     }
 
     override suspend fun agregarPublicacion(
-        body: AgregarPublicacionesSolicitud, token: String, uid: String
+        body: AgregarPublicacionesSolicitud,
+        token: String,
+        uid: String,
+        nombreMarcaSeleccionada: String,
+        nombreModeloSeleccionado: String
     ): Flow<EstadoProductoNuevo> = flow {
         try {
             val respuesta = publicacionDao.agregarPublicacion("Bearer $token", body)
@@ -160,25 +168,67 @@ class ProductoRepositoryImp @Inject constructor(
                     )
                 }
 
-                if (datos.idPublicacion != null && idProductoFinal != null) {
-                    publicacionLocalDao.agregarPublicaciones(
-                        listOf(
-                            PublicacionEntity(
-                                idPublicacion = datos.idPublicacion,
-                                idProducto = idProductoFinal,
-                                precio = body.precio,
-                                talla = body.talla,
-                                estado = body.estado,
-                                urlFoto = body.urlFoto,
-                                fechaPublicacion = body.fecha_publicacion,
-                                disponible = true,
-                                uidUsuario = uid
+                if (!body.esParaColeccion) {
+
+                    if (datos.idPublicacion != null && idProductoFinal != null) {
+                        publicacionLocalDao.agregarPublicaciones(
+                            listOf(
+                                PublicacionEntity(
+                                    idPublicacion = datos.idPublicacion,
+                                    idProducto = idProductoFinal,
+                                    precio = body.precio,
+                                    talla = body.talla,
+                                    estado = body.estado,
+                                    urlFoto = body.urlFoto,
+                                    fechaPublicacion = body.fecha_publicacion,
+                                    disponible = true,
+                                    uidUsuario = uid
+                                )
                             )
                         )
-                    )
+
+                        publicacionPropiaLocalDao.insertarVentasLocal(
+                            listOf(
+                                VentasEntity(
+                                    uidUsuario = uid,
+                                    idPublicacion = datos.idPublicacion,
+                                    idProducto = idProductoFinal,
+                                    idMarca = idMarcaFinal ?: 0,
+                                    modelo = if (body.esProductoNuevo) body.nombreProductoNuevo
+                                        ?: "" else nombreModeloSeleccionado,
+                                    marca = if (body.esMarcaNueva) body.nombreMarcaNueva
+                                        ?: "" else nombreMarcaSeleccionada,
+                                    precio = body.precio,
+                                    talla = body.talla,
+                                    urlFoto = body.urlFoto,
+                                    estado = body.estado
+                                )
+                            )
+                        )
+                    }
+
+                } else {
+
+                    if (idProductoFinal != null) {
+                        publicacionPropiaLocalDao.insertarColeccionLocal(
+                            listOf(
+                                ColeccionEntity(
+                                    uidUsuario = uid,
+                                    idProducto = idProductoFinal,
+                                    idMarca = idMarcaFinal ?: 0,
+                                    modelo = if (body.esProductoNuevo) body.nombreProductoNuevo
+                                        ?: "" else nombreModeloSeleccionado,
+                                    marca = if (body.esMarcaNueva) body.nombreMarcaNueva
+                                        ?: "" else nombreMarcaSeleccionada,
+                                    urlFoto = body.urlFoto,
+                                    precio = body.precio
+                                )
+                            )
+                        )
+                    }
                 }
 
-                emit(EstadoProductoNuevo(true, "Publicación agregada con éxito"))
+                emit(EstadoProductoNuevo(true, datos.message))
 
             } else {
                 val msg = respuesta.body()?.message ?: "Error al procesar la publicación"
@@ -188,6 +238,7 @@ class ProductoRepositoryImp @Inject constructor(
             emit(EstadoProductoNuevo(false, "Error de red: ${e.message}"))
         }
     }
+
 
     override suspend fun buscarSugerencias(
         token: String, idMarca: Int, busqueda: String
@@ -206,6 +257,93 @@ class ProductoRepositoryImp @Inject constructor(
         } catch (e: Exception) {
             println("Error al buscar sugerencias: ${e.message}")
             return emptyList()
+        }
+    }
+
+    override suspend fun traerPaginaProductosFiltrado(
+        token : String,
+        minPrecio: Double?,
+        maxPrecio: Double?,
+        talla: Double?,
+        marcas: List<Int>?,
+        limit: Int,
+        offset: Int
+    ): Flow<List<Producto>> = flow {
+
+        val marcasString = marcas?.joinToString(",")
+        try {
+
+            val respuesta = productosDao.obtenerPaginaProductosFiltrados(
+                "Bearer $token",
+                minPrecio,
+                maxPrecio,
+                talla,
+                marcasString,
+                limit,
+                offset
+            )
+
+            if (respuesta.isSuccessful) {
+                val listaDeFiltrados = respuesta.body()
+                productoLocalDao.insertarLista(listaDeFiltrados?.map {
+                    ProductoRespuestaToProductoEntity(it)
+                } ?: emptyList())
+
+                emit(listaDeFiltrados?.map {
+                    Producto(
+                        idProducto = it.idProducto,
+                        idMarca = it.idMarca,
+                        modelo = it.modelo,
+                        precio = it.precio?:0,
+                        talla = it.talla?:0,
+                        uidVendedor = it.uidVendedor?:"",
+                        imagenUrl = it.imagenUrl?:""
+                    )
+                } ?: emptyList())
+            }
+        } catch (e: Exception) {
+            println("Error al traer productos filtrados: ${e.message}")
+            emit(emptyList())
+        }
+
+    }
+    override suspend fun buscarProductosPorTexto(
+        token: String,
+        busqueda: String
+    ): Flow<List<Producto>> = flow {
+        if (busqueda.isBlank()) {
+            emit(emptyList())
+            return@flow
+        }
+
+        try {
+            val respuesta = productosDao.buscarProductosGlobal("Bearer $token", busqueda)
+
+            if (respuesta.isSuccessful && respuesta.body() != null) {
+                val listaRespuesta = respuesta.body()!!
+
+                productoLocalDao.insertarLista(listaRespuesta.map {
+                    ProductoRespuestaToProductoEntity(it)
+                })
+
+                val listaMapeada = listaRespuesta.map {
+                    Producto(
+                        idProducto = it.idProducto,
+                        idMarca = it.idMarca,
+                        modelo = it.modelo,
+                        precio = it.precio?:0,
+                        talla = it.talla?:0,
+                        uidVendedor = it.uidVendedor?:"",
+                        imagenUrl = it.imagenUrl
+                    )
+                }
+                emit(listaMapeada)
+            } else {
+                emit(emptyList())
+            }
+        } catch (e: Exception) {
+            println("Error al buscar productos globalmente: ${e.message}")
+            emit(emptyList()) // En caso de caída de red o error, emitimos vacío para no romper la UI
         }
     }
 }

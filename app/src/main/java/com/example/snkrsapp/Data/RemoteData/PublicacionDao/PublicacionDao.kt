@@ -5,6 +5,7 @@ import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface PublicacionDao {
@@ -19,4 +20,22 @@ interface PublicacionDao {
         @Header("Authorization") token: String,
         @Body body: AgregarPublicacionesSolicitud
     ): Response<AgregarPublicacionRespuesta>
+
+    @GET("/usuarios/perfil/carrito")
+    suspend fun obtenerCarritoUsuario(
+        @Header("Authorization") token: String
+    ): Response<List<PublicacionPropiaListado>>
+
+    @GET("/usuarios/{uid}/coleccion")
+    suspend fun obtenerColeccionUsuario(
+        @Header("Authorization") token: String,
+        @Path("uid") uid: String
+    ): Response<List<PublicacionCarritoRespuesta>>
+
+    @GET("/usuarios/{uid}/ventas")
+    suspend fun obtenerVentasUsuario(
+        @Header("Authorization") token: String,
+        @Path("uid") uid: String
+    ): Response<List<PublicacionPropiaListado>>
+
 }

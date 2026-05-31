@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -26,8 +27,8 @@ import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -62,9 +63,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.snkrsapp.Domain.Marca
+import com.example.snkrsapp.Domain.ModelPrincipal
 import com.example.snkrsapp.Domain.Producto
 import com.example.snkrsapp.R
 import com.example.snkrsapp.Views.ViewModels.PrincipalViewModel
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -73,118 +76,137 @@ fun PantallaPrincipal(myViewModel: PrincipalViewModel, navegarADetalle: () -> Un
     val model by myViewModel.model.collectAsState()
     var nombreBuscado by remember { mutableStateOf("") }
     var mostrarFiltros by remember { mutableStateOf(false) }
+
     val estadoHoja = rememberModalBottomSheetState()
     val estadoLista = rememberLazyGridState()
 
     LaunchedEffect(estadoLista.canScrollForward, model.listaDeproductos.size) {
-        if (!estadoLista.canScrollForward && !model.cargandoProductos && model.listaDeproductos.isNotEmpty()) {
+        if (!estadoLista.canScrollForward && !model.cargandoProductos && model.listaDeproductos.isNotEmpty() && !model.esBusquedaTexto) {
             myViewModel.cargarPaginaProductos()
         }
     }
+    LaunchedEffect(nombreBuscado) {
+        delay(350)
+        myViewModel.buscarZapatillasPorTexto(nombreBuscado)
+    }
 
-    val lista = listOf(
-        Producto(modelo = "Jordan 1 Chicago", idMarca = 1, precio = 20, talla = 42),
-        Producto(modelo = "Jordan 1 Chicago", idMarca = 1, precio = 20, talla = 42),
-        Producto(modelo = "Jordan 1 Chicago", idMarca = 1, precio = 20, talla = 42),
-        Producto(modelo = "Jordan 1 Chicago", idMarca = 1, precio = 20, talla = 42),
-        Producto(modelo = "Jordan 1 Chicago", idMarca = 1, precio = 20, talla = 42),
-        Producto(modelo = "Jordan 1 Chicago", idMarca = 1, precio = 20, talla = 42),
-        Producto(modelo = "Jordan 1 Chicago", idMarca = 1, precio = 20, talla = 42),
-        Producto(modelo = "Jordan 1 Chicago", idMarca = 1, precio = 20, talla = 42),
-        Producto(modelo = "Jordan 1 Chicago", idMarca = 1, precio = 20, talla = 42),
-        Producto(modelo = "Jordan 1 Chicago", idMarca = 1, precio = 20, talla = 42),
-        Producto(modelo = "Jordan 1 Chicago", idMarca = 1, precio = 20, talla = 42),
-        Producto(modelo = "Jordan 1 Chicago", idMarca = 1, precio = 20, talla = 42),
-    )
-
-    val listaMarcas = listOf("Nike", "Adidas", "Puma", "New Balance", "Reebok")
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background((Color(0xFF121212)))
     ) {
-        Column(Modifier.padding(horizontal = 16.dp)) {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .statusBarsPadding()
+                .padding(horizontal = 20.dp)
+        ) {
+            Spacer(Modifier.height(14.dp))
             TituloEventos("Explorar Sneakers")
             Spacer(modifier = Modifier.height(12.dp))
-            BuscadorConFiltros(nombreBuscado, { nombreBuscado = it }) { mostrarFiltros = true }
-            Spacer(modifier = Modifier.height(12.dp))
 
+            BuscadorConFiltros(
+                nombreBuscado = nombreBuscado,
+                cambiarBuscador = { texto -> nombreBuscado = texto },
+                mostrarFiltros = { mostrarFiltros = true }
+            )
+            Spacer(modifier = Modifier.height(8.dp))
         }
+
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
-            contentPadding = PaddingValues(16.dp),
+            contentPadding = PaddingValues(
+                top = 8.dp,
+                bottom = 80.dp,
+                start = 16.dp,
+                end = 16.dp
+            ),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
-            state = estadoLista
+            state = estadoLista,
+            modifier = Modifier.fillMaxSize()
         ) {
             item(span = { GridItemSpan(2) }) {
                 Column {
-                    LazyRow {
-                        items(model.listaMarcas) {
-                            CardMarca(it)
+                    LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        contentPadding = PaddingValues(end = 12.dp)
+                    ) {
+                        items(model.listaMarcas) { marca ->
+                            val estaSeleccionada = model.marcasSeleccionadas?.contains(marca.idMarca) == true
+                            CardMarca(
+                                marca = marca,
+                                seleccionada = estaSeleccionada,
+                                elegirMarca = {
+                                    myViewModel.alternarMarcaTemporal(marca.idMarca)
+                                    myViewModel.aplicarFiltrosDesdeHoja()
+                                }
+                            )
                         }
                     }
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(4.dp))
                 }
             }
+
             items(model.listaDeproductos) {
-                CardProducto(it, navegarADetalle)
+                CardProducto(it, navegarADetalle, myViewModel.getNombreMarca(it.idMarca))
             }
-            if (model.listaDeproductos.size < 53) {
+
+            if (model.cargandoProductos) {
                 item(span = { GridItemSpan(2) }) {
                     Text(
                         "Buscando más zapatillas ...",
                         Modifier
-                            .padding(20.dp)
+                            .padding(vertical = 30.dp)
                             .fillMaxWidth(),
-                        textAlign = TextAlign.Center,
-                        color = Color.White
+                        textAlign = TextAlign.Center, color = Color.DarkGray, fontSize = 15.sp
                     )
                 }
             }
         }
+
         if (mostrarFiltros) {
             ModalBottomSheet(
                 onDismissRequest = { mostrarFiltros = false },
                 sheetState = estadoHoja,
                 containerColor = Color(0xFF1E1E1E),
-                dragHandle = {
-                    BottomSheetDefaults.DragHandle(
-                        color = Color.Gray
-                    )
-                }) {
-                CardFiltros({ mostrarFiltros = false })
+                dragHandle = { BottomSheetDefaults.DragHandle(color = Color.Gray) }
+            ) {
+                CardFiltros(
+                    model = model,
+                    onPrecioChange = { min, max -> myViewModel.cambiarRangoPrecio(min, max) },
+                    onTallaClick = { myViewModel.cambiarTalla(it) },
+                    onMarcaClick = { myViewModel.alternarMarcaTemporal(it) },
+                    onAplicarClick = {
+                        myViewModel.aplicarFiltrosDesdeHoja()
+                        mostrarFiltros = false
+                    }
+                )
             }
         }
     }
 }
 
 @Composable
-fun CardMarca(marca: Marca) {
-
-    var seleccionada by remember { mutableStateOf(false) }
-
+fun CardMarca(marca: Marca, seleccionada: Boolean, elegirMarca: () -> Unit) {
     Card(
         modifier = Modifier
-            .padding(end = 8.dp)
-            .height(60.dp)
-            .width(160.dp)
-            .clickable(onClick = { seleccionada = !seleccionada })
+            .padding(end = 4.dp)
+            .height(55.dp)
+            .width(150.dp)
+            .clickable(onClick = elegirMarca)
             .testTag("cardMarca"),
         shape = RoundedCornerShape(15.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color(0xFF1E1E1E)
-        ),
-        border = if (seleccionada) BorderStroke(width = 1.dp, color = Color.White) else null
+        colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E1E)),
+        border = if (seleccionada) BorderStroke(width = 1.5.dp, color = Color.White) else null
     ) {
-        Box(modifier = Modifier.fillMaxSize()) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.CenterStart) {
             AsyncImage(
                 marca.logoUrl,
                 "",
                 modifier = Modifier
-                    .padding(8.dp)
-                    .size(40.dp)
-                    .align(Alignment.CenterStart),
+                    .padding(start = 12.dp)
+                    .size(28.dp),
                 contentScale = ContentScale.Fit
             )
 
@@ -195,7 +217,7 @@ fun CardMarca(marca: Marca) {
                         Brush.horizontalGradient(
                             colors = listOf(
                                 Color.Transparent,
-                                Color(0xFF1E1E1E).copy(alpha = 0.7f),
+                                Color(0xFF1E1E1E).copy(alpha = 0.5f),
                                 Color(0xFF1E1E1E)
                             ),
                         )
@@ -203,20 +225,20 @@ fun CardMarca(marca: Marca) {
             )
 
             Text(
-                text = marca.nombre,
+                text = marca.nombre ?: "",
                 color = Color.White,
                 fontWeight = Bold,
-                fontSize = 15.sp,
+                fontSize = 14.sp,
                 modifier = Modifier
                     .align(Alignment.CenterEnd)
-                    .padding(end = 12.dp)
+                    .padding(end = 14.dp)
             )
         }
     }
 }
 
 @Composable
-fun CardProducto(producto: Producto, onclick: () -> Unit) {
+fun CardProducto(producto: Producto, onclick: () -> Unit, nombreMarca: String) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -228,12 +250,14 @@ fun CardProducto(producto: Producto, onclick: () -> Unit) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(180.dp)
+                    .height(160.dp)
                     .background(Color(0xFF252525)),
                 contentAlignment = Alignment.Center
             ) {
                 AsyncImage(
-                    model = producto.imagenUrl, contentDescription = "",
+                    model = producto.imagenUrl ?: "",
+                    contentDescription = "",
+                    modifier = Modifier.padding(12.dp)
                 )
             }
             Column(
@@ -244,13 +268,15 @@ fun CardProducto(producto: Producto, onclick: () -> Unit) {
                 Text(
                     text = producto.modelo,
                     color = Color.White,
-                    fontSize = 18.sp,
+                    fontSize = 17.sp,
                     fontWeight = Bold,
                     maxLines = 1
                 )
-                Spacer(Modifier.height(3.dp))
+                Spacer(Modifier.height(4.dp))
                 Text(
-                    text = "Marca ${producto.idMarca}", color = Color.Gray, fontSize = 15.sp
+                    text = nombreMarca ?: "",
+                    color = Color.Gray,
+                    fontSize = 14.sp
                 )
 
                 Row(
@@ -261,13 +287,16 @@ fun CardProducto(producto: Producto, onclick: () -> Unit) {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "${producto.precio} €",
+                        text = "${producto.precio ?: ""} €",
                         color = Color.White,
-                        fontSize = 20.sp,
+                        fontSize = 16.sp,
                         fontWeight = Bold
                     )
                     Icon(
-                        Icons.Default.FavoriteBorder, "", tint = Color.White
+                        Icons.Default.ShoppingCart,
+                        "",
+                        tint = Color.White,
+                        modifier = Modifier.size(20.dp)
                     )
                 }
             }
@@ -281,56 +310,64 @@ fun BuscadorConFiltros(
 ) {
     Row(
         Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         OutlinedTextField(
-            nombreBuscado,
-            cambiarBuscador,
-            placeholder = { Text("Buscar zapatilla, modelo ...") },
+            value = nombreBuscado,
+            onValueChange = cambiarBuscador,
+            placeholder = { Text("Buscar zapatilla, modelo ...", color = Color.Gray) },
             modifier = Modifier
                 .weight(1f)
+                .height(54.dp)
                 .testTag("TextFieldZapatillas"),
             trailingIcon = { Icon(Icons.Default.Search, "", tint = Color.White) },
             shape = RoundedCornerShape(12.dp),
+            singleLine = true,
             colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Color.White,
-                unfocusedBorderColor = Color.LightGray,
-                focusedPlaceholderColor = Color.White,
-                unfocusedPlaceholderColor = Color.LightGray,
                 focusedTextColor = Color.White,
-                unfocusedTextColor = Color.LightGray
+                unfocusedTextColor = Color.White,
+                unfocusedBorderColor = Color(0xFF333333),
+                focusedBorderColor = Color.White,
+                cursorColor = Color.White,
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent
             )
         )
         Box(
             Modifier
-                .height(50.dp)
-                .width(50.dp)
+                .size(54.dp)
                 .clickable(onClick = mostrarFiltros)
                 .border(
-                    BorderStroke(width = 1.dp, color = Color.White),
+                    BorderStroke(width = 1.dp, color = Color(0xFF333333)),
                     shape = RoundedCornerShape(12.dp)
                 )
                 .clip(RoundedCornerShape(12.dp))
-                .background(Color.White)
+                .background(Color(0xFF1E1E1E))
                 .testTag("botonFiltros"),
             contentAlignment = Alignment.Center
         ) {
             Image(
                 painterResource(R.drawable.baseline_filter_list_alt_24),
                 "",
-                modifier = Modifier.size(35.dp)
+                modifier = Modifier.size(24.dp),
+                colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(Color.White)
             )
         }
     }
 }
-
 @Composable
-fun CardFiltros(cerrarFiltros: () -> Unit) {
-    var rangoPrecio by remember { mutableStateOf(0f..500f) }
-    var tallaSeleccionada by remember { mutableStateOf("42") }
-    val tallas = listOf("35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46")
-    val marcas = listOf("Nike", "Adidas", "Jordan", "New Balance", "Reebok")
+fun CardFiltros(
+    model: ModelPrincipal,
+    onPrecioChange: (Int, Int) -> Unit,
+    onTallaClick: (Double?) -> Unit,
+    onMarcaClick: (Int) -> Unit,
+    onAplicarClick: () -> Unit
+) {
+    val minActual = model.minPrecio?.toFloat() ?: 0f
+    val maxActual = model.maxPrecio?.toFloat() ?: 500f
+
+    val tallas = (60..100).map { it / 2.0 }
 
     Column(
         modifier = Modifier
@@ -338,23 +375,21 @@ fun CardFiltros(cerrarFiltros: () -> Unit) {
             .padding(25.dp)
     ) {
         Text(
-            text = "Filtros", style = TextStyle(
-                fontSize = 25.sp, fontWeight = Bold, color = Color.White
-            )
+            text = "Filtros",
+            style = TextStyle(fontSize = 25.sp, fontWeight = Bold, color = Color.White)
         )
         Spacer(Modifier.height(25.dp))
 
         Text("Rango de Precio", color = Color.Gray, fontSize = 14.sp)
         Spacer(Modifier.height(8.dp))
-        Row(
-            Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text("${rangoPrecio.start.toInt()}€", color = Color.White)
-            Text("${rangoPrecio.endInclusive.toInt()}€", color = Color.White)
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Text("${minActual.toInt()}€", color = Color.White)
+            Text("${maxActual.toInt()}€", color = Color.White)
         }
+
         RangeSlider(
-            value = rangoPrecio,
-            onValueChange = { rangoPrecio = it },
+            value = minActual..maxActual,
+            onValueChange = { onPrecioChange(it.start.toInt(), it.endInclusive.toInt()) },
             valueRange = 0f..1000f,
             colors = SliderDefaults.colors(
                 thumbColor = Color.White,
@@ -367,34 +402,31 @@ fun CardFiltros(cerrarFiltros: () -> Unit) {
         Text("Talla", color = Color.Gray, fontSize = 14.sp)
         Spacer(Modifier.height(12.dp))
 
-        Column(
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(4),
+            modifier = Modifier.height(180.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            val filasTallas = tallas.chunked(4)
-            filasTallas.forEach { fila ->
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+            items(tallas) { tallaItem ->
+                val esTallaSeleccionada = model.talla == tallaItem
+                Box(
+                    modifier = Modifier
+                        .height(45.dp)
+                        .background(
+                            if (esTallaSeleccionada) Color.White else Color(0xFF1E1E1E),
+                            RoundedCornerShape(12.dp)
+                        )
+                        .clickable {
+                            onTallaClick(if (esTallaSeleccionada) null else tallaItem)
+                        },
+                    contentAlignment = Alignment.Center
                 ) {
-                    fila.forEach { talla ->
-                        Box(
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(45.dp)
-                                .background(
-                                    if (tallaSeleccionada == talla) Color.White else Color(
-                                        0xFF1E1E1E
-                                    ), RoundedCornerShape(12.dp)
-                                )
-                                .clickable { tallaSeleccionada = talla },
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                talla,
-                                color = if (tallaSeleccionada == talla) Color.Black else Color.White,
-                                fontWeight = Bold
-                            )
-                        }
-                    }
+                    Text(
+                        text = tallaItem.toString(),
+                        color = if (esTallaSeleccionada) Color.Black else Color.White,
+                        fontWeight = Bold
+                    )
                 }
             }
         }
@@ -402,17 +434,29 @@ fun CardFiltros(cerrarFiltros: () -> Unit) {
 
         Text("Marcas", color = Color.Gray, fontSize = 14.sp)
         Spacer(Modifier.height(12.dp))
-        LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            items(marcas) { marca ->
+
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            items(model.listaMarcas) { marca ->
+                val estaMarcada = model.marcas?.contains(marca.idMarca) == true
                 Box(
                     modifier = Modifier
-                        .background(Color(0xFF1E1E1E), RoundedCornerShape(20.dp))
-                        .border(1.dp, Color(0xFF333333), RoundedCornerShape(20.dp))
+                        .background(
+                            if (estaMarcada) Color.White else Color(0xFF1E1E1E),
+                            RoundedCornerShape(20.dp)
+                        )
+                        .border(
+                            1.dp,
+                            if (estaMarcada) Color.White else Color(0xFF333333),
+                            RoundedCornerShape(20.dp)
+                        )
+                        .clickable { onMarcaClick(marca.idMarca) }
                         .padding(horizontal = 16.dp, vertical = 8.dp)
                 ) {
-                    Text(marca, color = Color.White, fontSize = 14.sp)
+                    Text(
+                        text = marca.nombre ?: "",
+                        color = if (estaMarcada) Color.Black else Color.White,
+                        fontSize = 14.sp
+                    )
                 }
             }
         }
@@ -422,16 +466,16 @@ fun CardFiltros(cerrarFiltros: () -> Unit) {
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(55.dp)
-                .clickable { },
+                .height(55.dp),
             shape = RoundedCornerShape(25.dp),
             colors = CardDefaults.cardColors(containerColor = Color.White)
         ) {
             Box(
                 Modifier
                     .fillMaxSize()
-                    .clickable(onClick = cerrarFiltros)
-                    .testTag("botonAplicarFiltros"), contentAlignment = Alignment.Center
+                    .clickable { onAplicarClick() }
+                    .testTag("botonAplicarFiltros"),
+                contentAlignment = Alignment.Center
             ) {
                 Text("Aplicar Filtros", color = Color.Black, fontWeight = Bold, fontSize = 16.sp)
             }
@@ -454,9 +498,3 @@ fun TituloEventos(texto: String) {
         )
     )
 }
-
-//@Preview(showBackground = true)
-//@Composable
-//fun Prev() {
-//    PantallaPrincipal()
-//}

@@ -77,7 +77,64 @@ fun PantallaAgregarProducto(
     ) {
         Spacer(Modifier.height(30.dp))
 
-        TituloAgregarPublicacion("Publicar Sneaker")
+        // Título dinámico según la opción seleccionada
+        TituloAgregarPublicacion(
+            if (model.esColeccion) "Añadir a mi Colección" else "Publicar Sneaker"
+        )
+
+        // =======================================================================
+        // NUEVO: Selector de Modo (Pestañas Venta / Colección)
+        // =======================================================================
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 10.dp)
+                .background(Color(0xFF1E1E1E), RoundedCornerShape(12.dp))
+                .padding(4.dp),
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            val itemModifier = Modifier.weight(1f)
+
+            // Botón Modo Venta
+            Box(
+                modifier = itemModifier
+                    .background(
+                        color = if (!model.esColeccion) Color.White else Color.Transparent,
+                        shape = RoundedCornerShape(9.dp)
+                    )
+                    .clickable { agregarProductoViewModel.cambiarModoColeccion(false) }
+                    .padding(vertical = 12.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "Para Vender",
+                    color = if (!model.esColeccion) Color.Black else Color.Gray,
+                    fontWeight = Bold,
+                    fontSize = 14.sp
+                )
+            }
+
+            // Botón Modo Colección
+            Box(
+                modifier = itemModifier
+                    .background(
+                        color = if (model.esColeccion) Color.White else Color.Transparent,
+                        shape = RoundedCornerShape(9.dp)
+                    )
+                    .clickable { agregarProductoViewModel.cambiarModoColeccion(true) }
+                    .padding(vertical = 12.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "Mi Colección",
+                    color = if (model.esColeccion) Color.Black else Color.Gray,
+                    fontWeight = Bold,
+                    fontSize = 14.sp
+                )
+            }
+        }
+
+        Spacer(Modifier.height(10.dp))
 
         LazyColumn(
             modifier = Modifier
@@ -138,7 +195,7 @@ fun PantallaAgregarProducto(
                 ) {
                     Box(Modifier.weight(1f)) {
                         TextoConTextField(
-                            label = "Precio (€)",
+                            label = if (model.esColeccion) "Precio Compra/Valor (€)" else "Precio Venta (€)",
                             valor = if (model.precioNuevaPublicacion == 0.0) "" else model.precioNuevaPublicacion.toString(),
                             isNumeric = true
                         ) {
@@ -158,19 +215,25 @@ fun PantallaAgregarProducto(
                     }
                 }
 
-                Spacer(Modifier.height(15.dp))
-
-                TextoConTextField(
-                    "Estado de las sneakers (Ej: Nuevo / Usado 9/10)",
-                    model.estadoNuevaPublicacion
-                ) {
-                    agregarProductoViewModel.cambiarEstadoZapato(it)
+                // =======================================================================
+                // ANIMACIÓN: Ocultamos el campo "Estado" si el par va directo a la colección
+                // =======================================================================
+                AnimatedVisibility(visible = !model.esColeccion) {
+                    Column {
+                        Spacer(Modifier.height(15.dp))
+                        TextoConTextField(
+                            "Estado de las sneakers (Ej: Nuevo / Usado 9/10)",
+                            model.estadoNuevaPublicacion
+                        ) {
+                            agregarProductoViewModel.cambiarEstadoZapato(it)
+                        }
+                    }
                 }
 
                 Spacer(Modifier.height(15.dp))
 
                 TextoConTextField(
-                    "URL de la imagen real",
+                    if (model.esColeccion) "URL de la imagen de la zapatilla" else "URL de la imagen real",
                     model.urlImagenNuevaPublicacion
                 ) {
                     agregarProductoViewModel.cambiarImagenUrl(it)
@@ -190,10 +253,13 @@ fun PantallaAgregarProducto(
                 Spacer(Modifier.height(30.dp))
             }
         }
+
+        // Botones inferiores con el texto dinámico inyectado
         BotonesInferiores(
             model.cargando,
-            { agregarProductoViewModel.agregarPublicacion() },
-            {
+            textoBoton = if (model.esColeccion) "Añadir a la Colección" else "Publicar Sneaker",
+            agregarPublicacion = { agregarProductoViewModel.agregarPublicacion() },
+            volverAtras = {
                 agregarProductoViewModel.resetearEstadoNuevaPublicacion(); navegarAtras()
             })
     }
@@ -321,11 +387,11 @@ fun Selector(
         ) {
             listaMarcas.forEach { marca ->
                 DropdownMenuItem(
-                    text = { Text(marca.nombre, color = Color.White) },
+                    text = { Text(marca.nombre ?: "", color = Color.White) },
                     onClick = {
                         cambiarMarca(
-                            marca.idMarca,
-                            marca.nombre
+                            marca.idMarca ?: 0,
+                            marca.nombre ?: ""
                         )
                         expandedMarcas = false
                     }
@@ -351,6 +417,7 @@ fun Selector(
 @Composable
 fun BotonesInferiores(
     estaCargando: Boolean,
+    textoBoton: String, // <-- NUEVO PARAMETRO
     agregarPublicacion: () -> Unit,
     volverAtras: () -> Unit
 ) {
@@ -377,7 +444,7 @@ fun BotonesInferiores(
                     CircularProgressIndicator(color = Color.Black)
                 } else {
                     Text(
-                        "Publicar Sneaker",
+                        textoBoton, // <-- TEXTO DINÁMICO
                         color = Color.Black,
                         fontWeight = Bold,
                         fontSize = 16.sp

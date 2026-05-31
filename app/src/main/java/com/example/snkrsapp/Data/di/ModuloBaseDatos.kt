@@ -7,6 +7,7 @@ import com.example.snkrsapp.Data.LocalData.Eventos.EventoLocalDao
 import com.example.snkrsapp.Data.LocalData.Marcas.MarcaLocalDao
 import com.example.snkrsapp.Data.LocalData.UsuariosConectados.UsuariosConectadosDao
 import com.example.snkrsapp.Data.LocalData.Productos.ProductoLocalDao
+import com.example.snkrsapp.Data.LocalData.PublicacionPropia.PublicacionesPropiasLocalDao
 import com.example.snkrsapp.Data.LocalData.Publicaciones.PublicacionLocalDao
 import dagger.Module
 import dagger.Provides
@@ -54,4 +55,8 @@ object ModuloBaseDatos {
         return db.PublicacionLocalDao()
     }
 
+    @Provides
+    fun providePublicacionesPropiasDao(db: BaseDatos): PublicacionesPropiasLocalDao {
+        return db.PublicacionesPropiasLocalDao()
+    }
 }
