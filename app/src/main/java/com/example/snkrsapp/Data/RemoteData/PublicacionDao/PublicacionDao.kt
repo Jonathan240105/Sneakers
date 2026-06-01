@@ -38,4 +38,10 @@ interface PublicacionDao {
         @Path("uid") uid: String
     ): Response<List<PublicacionPropiaListado>>
 
+    @GET("/publicaciones/producto/{idProducto}")
+    suspend fun getPublicacionesPorProducto(
+        @Path("idProducto") idProducto: Int,
+        @Header("Authorization") token: String
+    ): Response<List<PublicacionesProductoRespuesta>>
+
 }

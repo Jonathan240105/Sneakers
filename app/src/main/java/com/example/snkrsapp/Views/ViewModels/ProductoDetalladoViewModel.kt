@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.snkrsapp.Data.Repository.ProductoRepository.ProductoRepository
 import com.example.snkrsapp.Domain.ModelProductoDetallado
+import com.example.snkrsapp.Domain.Publicacion
+import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -28,6 +30,34 @@ class ProductoDetalladoViewModel @Inject constructor(
         }
     }
 
+    fun cargarPublicacionesDelProducto(idProducto: Int) {
+        FirebaseAuth.getInstance().currentUser?.getIdToken(true)?.addOnCompleteListener {
+            if (it.isSuccessful) {
+                val token = it.result.token
+                if (token != null) {
+                    viewModelScope.launch {
+                        _model.update { it.copy(cargandoPublicaciones = true) }
+                        productoRepository.traerPublicacionesPorProducto(token, idProducto)
+                            .collect { lista ->
+                                _model.update {
+                                    it.copy(
+                                        listaPublicaciones = lista,
+                                        publicacionSeleccionada = lista.firstOrNull() ?: Publicacion(),
+                                        cargandoPublicaciones = false
+                                    )
+                                }
+                            }
+                    }
+                }
+            }
+        }
+    }
+
+    fun seleccionarPublicacion(publicacion: Publicacion) {
+        _model.update {
+            it.copy(publicacionSeleccionada = publicacion)
+        }
+    }
     fun cargarMarca(idMarca: Int) {
         viewModelScope.launch {
             productoRepository.traerMarcaPorId(idMarca).collect { marca ->

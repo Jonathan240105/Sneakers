@@ -49,22 +49,21 @@ fun Controlador() {
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
-    val listaSinBottombar = listOf("InicioSesion", "Registro", "AgregarProducto","ProductoDetallado")
+    val listaSinBottombar =
+        listOf("InicioSesion", "Registro", "AgregarProducto", "ProductoDetallado")
     var mostrarSheet by remember { mutableStateOf(false) }
 
-    Scaffold(
-        bottomBar = {
-            if (currentRoute !in listaSinBottombar) {
-                BottomBar(navController)
-            }
-        },
-        floatingActionButton = {
-            if (currentRoute == "Eventos") {
-                BotonCrearEvento(
-                    navController
-                ) { mostrarSheet = true }
-            }
+    Scaffold(bottomBar = {
+        if (currentRoute !in listaSinBottombar) {
+            BottomBar(navController)
         }
+    }, floatingActionButton = {
+        if (currentRoute == "Eventos") {
+            BotonCrearEvento(
+                navController
+            ) { mostrarSheet = true }
+        }
+    }
 
     ) { paddingValues ->
         NavHost(navController = navController, startDestination = "InicioSesion") {
@@ -75,19 +74,18 @@ fun Controlador() {
                     { navController.navigate("Principal") })
             }
             composable("Registro") {
-                PantallaRegistro(registroViewModel,{navController.navigate("InicioSesion")})
+                PantallaRegistro(registroViewModel, { navController.navigate("InicioSesion") })
             }
             composable("Principal") {
                 PantallaPrincipal(
                     principalViewModel,
-                    { navController.navigate("ProductoDetallado") })
+                    { pr, m -> navController.navigate("ProductoDetallado/${pr}/${m}") })
             }
-            composable("ProductoDetallado") {
+            composable("ProductoDetallado/{id}/{marca}") {
+                val id = it.arguments?.getString("id")?.toIntOrNull() ?: 0
+                val marca = it.arguments?.getString("marca")?.toIntOrNull() ?: 0
                 PantallaProductoDetallado(
-                    14,
-                    1,
-                    { navController.navigate("Principal") },
-                    productoDetalladoViewModel
+                    id, marca, { navController.navigate("Principal") }, productoDetalladoViewModel
                 )
             }
 
@@ -100,7 +98,7 @@ fun Controlador() {
             composable("ActualizarPerfil") {
                 PantallaActualizarPerfil(
                     { navController.navigate("Perfil") },
-                    {navController.navigate("InicioSesion")},
+                    { navController.navigate("InicioSesion") },
                     perfilViewModel,
                     actuViewModel
                 )
@@ -121,10 +119,7 @@ fun Controlador() {
             composable("Listados/{id}") {
                 val id = it.arguments?.getString("id")?.toIntOrNull() ?: 0
                 PantallaListados(
-                    { navController.navigate("Perfil") },
-                    listadoViewModel,
-                    paddingValues,
-                    id
+                    { navController.navigate("Perfil") }, listadoViewModel, paddingValues, id
                 )
             }
         }

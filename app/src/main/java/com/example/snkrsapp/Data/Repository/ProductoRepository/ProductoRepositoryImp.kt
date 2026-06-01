@@ -23,15 +23,18 @@ import com.example.snkrsapp.Data.LocalData.Publicaciones.PublicacionToEntity
 import com.example.snkrsapp.Data.RemoteData.ProductoDao.ProductosDao
 import com.example.snkrsapp.Data.RemoteData.PublicacionDao.AgregarPublicacionesSolicitud
 import com.example.snkrsapp.Data.RemoteData.PublicacionDao.PublicacionDao
+import com.example.snkrsapp.Data.RemoteData.PublicacionDao.toEntity
 import com.example.snkrsapp.Domain.EstadoProductoNuevo
 import com.example.snkrsapp.Domain.Marca
 import com.example.snkrsapp.Domain.Producto
 import com.example.snkrsapp.Domain.ProductoItem
 import com.example.snkrsapp.Domain.Publicacion
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import kotlin.coroutines.resume
 
@@ -84,10 +87,10 @@ class ProductoRepositoryImp @Inject constructor(
             val localesIniciales = productoLocalDao.obtenerPaginaProductos(limite, salto)
             if (localesIniciales.isNotEmpty()) {
                 emit(localesIniciales.map { ProductoEntityToProducto(it) })
-                return@flow
             }
             try {
                 val respuesta = productosDao.obtenerPaginaProductos(limite, salto)
+
                 if (respuesta.isSuccessful && respuesta.body() != null) {
                     productoLocalDao.insertarLista(respuesta.body()?.map {
                         ProductoRespuestaToProductoEntity(it)
@@ -97,6 +100,9 @@ class ProductoRepositoryImp @Inject constructor(
                     emit(localesActualizados.map { ProductoEntityToProducto(it) })
                 }
             } catch (e: Exception) {
+                println(
+                    "Error al traer productos: ${e.message}"
+                )
             }
         }
 
@@ -202,7 +208,7 @@ class ProductoRepositoryImp @Inject constructor(
                             idProducto = datos.idProducto,
                             idMarca = idMarcaFinal ?: 0,
                             modelo = body.nombreProductoNuevo ?: "",
-                            precio = body.precio.toInt(),
+                            precio = body.precio,
                             talla = body.talla.toInt(),
                             uidVendedor = "SISTEMA",
                             imagenUrl = body.urlFoto
@@ -336,7 +342,7 @@ class ProductoRepositoryImp @Inject constructor(
                         idProducto = it.idProducto,
                         idMarca = it.idMarca,
                         modelo = it.modelo,
-                        precio = it.precio ?: 0,
+                        precio = it.precio ?: 0.0,
                         talla = it.talla ?: 0,
                         uidVendedor = it.uidVendedor ?: "",
                         imagenUrl = it.imagenUrl ?: ""
@@ -374,7 +380,7 @@ class ProductoRepositoryImp @Inject constructor(
                         idProducto = it.idProducto,
                         idMarca = it.idMarca,
                         modelo = it.modelo,
-                        precio = it.precio ?: 0,
+                        precio = it.precio ?: 0.0,
                         talla = it.talla ?: 0,
                         uidVendedor = it.uidVendedor ?: "",
                         imagenUrl = it.imagenUrl
@@ -387,6 +393,38 @@ class ProductoRepositoryImp @Inject constructor(
         } catch (e: Exception) {
             println("Error al buscar productos globalmente: ${e.message}")
             emit(emptyList()) // En caso de caída de red o error, emitimos vacío para no romper la UI
+        }
+    }
+
+    override suspend fun traerPublicacionesPorProducto(
+        token: String,
+        idProducto: Int
+    ): Flow<List<Publicacion>> = flow {
+
+        val publicacionesLocales = publicacionLocalDao.getPublicaciones(idProducto)
+        if (publicacionesLocales.isNotEmpty()) {
+            emit(publicacionesLocales.map { EntityToPublicacion(it) })
+        }
+
+        try {
+            val respuesta = publicacionDao.getPublicacionesPorProducto(idProducto, "Bearer $token")
+
+            if (respuesta.isSuccessful && respuesta.body() != null) {
+                val listadoRespuesta = respuesta.body()!!
+
+                val entidadesRoom = listadoRespuesta.map {
+                    it.toEntity()
+                }
+                publicacionLocalDao.agregarPublicaciones(entidadesRoom)
+
+                val localesActualizados = publicacionLocalDao.getPublicaciones(idProducto)
+                emit(localesActualizados.map { EntityToPublicacion(it) })
+            } else {
+                emit(emptyList())
+            }
+        } catch (e: Exception) {
+            println("Error: ${e.message}")
+            emit(emptyList())
         }
     }
 }

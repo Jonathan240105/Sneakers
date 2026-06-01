@@ -71,7 +71,7 @@ import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PantallaPrincipal(myViewModel: PrincipalViewModel, navegarADetalle: () -> Unit) {
+fun PantallaPrincipal(myViewModel: PrincipalViewModel, navegarADetalle: (Int, Int) -> Unit) {
 
     val model by myViewModel.model.collectAsState()
     var nombreBuscado by remember { mutableStateOf("") }
@@ -155,7 +155,11 @@ fun PantallaPrincipal(myViewModel: PrincipalViewModel, navegarADetalle: () -> Un
             }
 
             items(model.listaDeproductos) {
-                CardProducto(it, navegarADetalle, myViewModel.getNombreMarca(it.idMarca))
+                CardProducto(
+                    it,
+                    { navegarADetalle(it.idProducto ?: 0, it.idMarca) },
+                    myViewModel.getNombreMarca(it.idMarca)
+                )
             }
 
             if (model.cargandoProductos) {

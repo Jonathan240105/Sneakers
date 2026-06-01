@@ -39,5 +39,7 @@ interface ProductoRepository {
         busqueda: String
     ): Flow<List<Producto>>
 
+    suspend fun traerPublicacionesPorProducto(token: String, idProducto: Int): Flow<List<Publicacion>>
+
     suspend fun subirImagenACloudinary(uri: Uri): String?
 }

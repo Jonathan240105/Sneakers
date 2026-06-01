@@ -1,7 +1,9 @@
 package com.example.snkrsapp.Views.Pantallas
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -21,6 +23,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -37,12 +40,14 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.snkrsapp.Domain.Marca
 import com.example.snkrsapp.Domain.Producto
+import com.example.snkrsapp.Domain.Publicacion
 import com.example.snkrsapp.Views.ViewModels.ProductoDetalladoViewModel
 
 @Composable
@@ -53,13 +58,14 @@ fun PantallaProductoDetallado(
     myViewModel: ProductoDetalladoViewModel
 ) {
     var pestañaSeleccionada by remember { mutableStateOf(0) }
-
-    LaunchedEffect(Unit) {
-        myViewModel.cargarProducto(idZapatilla)
-        myViewModel.cargarMarca(idMarca)
-    }
     val model by myViewModel.model.collectAsState()
     val estadoScroll = rememberScrollState()
+
+    LaunchedEffect(idZapatilla, idMarca) {
+        myViewModel.cargarProducto(idZapatilla)
+        myViewModel.cargarMarca(idMarca)
+        myViewModel.cargarPublicacionesDelProducto(idZapatilla)
+    }
 
     Box(
         modifier = Modifier
@@ -80,11 +86,10 @@ fun PantallaProductoDetallado(
                         Brush.verticalGradient(
                             colors = listOf(Color(0xFF252525), Color(0xFF121212))
                         )
-                    ),
-                contentAlignment = Alignment.Center
+                    ), contentAlignment = Alignment.Center
             ) {
                 AsyncImage(
-                    model = "https://i.ebayimg.com/images/g/GOoAAeSw7H5o9rmS/s-l1200.webp",
+                    model = model.productoSeleccionado.imagenUrl,
                     contentDescription = model.productoSeleccionado.modelo,
                     modifier = Modifier
                         .fillMaxSize()
@@ -99,8 +104,7 @@ fun PantallaProductoDetallado(
                         .padding(20.dp)
                         .size(45.dp)
                         .background(Color.Black, RoundedCornerShape(12.dp))
-                        .clickable(onClick = volverAPrincipal),
-                    contentAlignment = Alignment.Center
+                        .clickable(onClick = volverAPrincipal), contentAlignment = Alignment.Center
                 ) {
                     Icon(Icons.Default.ArrowBack, "", tint = Color.White)
                 }
@@ -114,8 +118,13 @@ fun PantallaProductoDetallado(
                     fontSize = 28.sp,
                     fontWeight = Bold
                 )
+                val precioMostrar =
+                    if (model.listaPublicaciones.isNotEmpty())
+                        model.publicacionSeleccionada.precio
+                    else
+                        model.productoSeleccionado.precio
                 Text(
-                    text = "${model.productoSeleccionado.precio} €",
+                    text = "$precioMostrar €",
                     color = Color.LightGray,
                     fontSize = 22.sp,
                     fontWeight = Bold
@@ -145,14 +154,25 @@ fun PantallaProductoDetallado(
                 Spacer(modifier = Modifier.height(20.dp))
 
                 if (pestañaSeleccionada == 0) {
-                    ContenidoDetalles(model.productoSeleccionado)
+                    ContenidoDetalles(
+                        listaPublicaciones = model.listaPublicaciones,
+                        cargandoPublicaciones = model.cargandoPublicaciones,
+                        navegarAPublicacion = {
+                            myViewModel.seleccionarPublicacion(it)
+                        },
+                        talla = model.publicacionSeleccionada.talla,
+                        idPublicacionSeleccionada = model.publicacionSeleccionada.idPublicacion
+                    )
                 } else {
-                    ContenidoMarca(model.marcaSeleccionada, model.productoSeleccionado.uidVendedor?:"")
+                    ContenidoMarca(
+                        model.marcaSeleccionada, model.productoSeleccionado.uidVendedor ?: ""
+                    )
                 }
+
+                Spacer(modifier = Modifier.height(100.dp))
             }
-
-
         }
+
         Box(
             modifier = Modifier
                 .size(75.dp)
@@ -180,40 +200,104 @@ fun BotonTab(texto: String, activo: Boolean, modifier: Modifier, onClick: () -> 
             .clip(RoundedCornerShape(12.dp))
             .background(if (activo) Color.White else Color.Transparent)
             .clickable { onClick() }
-            .testTag("botonTab"),
-        contentAlignment = Alignment.Center
-    ) {
+            .testTag("botonTab"), contentAlignment = Alignment.Center) {
         Text(
-            text = texto,
-            color = if (activo) Color.Black else Color.Gray,
-            fontWeight = Bold
+            text = texto, color = if (activo) Color.Black else Color.Gray, fontWeight = Bold
         )
     }
 }
 
 @Composable
-fun ContenidoDetalles(producto: Producto) {
-    Column {
-        Row {
-            InfoPequeña(titulo = "Talla", valor = "${producto.talla}")
-            Spacer(modifier = Modifier.width(20.dp))
-            InfoPequeña(titulo = "Estado", valor = "Nuevo")
+fun ContenidoDetalles(
+    listaPublicaciones: List<Publicacion>,
+    cargandoPublicaciones: Boolean,
+    navegarAPublicacion: (Publicacion) -> Unit,
+    talla: Double?,
+    idPublicacionSeleccionada: Int
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        if(listaPublicaciones.isNotEmpty()){
+            Row {
+                InfoPequeña(
+                    titulo = "Talla de publicación seleccionada:",
+                    valor = "$talla"
+                )
+                Spacer(modifier = Modifier.width(20.dp))
+            }
         }
-        Spacer(modifier = Modifier.height(20.dp))
-        Text("Descripción", color = Color.Gray, fontSize = 14.sp)
-        Text(
-            "" +
-                    "Esta zapatilla de alta gama ofrece una combinación única de materiales premium y diseño icónico. Perfecta para el uso diario o coleccionistas." +
-                    "Esta zapatilla de alta gama ofrece una combinación única de materiales premium y diseño icónico. Perfecta para el uso diario o coleccionistas." +
-                    "Esta zapatilla de alta gama ofrece una combinación única de materiales premium y diseño icónico. Perfecta para el uso diario o coleccionistas." +
-                    "Esta zapatilla de alta gama ofrece una combinación única de materiales premium y diseño icónico. Perfecta para el uso diario o coleccionistas." +
-                    "Esta zapatilla de alta gama ofrece una combinación única de materiales premium y diseño icónico. Perfecta para el uso diario o coleccionistas." +
-                    "Esta zapatilla de alta gama ofrece una combinación única de materiales premium y diseño icónico. Perfecta para el uso diario o coleccionistas." +
-                    "Esta zapatilla de alta gama ofrece una combinación única de materiales premium y diseño icónico. Perfecta para el uso diario o coleccionistas." +
-                    "",
-            color = Color.White
-        )
 
+        Text("Publicaciones Disponibles", color = Color.Gray, fontSize = 14.sp)
+
+        if (cargandoPublicaciones) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 20.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(color = Color.White)
+            }
+        } else if (listaPublicaciones.isEmpty()) {
+            Text(
+                text = "No hay zapatillas en venta de este modelo actualmente.",
+                color = Color.LightGray,
+                fontSize = 14.sp,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 10.dp)
+            )
+        } else {
+            listaPublicaciones.forEach { publicacion ->
+                val esLaSeleccionada = publicacion.idPublicacion == idPublicacionSeleccionada
+
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            navegarAPublicacion(publicacion)
+                        },
+                    shape = RoundedCornerShape(12.dp),
+                    border = if (esLaSeleccionada) BorderStroke(1.5.dp, Color.White) else null,
+                    colors = CardDefaults.cardColors(
+                        containerColor = if (esLaSeleccionada) Color(0xFF262626) else Color(0xFF1E1E1E)
+                    )
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Text(
+                                text = "Talla: ${publicacion.talla}",
+                                color = Color.White,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                            Text(
+                                text = "Vendedor ID: ${publicacion.uidUsuario.take(8)}...",
+                                color = Color.Gray,
+                                fontSize = 12.sp
+                            )
+                            Text(
+                                text = "Estado: ${publicacion.estado}",
+                                color = Color.LightGray,
+                                fontSize = 12.sp
+                            )
+                        }
+
+                        Text(
+                            text = "${publicacion.precio} €",
+                            color = Color.White,
+                            fontSize = 18.sp,
+                            fontWeight = Bold
+                        )
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -236,7 +320,7 @@ fun ContenidoMarca(marca: Marca, uidVendedor: String) {
             )
             Spacer(Modifier.width(15.dp))
             Column {
-                Text(marca.nombre?:"", color = Color.White, fontWeight = Bold, fontSize = 18.sp)
+                Text(marca.nombre ?: "", color = Color.White, fontWeight = Bold, fontSize = 18.sp)
                 Text("Fundada en 1990", color = Color.Gray, fontSize = 14.sp)
             }
         }
