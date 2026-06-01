@@ -1,6 +1,7 @@
 package com.example.snkrsapp.Views.Pantallas
 
-import android.graphics.drawable.Icon
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -32,13 +33,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.font.FontWeight.Companion.Bold
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.snkrsapp.R
 import com.example.snkrsapp.Views.ViewModels.InicioSesionViewModel
+
 
 @Composable
 fun PantallaInicioSesion(
@@ -52,10 +55,9 @@ fun PantallaInicioSesion(
     LaunchedEffect(model.exito) {
         if (model.exito) {
             cambiarAListado()
+            myViewModel.resetearEstadoPantalla()
         }
     }
-    var nombreUsuario by remember { mutableStateOf("") }
-    var contra by remember { mutableStateOf("") }
     Column(
         Modifier
             .fillMaxSize()
@@ -69,16 +71,20 @@ fun PantallaInicioSesion(
         TextoConTextFieldLogin(
             "Email",
             "textFieldEmail",
-            nombreUsuario,
-            { nombreUsuario = it },
-            { Icon(Icons.Default.Email, "") })
+            model.email,
+            { myViewModel.cambiarEmail(it) },
+            { Icon(Icons.Default.Email, "") },
+            false
+        )
         Spacer(Modifier.height(25.dp))
         TextoConTextFieldLogin(
             "Contraseña",
             "textFieldContra",
-            contra,
-            { contra = it },
-            { Icon(Icons.Default.Lock, "") })
+            model.contra,
+            { myViewModel.cambiarContra(it) },
+            { Icon(Icons.Default.Lock, "") },
+            true
+        )
         Spacer(Modifier.height(30.dp))
         Row(
             Modifier
@@ -86,22 +92,39 @@ fun PantallaInicioSesion(
                 .padding(8.dp)
         ) {
             Text(
-                "¿No tienes cuenta?",
+                "Crear cuenta",
                 Modifier.clickable { cambiarARegistro() },
                 color = Color.White,
+            )
+        }
+
+        if (!model.error.isNullOrBlank()) {
+            Text(
+                model.error,
+                color = Color(0xFFEF5350),
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .padding(vertical = 10.dp, horizontal = 8.dp)
+                    .align(Alignment.Start)
+                    .testTag("errorLoginMensaje")
+            )
+        } else if (model.errorFirebase) {
+            Text(
+                "Credenciales incorrectas",
+                color = Color(0xFFEF5350),
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .padding(vertical = 10.dp, horizontal = 8.dp)
+                    .align(Alignment.Start)
             )
         }
         BotonLogin(
             "Iniciar sesión",
             "botonInicioSesion",
-            { myViewModel.iniciarSesion(nombreUsuario, contra) },
-            !nombreUsuario.isEmpty() && !contra.isEmpty()
-        )
-        BotonLogin(
-            "Invitado",
-            "",
-            { cambiarAListado() },
-            !nombreUsuario.isEmpty() && !contra.isEmpty()
+            { myViewModel.iniciarSesion(model.email, model.contra) },
+            !model.email.isEmpty() && !model.contra.isEmpty()
         )
     }
 
@@ -111,8 +134,7 @@ fun PantallaInicioSesion(
 fun TextoCentradoLogIn(texto: String) {
     Row(
         Modifier
-            .fillMaxWidth()
-            .padding(5.dp),
+            .fillMaxWidth(),
         Arrangement.Center
     ) {
         Text(
@@ -132,21 +154,49 @@ fun TextoConTextFieldLogin(
     tag: String,
     textoTexField: String,
     cambiarTextField: (String) -> Unit,
-    icon: @Composable () -> Unit
+    icon: @Composable () -> Unit,
+    esContra: Boolean
 ) {
+
+    var contraVisible by remember { mutableStateOf(false) }
+
     OutlinedTextField(
-        textoTexField, cambiarTextField, Modifier
+        value = textoTexField,
+        onValueChange = cambiarTextField,
+        modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 15.dp)
             .testTag(tag),
+        leadingIcon = icon,
+        singleLine = true,
+        trailingIcon = {
+            if (esContra) {
+                Crossfade(
+                    targetState = contraVisible,
+                    animationSpec = tween(durationMillis = 300)
+                ) { visible ->
+                    Icon(
+                        painter = painterResource(if (visible) R.drawable.ojoabierto else R.drawable.eyeclose),
+                        contentDescription = if (visible) "Ocultar contraseña" else "Mostrar contraseña",
+                        modifier = Modifier
+                            .clickable { contraVisible = !contraVisible }
+                    )
+                }
+            }
+        },
         label = { Text(texto) },
-        trailingIcon = icon,
+        visualTransformation = if (esContra && !contraVisible) PasswordVisualTransformation() else VisualTransformation.None,
         shape = RoundedCornerShape(12.dp),
         colors = OutlinedTextFieldDefaults.colors(
             focusedTextColor = Color.White,
             unfocusedTextColor = Color.LightGray,
             focusedBorderColor = Color.White,
-            unfocusedBorderColor = Color.LightGray
+            unfocusedBorderColor = Color.LightGray,
+            focusedLabelColor = Color.White,
+            unfocusedLabelColor = Color.Gray,
+            focusedTrailingIconColor = Color.White,
+            unfocusedTrailingIconColor = Color.DarkGray,
+            focusedLeadingIconColor = Color.White,
+            unfocusedLeadingIconColor = Color.DarkGray
         )
     )
 }
@@ -162,7 +212,8 @@ fun BotonLogin(texto: String, tag: String, onClick: () -> Unit, habilitado: Bool
         ),
         modifier = Modifier
             .fillMaxWidth()
-            .padding(15.dp)
+            .height(85.dp)
+            .padding(vertical = 15.dp)
             .testTag(tag),
         enabled = habilitado
     ) {

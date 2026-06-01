@@ -66,8 +66,10 @@ fun PantallaPerfil(
             .padding(horizontal = 20.dp)
             .verticalScroll(estadoScroll)
     ) {
-        Spacer(Modifier.height(30.dp))
+        Spacer(Modifier.height(20.dp))
 
+        tituloPerfil()
+        Spacer(Modifier.height(10.dp))
         Card(
             Modifier
                 .fillMaxWidth()
@@ -286,4 +288,19 @@ fun EstadisticaItem(titulo: String, valor: String) {
             titulo, color = Color.Gray, fontSize = 12.sp
         )
     }
+}
+
+@Composable
+fun tituloPerfil() {
+    Text(
+        text = "Mi Perfil",
+        color = Color.White,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 12.dp),
+        style = androidx.compose.ui.text.TextStyle(
+            fontSize = 25.sp,
+            fontWeight = Bold
+        )
+    )
 }

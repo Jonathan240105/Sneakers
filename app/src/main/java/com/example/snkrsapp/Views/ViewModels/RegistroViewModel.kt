@@ -56,19 +56,74 @@ class RegistroViewModel @Inject constructor(
                     } else if (resultado is EstadoRegistro.Error && resultado.errorFirebase) {
                         _model.update {
                             it.copy(
-                                exito = false, errorFirebase = true, cargando = false
+                                exito = false,
+                                errorFirebase = true,
+                                cargando = false,
+                                error = resultado.mensaje
                             )
                         }
                         println("Algo fue mal,culpa de firebase")
                     } else if (resultado is EstadoRegistro.Error) {
                         _model.update {
                             it.copy(
-                                exito = false, errorFirebase = false, cargando = false
+                                exito = false,
+                                errorFirebase = false,
+                                cargando = false,
+                                error = resultado.mensaje
                             )
                         }
                         println("Algo fue mal con el servidor")
                     }
                 }
+        }
+    }
+
+    fun cambiarNombreUsuario(nombre: String) {
+        viewModelScope.launch {
+            _model.update {
+                it.copy(nombreUsuario = nombre)
+            }
+        }
+    }
+
+    fun cambuiarApellidos(apellidos: String) {
+        viewModelScope.launch {
+            _model.update {
+                it.copy(apellidos = apellidos)
+            }
+        }
+    }
+
+    fun cambiarEmail(email: String) {
+        viewModelScope.launch {
+            _model.update {
+                it.copy(email = email)
+            }
+        }
+    }
+
+    fun cambiarContra(contra: String) {
+        viewModelScope.launch {
+            _model.update {
+                it.copy(contra = contra)
+            }
+        }
+    }
+
+    fun cambiarFecha(fecha: String) {
+        viewModelScope.launch {
+            _model.update {
+                it.copy(fecha = fecha)
+            }
+        }
+    }
+
+    fun resetearPantalla() {
+        _model.update {
+            it.copy(
+                exito = false, errorFirebase = false, cargando = false, nombreUsuario = "",
+                apellidos = "", email = "", contra = "", fecha = ""
+            )
         }
     }
 }

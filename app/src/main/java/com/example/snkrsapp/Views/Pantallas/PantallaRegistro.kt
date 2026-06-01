@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
@@ -31,6 +32,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -51,22 +53,19 @@ import com.example.snkrsapp.Views.ViewModels.RegistroViewModel
 import network.chaintech.kmp_date_time_picker.ui.datepicker.WheelDatePickerView
 
 @Composable
-fun PantallaRegistro(myViewModel: RegistroViewModel) {
+fun PantallaRegistro(myViewModel: RegistroViewModel, volverAInicioSesion: () -> Unit) {
 
     var paso by remember { mutableIntStateOf(0) }
-    var nombreUsuario by remember { mutableStateOf("") }
-    var apellidos by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
-    var contra by remember { mutableStateOf("") }
-    var fecha by remember { mutableStateOf("") }
     var mostrarSelectorFecha by remember { mutableStateOf(false) }
 
+    val model by myViewModel.model.collectAsState()
     Column(
         Modifier
             .fillMaxSize()
             .navigationBarsPadding()
             .background(Color(0xFF121212))
-            .padding(top = 40.dp)
+            .padding(top = 40.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Spacer(Modifier.height(50.dp))
         TituloRegistro("¡Unete a nosotros!")
@@ -98,49 +97,96 @@ fun PantallaRegistro(myViewModel: RegistroViewModel) {
                 }
             },
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxWidth()
                 .padding(16.dp), label = "stepAnimation"
         ) { pasoActual ->
             Box(
                 modifier = Modifier
-                    .padding(16.dp)
-                    .background(Color(0xFF1E1E1E), RoundedCornerShape(24.dp))
-                    .padding(16.dp)
+                    .height(350.dp)
+                    .padding(24.dp)
             ) {
                 when (pasoActual) {
 
-                    0 -> PrimerPaso(email, { email = it }, contra, { contra = it }, { paso++ })
+                    0 -> PrimerPaso(
+                        model.email,
+                        { myViewModel.cambiarEmail(it) },
+                        model.contra,
+                        { myViewModel.cambiarContra(it) },
+                        { paso++ })
+
                     1 -> SegundoPaso(
-                        nombreUsuario,
-                        { nombreUsuario = it },
-                        apellidos,
-                        { apellidos = it },
+                        model.nombreUsuario,
+                        { myViewModel.cambiarNombreUsuario(it) },
+                        model.apellidos,
+                        { myViewModel.cambuiarApellidos(it) },
                         { paso++ },
                         { paso-- })
 
                     2 -> {
                         TercerPaso(
-                            fecha,
+                            model.fecha,
                             { mostrarSelectorFecha = true },
                             { paso-- },
                             {
                                 myViewModel.registrarUsuario(
-                                    email,
-                                    contra,
-                                    nombreUsuario,
-                                    apellidos,
-                                    fecha
+                                    model.email,
+                                    model.contra,
+                                    model.nombreUsuario,
+                                    model.apellidos,
+                                    model.fecha
                                 )
                             })
                         SelectorFecha(
                             mostrarSelectorFecha,
                             { mostrarSelectorFecha = false },
-                            { fecha = it })
+                            { myViewModel.cambiarFecha(it) })
                     }
                 }
             }
         }
 
+        if (!model.error.isNullOrBlank()) {
+            Text(
+                model.error ?: "",
+                color = Color(0xFFEF5350),
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .padding(horizontal = 24.dp, vertical = 8.dp)
+                    .testTag("errorRegistroMensaje")
+            )
+        }
+        else if (model.errorFirebase) {
+            Text(
+                "Error de autenticación con Firebase. Inténtalo de nuevo.",
+                color = Color(0xFFEF5350),
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(vertical = 8.dp)
+            )
+        } else if (!model.exito && !model.cargando && (model.email.isNotEmpty() && paso == 2)) {
+            Text(
+                "Error de conexión con el servidor.",
+                color = Color(0xFFEF5350),
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(vertical = 8.dp)
+            )
+        }
+        Spacer(Modifier.height(60.dp))
+
+        Text(
+            "Cancelar",
+            color = Color.LightGray,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Medium,
+            modifier = Modifier
+                .clickable {
+                    volverAInicioSesion()
+                    myViewModel.resetearPantalla()
+                }
+                .padding(10.dp)
+        )
     }
 }
 
@@ -153,7 +199,13 @@ fun TituloRegistro(titulo: String) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center
     ) {
-        Text(titulo, fontSize = 32.sp, color = Color.White, fontWeight = ExtraBold, modifier = Modifier.testTag("tituloRegistro"))
+        Text(
+            titulo,
+            fontSize = 32.sp,
+            color = Color.White,
+            fontWeight = ExtraBold,
+            modifier = Modifier.testTag("tituloRegistro")
+        )
     }
 }
 
@@ -193,7 +245,8 @@ fun PrimerPaso(
             contra,
             cambiarContra,
             Modifier
-                .fillMaxWidth().testTag("textFieldContra"),
+                .fillMaxWidth()
+                .testTag("textFieldContra"),
             trailingIcon = { Icon(Icons.Default.Lock, "") },
             visualTransformation = PasswordVisualTransformation(),
             label = { Text("Contraseña") },
@@ -208,20 +261,25 @@ fun PrimerPaso(
                 unfocusedLabelColor = Color.White
             )
         )
-        Spacer(Modifier.weight(1f))
-        Button(
-            siguientePaso,
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color.White,
-                disabledContainerColor = Color.DarkGray,
-                contentColor = Color.Black
-            ),
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp)
-                .testTag("botonPrimerPaso"),
-            shape = RoundedCornerShape(12.dp)
-        ) { Text("Continuar", fontWeight = FontWeight.Bold) }
+        Spacer(Modifier.height(50.dp))
+        Row(
+            Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.End
+        ) {
+            Button(
+                siguientePaso,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.White,
+                    disabledContainerColor = Color.DarkGray,
+                    contentColor = Color.Black
+                ),
+                modifier = Modifier
+                    .width(130.dp)
+                    .height(56.dp)
+                    .testTag("botonPrimerPaso"),
+                shape = RoundedCornerShape(12.dp)
+            ) { Text("Continuar", fontWeight = FontWeight.Bold) }
+        }
     }
 }
 
@@ -277,11 +335,11 @@ fun SegundoPaso(
                 unfocusedLabelColor = Color.White
             )
         )
-        Spacer(Modifier.weight(1f))
+        Spacer(Modifier.height(50.dp))
         Row(
             Modifier
                 .fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Button(
                 onClick = volverPaso,
@@ -291,7 +349,7 @@ fun SegundoPaso(
                 ),
                 shape = RoundedCornerShape(12.dp),
                 modifier = Modifier
-                    .weight(1f)
+                    .width(130.dp)
                     .height(56.dp)
                     .testTag("botonVolver1")
             ) {
@@ -300,7 +358,7 @@ fun SegundoPaso(
             Button(
                 siguientePaso,
                 modifier = Modifier
-                    .weight(1f)
+                    .width(130.dp)
                     .height(56.dp)
                     .testTag("botonSegundoPaso"),
                 colors = ButtonDefaults.buttonColors(
@@ -327,7 +385,7 @@ fun TercerPaso(
         Modifier
             .fillMaxSize()
     ) {
-        Spacer(Modifier.height(15.dp))
+        Spacer(Modifier.height(35.dp))
         OutlinedTextField(
             fecha,
             {},
@@ -348,17 +406,21 @@ fun TercerPaso(
             shape = RoundedCornerShape(12.dp),
             readOnly = true,
             enabled = false,
-            modifier = Modifier.clickable { abrirSelector() }.testTag("SelectorFecha"))
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { abrirSelector() }
+                .testTag("SelectorFecha")
+        )
 
-        Spacer(Modifier.weight(1f))
+        Spacer(Modifier.height(60.dp))
         Row(
             Modifier
                 .fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Button(
                 volver, Modifier
-                    .weight(1f)
+                    .width(130.dp)
                     .height(56.dp)
                     .testTag("botonVolver2"),
                 colors = ButtonDefaults.buttonColors(
@@ -372,7 +434,7 @@ fun TercerPaso(
             Button(
                 registrarUsuario,
                 Modifier
-                    .weight(1f)
+                    .width(130.dp)
                     .height(56.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.White,

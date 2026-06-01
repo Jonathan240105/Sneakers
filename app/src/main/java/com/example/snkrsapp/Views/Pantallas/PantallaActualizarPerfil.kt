@@ -231,19 +231,6 @@ fun PantallaActualizarPerfil(
                         "${model.usuarioActual.nombreUsuario} "
                     )
                 }
-//                HorizontalDivider(
-//                    Modifier.padding(vertical = 12.dp), thickness = 1.dp, color = Color(0xFF252525)
-//                )
-//                if (camposHabilitados) {
-//                    TextFieldCampo(
-//                        Icons.Default.Person, "Email", emailCambiado
-//                    ) { emailCambiado = it }
-//                } else {
-//                    ItemInfoPerfil(
-//                        Icons.Default.Person, "Email", model.usuarioActual.email
-//                    )
-//
-//                }
                 HorizontalDivider(
                     Modifier.padding(vertical = 12.dp), thickness = 1.dp, color = Color(0xFF252525)
                 )
@@ -276,21 +263,11 @@ fun PantallaActualizarPerfil(
             }
         }
         Spacer(Modifier.height(30.dp))
-        Text(
-            "Cuenta",
-            Modifier.padding(bottom = 12.dp),
-            color = Color.White,
-            fontSize = 18.sp,
-            fontWeight = Bold
-        )
-        CardAccion(Icons.Default.Favorite, "Mis Favoritos") {}
-        Spacer(Modifier.height(8.dp))
-        CardAccion(Icons.Default.ShoppingCart, "Mis Pedidos") {}
-        Spacer(Modifier.height(8.dp))
-        CardAccion(Icons.Default.Settings, "Ajustes de Cuenta") {}
-        Spacer(Modifier.height(40.dp))
         Button(
-            onCerrarSesion,
+            {
+                actualizarPerfilViewModel.cerrarSesion()
+                onCerrarSesion()
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(55.dp)
@@ -329,10 +306,6 @@ fun TextFieldCampo(
     icono: ImageVector, titulo: String, texto: String, cambiarTexto: (String) -> Unit
 ) {
     Row(verticalAlignment = Alignment.CenterVertically) {
-//        Icon(
-//            icono, "", tint = Color.LightGray, modifier = Modifier.size(20.dp)
-//        )
-//        Spacer(Modifier.width(15.dp))
         OutlinedTextField(
             texto,
             cambiarTexto,

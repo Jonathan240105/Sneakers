@@ -29,16 +29,49 @@ class InicioSesionViewModel @Inject constructor(
                     _model.update { it.copy(exito = true, cargando = false) }
                     println("Todo fue bien")
                 } else if (resultado is EstadoLogin.Error && resultado.errorFirebase) {
-                    _model.update { it.copy(exito = false, errorFirebase = true, cargando = false) }
+                    _model.update {
+                        it.copy(
+                            exito = false,
+                            errorFirebase = true,
+                            cargando = false,
+                            error = resultado.mensaje
+                        )
+                    }
                     println("Algo fue mal,culpa de firebase")
                 } else if (resultado is EstadoLogin.Error) {
                     _model.update {
-                        it.copy(exito = false, errorFirebase = false, cargando = false)
+                        it.copy(
+                            exito = false,
+                            errorFirebase = false,
+                            cargando = false,
+                            error = resultado.mensaje
+                        )
                     }
                     println("Algo fue mal con el servidor")
 
                 }
             }
+        }
+    }
+
+    fun cambiarEmail(email: String) {
+        _model.update { it.copy(email = email) }
+    }
+
+    fun cambiarContra(contra: String) {
+        _model.update { it.copy(contra = contra) }
+    }
+
+    fun resetearEstadoPantalla() {
+        _model.update {
+            it.copy(
+                exito = false,
+                errorFirebase = false,
+                error = "",
+                cargando = false,
+                email = "",
+                contra = ""
+            )
         }
     }
 }

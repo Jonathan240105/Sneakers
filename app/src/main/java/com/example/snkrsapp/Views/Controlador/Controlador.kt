@@ -75,7 +75,7 @@ fun Controlador() {
                     { navController.navigate("Principal") })
             }
             composable("Registro") {
-                PantallaRegistro(registroViewModel)
+                PantallaRegistro(registroViewModel,{navController.navigate("InicioSesion")})
             }
             composable("Principal") {
                 PantallaPrincipal(
@@ -100,7 +100,7 @@ fun Controlador() {
             composable("ActualizarPerfil") {
                 PantallaActualizarPerfil(
                     { navController.navigate("Perfil") },
-                    {},
+                    {navController.navigate("InicioSesion")},
                     perfilViewModel,
                     actuViewModel
                 )

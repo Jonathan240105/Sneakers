@@ -32,6 +32,7 @@ import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
@@ -58,7 +59,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -88,6 +88,11 @@ fun PantallaPrincipal(myViewModel: PrincipalViewModel, navegarADetalle: () -> Un
     LaunchedEffect(nombreBuscado) {
         delay(350)
         myViewModel.buscarZapatillasPorTexto(nombreBuscado)
+    }
+
+    LaunchedEffect(Unit) {
+        myViewModel.cargarPaginaProductos()
+        myViewModel.cargarMarcas()
     }
 
     Column(
@@ -133,7 +138,8 @@ fun PantallaPrincipal(myViewModel: PrincipalViewModel, navegarADetalle: () -> Un
                         contentPadding = PaddingValues(end = 12.dp)
                     ) {
                         items(model.listaMarcas) { marca ->
-                            val estaSeleccionada = model.marcasSeleccionadas?.contains(marca.idMarca) == true
+                            val estaSeleccionada =
+                                model.marcasSeleccionadas?.contains(marca.idMarca) == true
                             CardMarca(
                                 marca = marca,
                                 seleccionada = estaSeleccionada,
@@ -154,13 +160,18 @@ fun PantallaPrincipal(myViewModel: PrincipalViewModel, navegarADetalle: () -> Un
 
             if (model.cargandoProductos) {
                 item(span = { GridItemSpan(2) }) {
-                    Text(
-                        "Buscando más zapatillas ...",
-                        Modifier
-                            .padding(vertical = 30.dp)
-                            .fillMaxWidth(),
-                        textAlign = TextAlign.Center, color = Color.DarkGray, fontSize = 15.sp
-                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 32.dp),
+                        Alignment.Center
+                    ) {
+                        CircularProgressIndicator(
+                            Modifier.size(40.dp),
+                            color = Color.White,
+                            strokeWidth = 4.dp
+                        )
+                    }
                 }
             }
         }
@@ -356,6 +367,7 @@ fun BuscadorConFiltros(
         }
     }
 }
+
 @Composable
 fun CardFiltros(
     model: ModelPrincipal,
