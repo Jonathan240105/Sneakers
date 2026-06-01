@@ -10,7 +10,6 @@ data class ModelAgregarProducto(
     val esColeccion : Boolean = false,
     val precioNuevaPublicacion: Double = 0.0,
     val tallaNuevaPublicacion: Double = 0.0,
-    val estadoNuevaPublicacion: String = "",
     val urlImagenNuevaPublicacion: String = "",
 
     val idMarcaSeleccionada: Int = 0,
@@ -22,5 +21,8 @@ data class ModelAgregarProducto(
     val nombreNuevoProductoText: String = "",
 
     val textoBuscador: String = "",
-    val sugerenciasModelos: List<ProductoItem> = emptyList()
+    val sugerenciasModelos: List<ProductoItem> = emptyList(),
+
+    val cargandoImagen : Boolean? = false,
+    val errorImagen : String? = null,
 )

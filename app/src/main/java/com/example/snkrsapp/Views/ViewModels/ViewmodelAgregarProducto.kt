@@ -1,5 +1,6 @@
 package com.example.snkrsapp.Views.ViewModels
 
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.snkrsapp.Data.RemoteData.PublicacionDao.AgregarPublicacionesSolicitud
@@ -42,13 +43,7 @@ class ViewmodelAgregarProducto @Inject constructor(
         _model.update { it.copy(tallaNuevaPublicacion = talla) }
     }
 
-    fun cambiarEstadoZapato(estado: String) {
-        _model.update { it.copy(estadoNuevaPublicacion = estado) }
-    }
 
-    fun cambiarImagenUrl(imagenUrl: String) {
-        _model.update { it.copy(urlImagenNuevaPublicacion = imagenUrl) }
-    }
     fun cambiarModoColeccion(esColeccion: Boolean) {
         _model.update { it.copy(esColeccion = esColeccion) }
     }
@@ -70,7 +65,7 @@ class ViewmodelAgregarProducto @Inject constructor(
 
             precio = _model.value.precioNuevaPublicacion,
             talla = _model.value.tallaNuevaPublicacion,
-            estado = _model.value.estadoNuevaPublicacion,
+            estado = "disponible",
             urlFoto = _model.value.urlImagenNuevaPublicacion,
             fecha_publicacion = LocalDateTime.now().toString(),
             disponible = true,
@@ -153,6 +148,30 @@ class ViewmodelAgregarProducto @Inject constructor(
                 textoBuscador = if (nombre.lowercase() == "otro") it.textoBuscador else nombre,
                 sugerenciasModelos = emptyList()
             )
+        }
+    }
+
+    fun subirFotoACloudinary(uri: Uri) {
+        viewModelScope.launch {
+            _model.update { it.copy(cargandoImagen = true, errorImagen = null) }
+
+            val urlCloudinary = productoRepository.subirImagenACloudinary(uri)
+
+            if (urlCloudinary != null) {
+                _model.update {
+                    it.copy(
+                        urlImagenNuevaPublicacion = urlCloudinary,
+                        cargandoImagen = false
+                    )
+                }
+            } else {
+                _model.update {
+                    it.copy(
+                        cargandoImagen = false,
+                        errorImagen = "Error al subir la imagen"
+                    )
+                }
+            }
         }
     }
 

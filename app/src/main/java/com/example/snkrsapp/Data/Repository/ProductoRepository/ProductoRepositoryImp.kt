@@ -1,5 +1,10 @@
 package com.example.snkrsapp.Data.Repository.ProductoRepository
 
+import android.content.Context
+import android.net.Uri
+import com.cloudinary.android.MediaManager
+import com.cloudinary.android.callback.ErrorInfo
+import com.cloudinary.android.callback.UploadCallback
 import com.example.snkrsapp.Data.LocalData.Marcas.EntityToMarca
 import com.example.snkrsapp.Data.LocalData.Marcas.MarcaEntity
 import com.example.snkrsapp.Data.LocalData.Marcas.MarcaLocalDao
@@ -15,7 +20,6 @@ import com.example.snkrsapp.Data.LocalData.Publicaciones.EntityToPublicacion
 import com.example.snkrsapp.Data.LocalData.Publicaciones.PublicacionEntity
 import com.example.snkrsapp.Data.LocalData.Publicaciones.PublicacionLocalDao
 import com.example.snkrsapp.Data.LocalData.Publicaciones.PublicacionToEntity
-import com.example.snkrsapp.Data.RemoteData.ProductoDao.AgregarProductoSolicitud
 import com.example.snkrsapp.Data.RemoteData.ProductoDao.ProductosDao
 import com.example.snkrsapp.Data.RemoteData.PublicacionDao.AgregarPublicacionesSolicitud
 import com.example.snkrsapp.Data.RemoteData.PublicacionDao.PublicacionDao
@@ -24,9 +28,12 @@ import com.example.snkrsapp.Domain.Marca
 import com.example.snkrsapp.Domain.Producto
 import com.example.snkrsapp.Domain.ProductoItem
 import com.example.snkrsapp.Domain.Publicacion
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.suspendCancellableCoroutine
 import javax.inject.Inject
+import kotlin.coroutines.resume
 
 class ProductoRepositoryImp @Inject constructor(
     private val productosDao: ProductosDao,
@@ -34,8 +41,43 @@ class ProductoRepositoryImp @Inject constructor(
     private val marcaLocalDao: MarcaLocalDao,
     private val publicacionLocalDao: PublicacionLocalDao,
     private val publicacionDao: PublicacionDao,
-    private val publicacionPropiaLocalDao: PublicacionesPropiasLocalDao
+    private val publicacionPropiaLocalDao: PublicacionesPropiasLocalDao,
+    @ApplicationContext private val context: Context
 ) : ProductoRepository {
+
+    init {
+        try {
+            val config = mapOf(
+                "cloud_name" to "deyxqemca"
+            )
+            MediaManager.init(context, config)
+        } catch (e: IllegalStateException) {
+            println("Error al inicializar Cloudinary: ${e.message}")
+        }
+    }
+
+    override suspend fun subirImagenACloudinary(uri: Uri): String? =
+        suspendCancellableCoroutine { continuation ->
+            MediaManager.get().upload(uri)
+                .unsigned("SneakersPreset")
+                .callback(object : UploadCallback {
+                    override fun onStart(requestId: String) {}
+                    override fun onProgress(requestId: String, bytes: Long, totalBytes: Long) {}
+
+                    override fun onSuccess(requestId: String, resultData: Map<*, *>) {
+                        val secureUrl = resultData["secure_url"] as? String
+                        if (continuation.isActive) continuation.resume(secureUrl)
+                    }
+
+                    override fun onError(requestId: String, error: ErrorInfo) {
+                        if (continuation.isActive) continuation.resume(null)
+                    }
+
+                    override fun onReschedule(requestId: String, error: ErrorInfo) {
+                        if (continuation.isActive) continuation.resume(null)
+                    }
+                }).dispatch()
+        }
 
     override suspend fun traerPaginaProductos(limite: Int, salto: Int): Flow<List<Producto>> =
         flow {
@@ -261,7 +303,7 @@ class ProductoRepositoryImp @Inject constructor(
     }
 
     override suspend fun traerPaginaProductosFiltrado(
-        token : String,
+        token: String,
         minPrecio: Double?,
         maxPrecio: Double?,
         talla: Double?,
@@ -294,10 +336,10 @@ class ProductoRepositoryImp @Inject constructor(
                         idProducto = it.idProducto,
                         idMarca = it.idMarca,
                         modelo = it.modelo,
-                        precio = it.precio?:0,
-                        talla = it.talla?:0,
-                        uidVendedor = it.uidVendedor?:"",
-                        imagenUrl = it.imagenUrl?:""
+                        precio = it.precio ?: 0,
+                        talla = it.talla ?: 0,
+                        uidVendedor = it.uidVendedor ?: "",
+                        imagenUrl = it.imagenUrl ?: ""
                     )
                 } ?: emptyList())
             }
@@ -307,6 +349,7 @@ class ProductoRepositoryImp @Inject constructor(
         }
 
     }
+
     override suspend fun buscarProductosPorTexto(
         token: String,
         busqueda: String
@@ -331,9 +374,9 @@ class ProductoRepositoryImp @Inject constructor(
                         idProducto = it.idProducto,
                         idMarca = it.idMarca,
                         modelo = it.modelo,
-                        precio = it.precio?:0,
-                        talla = it.talla?:0,
-                        uidVendedor = it.uidVendedor?:"",
+                        precio = it.precio ?: 0,
+                        talla = it.talla ?: 0,
+                        uidVendedor = it.uidVendedor ?: "",
                         imagenUrl = it.imagenUrl
                     )
                 }

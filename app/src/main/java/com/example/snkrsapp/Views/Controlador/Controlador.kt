@@ -49,7 +49,7 @@ fun Controlador() {
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
-    val listaSinBottombar = listOf("InicioSesion", "Registro", "AgregarProducto")
+    val listaSinBottombar = listOf("InicioSesion", "Registro", "AgregarProducto","ProductoDetallado")
     var mostrarSheet by remember { mutableStateOf(false) }
 
     Scaffold(

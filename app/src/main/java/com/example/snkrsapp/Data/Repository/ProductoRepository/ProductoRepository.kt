@@ -1,6 +1,6 @@
 package com.example.snkrsapp.Data.Repository.ProductoRepository
 
-import com.example.snkrsapp.Data.RemoteData.ProductoDao.AgregarProductoSolicitud
+import android.net.Uri
 import com.example.snkrsapp.Data.RemoteData.PublicacionDao.AgregarPublicacionesSolicitud
 import com.example.snkrsapp.Domain.EstadoProductoNuevo
 import com.example.snkrsapp.Domain.Marca
@@ -38,4 +38,6 @@ interface ProductoRepository {
         token: String,
         busqueda: String
     ): Flow<List<Producto>>
+
+    suspend fun subirImagenACloudinary(uri: Uri): String?
 }

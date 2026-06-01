@@ -28,7 +28,6 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,6 +46,8 @@ import com.example.snkrsapp.Domain.Marca
 import com.example.snkrsapp.Domain.ProductoItem
 import com.example.snkrsapp.Views.ViewModels.PrincipalViewModel
 import com.example.snkrsapp.Views.ViewModels.ViewmodelAgregarProducto
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -77,14 +78,11 @@ fun PantallaAgregarProducto(
     ) {
         Spacer(Modifier.height(30.dp))
 
-        // Título dinámico según la opción seleccionada
         TituloAgregarPublicacion(
             if (model.esColeccion) "Añadir a mi Colección" else "Publicar Sneaker"
         )
 
-        // =======================================================================
-        // NUEVO: Selector de Modo (Pestañas Venta / Colección)
-        // =======================================================================
+
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -95,7 +93,6 @@ fun PantallaAgregarProducto(
         ) {
             val itemModifier = Modifier.weight(1f)
 
-            // Botón Modo Venta
             Box(
                 modifier = itemModifier
                     .background(
@@ -114,7 +111,6 @@ fun PantallaAgregarProducto(
                 )
             }
 
-            // Botón Modo Colección
             Box(
                 modifier = itemModifier
                     .background(
@@ -215,28 +211,16 @@ fun PantallaAgregarProducto(
                     }
                 }
 
-                // =======================================================================
-                // ANIMACIÓN: Ocultamos el campo "Estado" si el par va directo a la colección
-                // =======================================================================
-                AnimatedVisibility(visible = !model.esColeccion) {
-                    Column {
-                        Spacer(Modifier.height(15.dp))
-                        TextoConTextField(
-                            "Estado de las sneakers (Ej: Nuevo / Usado 9/10)",
-                            model.estadoNuevaPublicacion
-                        ) {
-                            agregarProductoViewModel.cambiarEstadoZapato(it)
-                        }
-                    }
-                }
-
                 Spacer(Modifier.height(15.dp))
 
-                TextoConTextField(
-                    if (model.esColeccion) "URL de la imagen de la zapatilla" else "URL de la imagen real",
-                    model.urlImagenNuevaPublicacion
-                ) {
-                    agregarProductoViewModel.cambiarImagenUrl(it)
+                AnimatedVisibility(visible = !model.esColeccion) {
+                    Column {
+                        SelectorImagen(
+                            agregarProductoViewModel,
+                            esColeccion = model.esColeccion
+                        )
+                        Spacer(Modifier.height(15.dp))
+                    }
                 }
 
                 if (model.mensajeError != null) {
@@ -254,7 +238,6 @@ fun PantallaAgregarProducto(
             }
         }
 
-        // Botones inferiores con el texto dinámico inyectado
         BotonesInferiores(
             model.cargando,
             textoBoton = if (model.esColeccion) "Añadir a la Colección" else "Publicar Sneaker",
@@ -417,7 +400,7 @@ fun Selector(
 @Composable
 fun BotonesInferiores(
     estaCargando: Boolean,
-    textoBoton: String, // <-- NUEVO PARAMETRO
+    textoBoton: String,
     agregarPublicacion: () -> Unit,
     volverAtras: () -> Unit
 ) {
@@ -444,7 +427,7 @@ fun BotonesInferiores(
                     CircularProgressIndicator(color = Color.Black)
                 } else {
                     Text(
-                        textoBoton, // <-- TEXTO DINÁMICO
+                        textoBoton,
                         color = Color.Black,
                         fontWeight = Bold,
                         fontSize = 16.sp
