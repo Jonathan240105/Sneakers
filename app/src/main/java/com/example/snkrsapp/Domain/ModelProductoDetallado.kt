@@ -5,5 +5,6 @@ data class ModelProductoDetallado(
     val marcaSeleccionada: Marca = Marca(),
     val publicacionSeleccionada: Publicacion = Publicacion(),
     val listaPublicaciones: List<Publicacion> = emptyList(),
-    val cargandoPublicaciones: Boolean = false
+    val cargandoPublicaciones: Boolean = false,
+    val mensaje : String = ""
 )

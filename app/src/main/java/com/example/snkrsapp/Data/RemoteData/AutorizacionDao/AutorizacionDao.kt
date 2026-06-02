@@ -8,6 +8,7 @@ import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface AutorizacionDao {
     @POST(Endpoints.IniciarSesion)
@@ -22,7 +23,8 @@ interface AutorizacionDao {
 
     @GET("/usuarios/perfil")
     suspend fun getPerfil(
-        @Header("Authorization") token: String?
+        @Header("Authorization") token: String?,
+        @Query("uid") uid: String?
     ): Response<Usuario>
 
     @GET("/usuarios/perfil/carrito")

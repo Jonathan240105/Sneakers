@@ -42,7 +42,8 @@ class ProductoDetalladoViewModel @Inject constructor(
                                 _model.update {
                                     it.copy(
                                         listaPublicaciones = lista,
-                                        publicacionSeleccionada = lista.firstOrNull() ?: Publicacion(),
+                                        publicacionSeleccionada = lista.firstOrNull()
+                                            ?: Publicacion(),
                                         cargandoPublicaciones = false
                                     )
                                 }
@@ -53,11 +54,46 @@ class ProductoDetalladoViewModel @Inject constructor(
         }
     }
 
+    fun agregarACarrito() {
+        FirebaseAuth.getInstance().currentUser?.getIdToken(true)?.addOnCompleteListener {
+            if (it.isSuccessful) {
+                val token = it.result.token
+                if (token != null) {
+                    viewModelScope.launch {
+                        productoRepository.agregarAlCarrito(
+                            token,
+                            _model.value.publicacionSeleccionada.idPublicacion
+                        ).collect {
+                            if (it) {
+                                _model.update {
+                                    it.copy(mensaje = "Agregado al carrito")
+                                }
+                            } else {
+                                _model.update {
+                                    it.copy(mensaje = "Error al agregar al carrito")
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    fun limpiarMensaje() {
+        viewModelScope.launch {
+            _model.update {
+                it.copy(mensaje = "")
+            }
+        }
+    }
+
     fun seleccionarPublicacion(publicacion: Publicacion) {
         _model.update {
             it.copy(publicacionSeleccionada = publicacion)
         }
     }
+
     fun cargarMarca(idMarca: Int) {
         viewModelScope.launch {
             productoRepository.traerMarcaPorId(idMarca).collect { marca ->

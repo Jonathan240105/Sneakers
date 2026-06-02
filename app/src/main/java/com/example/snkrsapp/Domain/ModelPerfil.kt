@@ -6,6 +6,7 @@ data class ModelPerfil(
     val usuarioActual: Usuario = Usuario(),
     val exito : Boolean = true,
     val cargando : Boolean = false,
+    val esMiPerfil : Boolean = true,
 
     val cargandoColeccion: Boolean = false,
     val exitoColeccion: Boolean = false,

@@ -44,4 +44,10 @@ interface PublicacionDao {
         @Header("Authorization") token: String
     ): Response<List<PublicacionesProductoRespuesta>>
 
+    @POST("usuarios/perfil/carrito/agregar")
+    suspend fun agregarAlCarrito(
+        @Header("Authorization") token: String,
+        @Query("idPublicacion") idPublicacion: Int
+    ): Response<AgregarACarritoRespuesta>
+
 }

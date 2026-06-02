@@ -42,4 +42,5 @@ interface ProductoRepository {
     suspend fun traerPublicacionesPorProducto(token: String, idProducto: Int): Flow<List<Publicacion>>
 
     suspend fun subirImagenACloudinary(uri: Uri): String?
+    suspend fun agregarAlCarrito(token: String, idPublicacion: Int): Flow<Boolean>
 }

@@ -427,5 +427,22 @@ class ProductoRepositoryImp @Inject constructor(
             emit(emptyList())
         }
     }
+
+    override suspend fun agregarAlCarrito(token: String, idPublicacion: Int): Flow<Boolean> = flow {
+        try {
+            val respuesta = publicacionDao.agregarAlCarrito("Bearer $token", idPublicacion)
+            if (respuesta.isSuccessful && respuesta.body()?.ok == true) {
+                println("Producto agregado")
+                emit(true)
+            } else {
+                println("Error al agregar al carrito 1")
+                emit(false)
+
+            }
+        } catch (e: Exception) {
+            println("Error al agregar al carrito 2: ${e.message}")
+            emit(false)
+        }
+    }
 }
 

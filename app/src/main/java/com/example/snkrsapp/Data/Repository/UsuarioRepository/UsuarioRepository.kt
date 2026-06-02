@@ -19,7 +19,7 @@ interface UsuarioRepository {
         fecha: String
     ): Flow<EstadoRegistro>
 
-    suspend fun traerPerfil(token: String): Flow<Usuario>
+    suspend fun traerPerfil(token: String, uidSoli: String?, miUid: String): Flow<Usuario>
     suspend fun actualizarPerfil(
         token: String,
         nombre: String?,

@@ -33,7 +33,6 @@ import java.io.IOException
 import javax.inject.Inject
 import com.example.snkrsapp.Data.LocalData.Perfil.toVentasEntity
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
 
 class UsuarioRepositoryImp @Inject constructor(
     private val autDao: AutorizacionDao,
@@ -132,21 +131,23 @@ class UsuarioRepositoryImp @Inject constructor(
         }
     }
 
-    override suspend fun traerPerfil(token: String): Flow<Usuario> = flow {
+    override suspend fun traerPerfil(token: String, uidSoli: String?, miUid: String): Flow<Usuario> = flow {
 
-        val usuarioLocal = usuarioDao.obtenerUsuarioPorUID(token)
-        if (usuarioLocal != null) {
-            emit(EntityToUsuario(usuarioLocal))
-            return@flow
+        if (uidSoli == null || uidSoli == miUid) {
+            val usuarioLocal = usuarioDao.obtenerUsuarioPorUID(miUid)
+            if (usuarioLocal != null) {
+                emit(EntityToUsuario(usuarioLocal))
+            }
         }
 
         try {
-            val response = autDao.getPerfil("Bearer $token")
+            val response = autDao.getPerfil("Bearer $token", uidSoli)
             if (response.isSuccessful) {
                 val usuarioFresco = response.body()
                 if (usuarioFresco != null) {
-
-                    usuarioDao.añadirUsuario(UsuarioToEntity(usuarioFresco))
+                    if (uidSoli == null || uidSoli == miUid) {
+                        usuarioDao.añadirUsuario(UsuarioToEntity(usuarioFresco))
+                    }
                     emit(usuarioFresco)
                 }
             }
@@ -199,22 +200,17 @@ class UsuarioRepositoryImp @Inject constructor(
         token: String,
         uidUsuario: String
     ): Flow<List<PublicacionPerfilItem>> = flow {
-
         try {
-
-
             val carritoLocal = publicacionLocalDao.obtenerCarritoLocal(uidUsuario).first()
             if (carritoLocal.isNotEmpty()) {
                 emit(carritoLocal.map { it.toDomain() })
             }
         } catch (e: Exception) {
-            println(
-                "Error al traer carrito: ${e.message}"
-            )
+            println("Error al traer carrito local: ${e.message}")
         }
+
         try {
             val respuesta = publicacionDao.obtenerCarritoUsuario("Bearer $token")
-
             if (respuesta.isSuccessful && respuesta.body() != null) {
                 val listaRemota = respuesta.body()!!
 
@@ -224,9 +220,7 @@ class UsuarioRepositoryImp @Inject constructor(
                 emit(entidadesALocal.map { it.toDomain() })
             }
         } catch (e: Exception) {
-            println(
-                "Error al traer carrito: ${e.message}"
-            )
+            println("Error al traer carrito remoto: ${e.message}")
         }
     }
 

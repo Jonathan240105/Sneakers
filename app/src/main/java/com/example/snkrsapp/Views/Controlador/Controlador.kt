@@ -50,20 +50,28 @@ fun Controlador() {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
     val listaSinBottombar =
-        listOf("InicioSesion", "Registro", "AgregarProducto", "ProductoDetallado")
+        listOf(
+            "InicioSesion",
+            "Registro",
+            "AgregarProducto",
+            "ProductoDetallado/{id}/{marca}",
+            "Perfil/{uid}"
+        )
     var mostrarSheet by remember { mutableStateOf(false) }
 
-    Scaffold(bottomBar = {
-        if (currentRoute !in listaSinBottombar) {
-            BottomBar(navController)
+    Scaffold(
+        bottomBar = {
+            if (currentRoute !in listaSinBottombar) {
+                BottomBar(navController)
+            }
+        },
+        floatingActionButton = {
+            if (currentRoute == "Eventos") {
+                BotonCrearEvento(
+                    navController
+                ) { mostrarSheet = true }
+            }
         }
-    }, floatingActionButton = {
-        if (currentRoute == "Eventos") {
-            BotonCrearEvento(
-                navController
-            ) { mostrarSheet = true }
-        }
-    }
 
     ) { paddingValues ->
         NavHost(navController = navController, startDestination = "InicioSesion") {
@@ -85,15 +93,34 @@ fun Controlador() {
                 val id = it.arguments?.getString("id")?.toIntOrNull() ?: 0
                 val marca = it.arguments?.getString("marca")?.toIntOrNull() ?: 0
                 PantallaProductoDetallado(
-                    id, marca, { navController.navigate("Principal") }, productoDetalladoViewModel
+                    id,
+                    marca,
+                    { navController.navigate("Principal") },
+                    productoDetalladoViewModel,
+                    paddingValues,
+                    {navController.navigate("Perfil/${it}")}
                 )
             }
 
             composable("Perfil") {
                 PantallaPerfil(
+                    null,
                     { navController.navigate("ActualizarPerfil") },
+                    {},
                     perfilViewModel,
                     { navController.navigate("Listados/${it}") })
+            }
+            composable(
+                "Perfil/{uid}",
+            ) {
+                val uidVendedor = it.arguments?.getString("uid")
+                PantallaPerfil(
+                    uidPerfilAVisualizar = uidVendedor,
+                    cambiarAConfig = { },
+                    {navController.popBackStack()},
+                    myViewModel = perfilViewModel,
+                    navegarAListado = { navController.navigate("Listados/${it}") }
+                )
             }
             composable("ActualizarPerfil") {
                 PantallaActualizarPerfil(
@@ -119,10 +146,12 @@ fun Controlador() {
             composable("Listados/{id}") {
                 val id = it.arguments?.getString("id")?.toIntOrNull() ?: 0
                 PantallaListados(
-                    { navController.navigate("Perfil") }, listadoViewModel, paddingValues, id
+                    { navController.navigate("Perfil") },
+                    listadoViewModel,
+                    paddingValues,
+                    id
                 )
             }
         }
     }
-
 }

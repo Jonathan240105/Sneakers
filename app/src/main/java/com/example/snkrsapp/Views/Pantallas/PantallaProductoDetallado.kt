@@ -1,30 +1,36 @@
 package com.example.snkrsapp.Views.Pantallas
 
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -39,14 +45,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.snkrsapp.Domain.Marca
-import com.example.snkrsapp.Domain.Producto
 import com.example.snkrsapp.Domain.Publicacion
 import com.example.snkrsapp.Views.ViewModels.ProductoDetalladoViewModel
 
@@ -55,27 +62,35 @@ fun PantallaProductoDetallado(
     idZapatilla: Int,
     idMarca: Int,
     volverAPrincipal: () -> Unit,
-    myViewModel: ProductoDetalladoViewModel
+    myViewModel: ProductoDetalladoViewModel,
+    paddingValues: PaddingValues,
+    navegarAPerfil: (String) -> Unit
 ) {
     var pestañaSeleccionada by remember { mutableStateOf(0) }
     val model by myViewModel.model.collectAsState()
     val estadoScroll = rememberScrollState()
+    val contexto = LocalContext.current
 
     LaunchedEffect(idZapatilla, idMarca) {
         myViewModel.cargarProducto(idZapatilla)
         myViewModel.cargarMarca(idMarca)
         myViewModel.cargarPublicacionesDelProducto(idZapatilla)
     }
-
+    LaunchedEffect(model.mensaje) {
+        if (!model.mensaje.isNullOrBlank()) {
+            Toast.makeText(contexto, model.mensaje, Toast.LENGTH_SHORT).show()
+            myViewModel.limpiarMensaje()
+        }
+    }
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFF121212))
+            .padding(paddingValues)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .navigationBarsPadding()
                 .verticalScroll(estadoScroll)
         ) {
             Box(
@@ -83,9 +98,7 @@ fun PantallaProductoDetallado(
                     .fillMaxWidth()
                     .height(350.dp)
                     .background(
-                        Brush.verticalGradient(
-                            colors = listOf(Color(0xFF252525), Color(0xFF121212))
-                        )
+                        Color(0xFF121212)
                     ), contentAlignment = Alignment.Center
             ) {
                 AsyncImage(
@@ -94,20 +107,10 @@ fun PantallaProductoDetallado(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(horizontal = 10.dp)
+                        .padding(top = 40.dp)
                         .testTag("imagenProducto"),
                     contentScale = ContentScale.Fit
                 )
-
-                Box(
-                    Modifier
-                        .align(Alignment.TopStart)
-                        .padding(20.dp)
-                        .size(45.dp)
-                        .background(Color.Black, RoundedCornerShape(12.dp))
-                        .clickable(onClick = volverAPrincipal), contentAlignment = Alignment.Center
-                ) {
-                    Icon(Icons.Default.ArrowBack, "", tint = Color.White)
-                }
             }
 
             Column(Modifier.padding(horizontal = 20.dp)) {
@@ -164,12 +167,37 @@ fun PantallaProductoDetallado(
                         idPublicacionSeleccionada = model.publicacionSeleccionada.idPublicacion
                     )
                 } else {
-                    ContenidoMarca(
-                        model.marcaSeleccionada, model.productoSeleccionado.uidVendedor ?: ""
+                    ContenidoInformacionCompleta(
+                        marca = model.marcaSeleccionada,
+                        nombreVendedor = model.publicacionSeleccionada.nombreUsuario
+                            ?: "Usuario SNKRS",
+                        onVerPerfilClick = { navegarAPerfil(model.publicacionSeleccionada.uidUsuario) }
                     )
                 }
 
                 Spacer(modifier = Modifier.height(100.dp))
+            }
+        }
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp)
+                .padding(top = 10.dp)
+                .statusBarsPadding(),
+            horizontalArrangement = Arrangement.Start
+        ) {
+            IconButton(
+                onClick = volverAPrincipal,
+                modifier = Modifier
+                    .background(Color(0xFF1E1E1E), CircleShape)
+                    .size(40.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Volver",
+                    tint = Color.White
+                )
             }
         }
 
@@ -179,11 +207,11 @@ fun PantallaProductoDetallado(
                 .align(Alignment.BottomEnd)
                 .padding(end = 20.dp, bottom = 20.dp)
                 .background(Color(0xFF1E1E1E), RoundedCornerShape(25.dp))
-                .clickable { },
+                .clickable {myViewModel.agregarACarrito()},
             contentAlignment = Alignment.Center
         ) {
             Icon(
-                Icons.Default.FavoriteBorder,
+                Icons.Default.ShoppingCart,
                 "",
                 tint = Color.White,
                 modifier = Modifier.size(25.dp)
@@ -216,7 +244,7 @@ fun ContenidoDetalles(
     idPublicacionSeleccionada: Int
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        if(listaPublicaciones.isNotEmpty()){
+        if (listaPublicaciones.isNotEmpty()) {
             Row {
                 InfoPequeña(
                     titulo = "Talla de publicación seleccionada:",
@@ -251,7 +279,7 @@ fun ContenidoDetalles(
                 val esLaSeleccionada = publicacion.idPublicacion == idPublicacionSeleccionada
 
                 Card(
-                    modifier = Modifier
+                    Modifier
                         .fillMaxWidth()
                         .clickable {
                             navegarAPublicacion(publicacion)
@@ -259,7 +287,9 @@ fun ContenidoDetalles(
                     shape = RoundedCornerShape(12.dp),
                     border = if (esLaSeleccionada) BorderStroke(1.5.dp, Color.White) else null,
                     colors = CardDefaults.cardColors(
-                        containerColor = if (esLaSeleccionada) Color(0xFF262626) else Color(0xFF1E1E1E)
+                        containerColor = if (esLaSeleccionada) Color(0xFF262626) else Color(
+                            0xFF1E1E1E
+                        )
                     )
                 ) {
                     Row(
@@ -271,19 +301,19 @@ fun ContenidoDetalles(
                     ) {
                         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                             Text(
-                                text = "Talla: ${publicacion.talla}",
+                                "Talla: ${publicacion.talla}",
                                 color = Color.White,
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.SemiBold
                             )
                             Text(
-                                text = "Vendedor ID: ${publicacion.uidUsuario.take(8)}...",
+                                "Vendedor : ${publicacion.nombreUsuario}",
                                 color = Color.Gray,
                                 fontSize = 12.sp
                             )
                             Text(
-                                text = "Estado: ${publicacion.estado}",
-                                color = Color.LightGray,
+                                "Estado:  ${publicacion.estado}",
+                                color = Color.Gray,
                                 fontSize = 12.sp
                             )
                         }
@@ -302,31 +332,93 @@ fun ContenidoDetalles(
 }
 
 @Composable
-fun ContenidoMarca(marca: Marca, uidVendedor: String) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(Color(0xFF1E1E1E), RoundedCornerShape(20.dp))
-            .padding(15.dp)
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            AsyncImage(
-                model = marca.logoUrl,
-                contentDescription = null,
-                modifier = Modifier
-                    .size(50.dp)
-                    .clip(RoundedCornerShape(8.dp)),
-                contentScale = ContentScale.Fit
-            )
-            Spacer(Modifier.width(15.dp))
-            Column {
-                Text(marca.nombre ?: "", color = Color.White, fontWeight = Bold, fontSize = 18.sp)
-                Text("Fundada en 1990", color = Color.Gray, fontSize = 14.sp)
+fun ContenidoInformacionCompleta(
+    marca: Marca,
+    nombreVendedor: String,
+    onVerPerfilClick: () -> Unit
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        Text("Información de la Marca", color = Color.Gray, fontSize = 14.sp)
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E1E)),
+            shape = RoundedCornerShape(20.dp)
+        ) {
+            Column(modifier = Modifier.padding(15.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    AsyncImage(
+                        marca.logoUrl,
+                        "",
+                        modifier = Modifier
+                            .size(50.dp)
+                            .clip(RoundedCornerShape(8.dp)),
+                        contentScale = ContentScale.Fit
+                    )
+                    Spacer(Modifier.width(15.dp))
+                    Column {
+                        Text(
+                            marca.nombre ?: "",
+                            color = Color.White,
+                            fontWeight = Bold,
+                            fontSize = 18.sp
+                        )
+                        Text("Fundada en 1990", color = Color.Gray, fontSize = 14.sp)
+                    }
+                }
             }
         }
-        Spacer(Modifier.height(15.dp))
-        Text("País de origen: España", color = Color.White)
-        Text("Vendedor ID: $uidVendedor", color = Color.LightGray, fontSize = 12.sp)
+
+        Text("Información del Vendedor", color = Color.Gray, fontSize = 14.sp)
+        Card(
+            Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E1E)),
+            shape = RoundedCornerShape(20.dp)
+        ) {
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(15.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        modifier = Modifier
+                            .size(50.dp)
+                            .clip(CircleShape)
+                            .background(Color(0xFF252525)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            Icons.Default.Person,
+                            "",
+                            tint = Color.White,
+                            modifier = Modifier.size(30.dp)
+                        )
+                    }
+
+                    Spacer(Modifier.width(15.dp))
+
+
+                    Text(
+                        text = nombreVendedor,
+                        color = Color.White,
+                        fontWeight = Bold,
+                        fontSize = 16.sp
+                    )
+                }
+                Text(
+                    text = "Ver perfil",
+                    color = Color.LightGray,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    textDecoration = TextDecoration.Underline,
+                    modifier = Modifier
+                        .clickable { onVerPerfilClick() }
+                        .padding(8.dp)
+                )
+            }
+        }
     }
 }
 
