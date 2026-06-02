@@ -55,7 +55,8 @@ fun Controlador() {
             "Registro",
             "AgregarProducto",
             "ProductoDetallado/{id}/{marca}",
-            "Perfil/{uid}"
+            "Perfil/{uid}",
+            "Listados/{id}/{uid}"
         )
     var mostrarSheet by remember { mutableStateOf(false) }
 
@@ -79,7 +80,13 @@ fun Controlador() {
                 PantallaInicioSesion(
                     iniSesViewModel,
                     { navController.navigate("Registro") },
-                    { navController.navigate("Principal") })
+                    {
+                        navController.navigate("Principal") {
+                            popUpTo("InicioSesion") {
+                                inclusive = true
+                            }
+                        }
+                    })
             }
             composable("Registro") {
                 PantallaRegistro(registroViewModel, { navController.navigate("InicioSesion") })
@@ -98,7 +105,7 @@ fun Controlador() {
                     { navController.navigate("Principal") },
                     productoDetalladoViewModel,
                     paddingValues,
-                    {navController.navigate("Perfil/${it}")}
+                    { navController.navigate("Perfil/${it}") }
                 )
             }
 
@@ -117,15 +124,15 @@ fun Controlador() {
                 PantallaPerfil(
                     uidPerfilAVisualizar = uidVendedor,
                     cambiarAConfig = { },
-                    {navController.popBackStack()},
+                    { navController.popBackStack() },
                     myViewModel = perfilViewModel,
-                    navegarAListado = { navController.navigate("Listados/${it}") }
+                    navegarAListado = { navController.navigate("Listados/${it}/${uidVendedor}") }
                 )
             }
             composable("ActualizarPerfil") {
                 PantallaActualizarPerfil(
                     { navController.navigate("Perfil") },
-                    { navController.navigate("InicioSesion") },
+                    { navController.navigate("InicioSesion") { popUpTo(0) { inclusive = true } } },
                     perfilViewModel,
                     actuViewModel
                 )
@@ -149,7 +156,20 @@ fun Controlador() {
                     { navController.navigate("Perfil") },
                     listadoViewModel,
                     paddingValues,
-                    id
+                    id,
+                    null
+                )
+            }
+            composable("Listados/{id}/{uid}") { backStackEntry ->
+                val id = backStackEntry.arguments?.getString("id")?.toIntOrNull() ?: 0
+                val uid = backStackEntry.arguments?.getString("uid")
+
+                PantallaListados(
+                    navegarADetalle = { navController.popBackStack() },
+                    myViewModel = listadoViewModel,
+                    paddingValues = paddingValues,
+                    id = id,
+                    uid = uid
                 )
             }
         }

@@ -20,17 +20,21 @@ class ListadoViewModel @Inject constructor(
     private val _model = MutableStateFlow(ModelListados())
     val model = _model.asStateFlow()
 
-    fun cargarDatosPerfil() {
+    fun cargarDatosPerfil(uid: String? = null) {
+
         val usuarioFirebase = FirebaseAuth.getInstance().currentUser
-        val uid = usuarioFirebase?.uid ?: return
+        val miUid = usuarioFirebase?.uid ?: return
+
+        val esMiPerfil = uid == null || uid == miUid
+        val uidObjetivo = uid ?: miUid
 
         usuarioFirebase.getIdToken(true)?.addOnCompleteListener { tarea ->
             if (tarea.isSuccessful) {
                 val token = tarea.result.token
                 if (token != null) {
-                    _model.update { it.copy(cargandoColeccion = true) }
+                    _model.update { it.copy(cargandoColeccion = true, esMiPerfil = esMiPerfil) }
                     viewModelScope.launch {
-                        productoRepository.traerColeccionUsuario(token, uid).collect { lista ->
+                        productoRepository.traerColeccionUsuario(token, uidObjetivo).collect { lista ->
                             _model.update {
                                 it.copy(
                                     listaColeccion = lista,
@@ -43,7 +47,7 @@ class ListadoViewModel @Inject constructor(
 
                     _model.update { it.copy(cargandoVentas = true) }
                     viewModelScope.launch {
-                        productoRepository.traerVentasUsuario(token, uid).collect { lista ->
+                        productoRepository.traerVentasUsuario(token, uidObjetivo).collect { lista ->
                             _model.update {
                                 it.copy(
                                     listaVentas = lista,
@@ -54,16 +58,26 @@ class ListadoViewModel @Inject constructor(
                         }
                     }
 
-                    _model.update { it.copy(cargandoCarrito = true) }
-                    viewModelScope.launch {
-                        productoRepository.traerCarrito(token, uid).collect { lista ->
-                            _model.update {
-                                it.copy(
-                                    listaCarrito = lista,
-                                    cargandoCarrito = false,
-                                    exitoCarrito = true
-                                )
+                    if (esMiPerfil) {
+                        _model.update { it.copy(cargandoCarrito = true) }
+                        viewModelScope.launch {
+                            productoRepository.traerCarrito(token, miUid).collect { lista ->
+                                _model.update {
+                                    it.copy(
+                                        listaCarrito = lista,
+                                        cargandoCarrito = false,
+                                        exitoCarrito = true
+                                    )
+                                }
                             }
+                        }
+                    } else {
+                        _model.update {
+                            it.copy(
+                                listaCarrito = emptyList(),
+                                cargandoCarrito = false,
+                                exitoCarrito = false
+                            )
                         }
                     }
                 }
@@ -75,7 +89,6 @@ class ListadoViewModel @Inject constructor(
         viewModelScope.launch {
             val productosAComprar = _model.value.listaCarrito
             if (productosAComprar.isNotEmpty()) {
-                println("Procesando la compra de ${productosAComprar.size} zapatillas.")
             }
         }
     }

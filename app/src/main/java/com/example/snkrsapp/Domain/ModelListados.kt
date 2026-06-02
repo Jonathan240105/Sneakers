@@ -1,6 +1,9 @@
 package com.example.snkrsapp.Domain
 
 data class ModelListados(
+
+    val esMiPerfil: Boolean = true,
+
     val cargandoColeccion: Boolean = false,
     val exitoColeccion: Boolean = false,
 

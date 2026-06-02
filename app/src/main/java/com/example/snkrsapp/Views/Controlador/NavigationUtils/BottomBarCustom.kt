@@ -152,7 +152,9 @@ fun BottomBar(navController: NavController) {
                             .size(width = 52.dp, height = 34.dp)
                             .clip(RoundedCornerShape(20.dp))
                             .background(
-                                if (currentRoute?.startsWith("Listados") == true) cs.primary.copy(alpha = 0.15f)
+                                if (currentRoute?.startsWith("Listados") == true) cs.primary.copy(
+                                    alpha = 0.15f
+                                )
                                 else Color.Transparent
                             ),
                         contentAlignment = Alignment.Center

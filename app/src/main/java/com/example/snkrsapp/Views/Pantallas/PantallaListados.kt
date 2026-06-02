@@ -12,18 +12,26 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SegmentedButtonDefaults.Icon
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults
@@ -53,16 +61,24 @@ fun PantallaListados(
     navegarADetalle: () -> Unit,
     myViewModel: ListadoViewModel,
     paddingValues: PaddingValues,
-    id : Int = 0
+    id: Int = 0,
+    uid: String? = null
 ) {
-    LaunchedEffect(Unit) {
-        myViewModel.cargarDatosPerfil()
+
+    LaunchedEffect(uid) {
+        myViewModel.cargarDatosPerfil(uid)
     }
 
     val model by myViewModel.model.collectAsState()
+    val esMiPerfil = model.esMiPerfil
 
     var pestañaSeleccionada by remember { mutableIntStateOf(id) }
-    val listadoPestañas = listOf("Colección", "Ventas", "Carrito")
+
+    val listadoPestañas = if (esMiPerfil) {
+        listOf("Colección", "Ventas", "Carrito")
+    } else {
+        listOf("Colección", "Ventas")
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         Scaffold(
@@ -78,15 +94,21 @@ fun PantallaListados(
                 ) {
                     Spacer(Modifier.height(14.dp))
 
-                    TituloListados(texto = "Mis Artículos")
+                    TituloListadosConVolver(
+                        texto = if (esMiPerfil) "Mis Artículos" else "Artículos",
+                        mostrarBotonVolver = !esMiPerfil,
+                        onVolverClick = navegarADetalle
+                    )
 
                     TabRow(
-                        selectedTabIndex = pestañaSeleccionada,
+                        selectedTabIndex = pestañaSeleccionada.coerceAtMost(listadoPestañas.lastIndex),
                         containerColor = Color(0xFF121212),
                         contentColor = Color.White,
                         indicator = { posicionesTab ->
+                            val indiceFijo =
+                                pestañaSeleccionada.coerceAtMost(listadoPestañas.lastIndex)
                             TabRowDefaults.SecondaryIndicator(
-                                Modifier.tabIndicatorOffset(posicionesTab[pestañaSeleccionada]),
+                                Modifier.tabIndicatorOffset(posicionesTab[indiceFijo]),
                                 color = Color.White
                             )
                         },
@@ -95,7 +117,7 @@ fun PantallaListados(
                         listadoPestañas.forEachIndexed { indice, titulo ->
                             Tab(
                                 pestañaSeleccionada == indice,
-                               { pestañaSeleccionada = indice },
+                                { pestañaSeleccionada = indice },
                                 text = {
                                     Text(
                                         titulo,
@@ -115,7 +137,7 @@ fun PantallaListados(
                 GridCells.Fixed(2),
                 contentPadding = PaddingValues(
                     top = paddingScaffold.calculateTopPadding() + 8.dp,
-                    bottom = paddingValues.calculateBottomPadding() + 16.dp + (if (listadoPestañas[pestañaSeleccionada] == "Carrito" && model.listaCarrito.isNotEmpty()) 100.dp else 0.dp),
+                    bottom = paddingValues.calculateBottomPadding() + 16.dp + (if (esMiPerfil && listadoPestañas[pestañaSeleccionada] == "Carrito" && model.listaCarrito.isNotEmpty()) 100.dp else 0.dp),
                     start = 16.dp,
                     end = 16.dp
                 ),
@@ -127,7 +149,7 @@ fun PantallaListados(
                     "Colección" -> {
                         if (model.listaColeccion.isEmpty()) {
                             item(span = { GridItemSpan(2) }) {
-                                MensajeListadoVacio("Tu armario de colección está vacío.")
+                                MensajeListadoVacio(if (esMiPerfil) "Tu armario de colección está vacío." else "Este armario está vacío.")
                             }
                         } else {
                             items(model.listaColeccion) { sneaker ->
@@ -144,14 +166,14 @@ fun PantallaListados(
                     "Ventas" -> {
                         if (model.listaVentas.isEmpty()) {
                             item(span = { GridItemSpan(2) }) {
-                                MensajeListadoVacio("No hay artículos publicados para la venta.")
+                                MensajeListadoVacio(if (esMiPerfil) "No hay artículos publicados para la venta." else "No tiene productos en venta.")
                             }
                         } else {
                             items(model.listaVentas) { publicacion ->
                                 CardItemSneakerUnificada(
-                                    modelo = publicacion.modelo,
-                                    precio = publicacion.precio,
-                                    urlFoto = publicacion.urlFoto,
+                                    publicacion.modelo,
+                                    publicacion.precio,
+                                    publicacion.urlFoto,
                                     onClick = navegarADetalle
                                 )
                             }
@@ -178,42 +200,59 @@ fun PantallaListados(
             }
         }
 
-        if (listadoPestañas[pestañaSeleccionada] == "Carrito" && model.listaCarrito.isNotEmpty()) {
+        if (esMiPerfil && listadoPestañas[pestañaSeleccionada] == "Carrito" && model.listaCarrito.isNotEmpty()) {
             Box(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .padding(bottom = paddingValues.calculateBottomPadding())
             ) {
                 BarraInferiorCompra(
-                     model.listaCarrito,
+                    model.listaCarrito,
                     { myViewModel.procesarCompra() }
                 )
             }
         }
     }
 }
+
 @Composable
-fun TituloListados(texto: String) {
-    Text(
-        texto,
-        color = Color.White,
+fun TituloListadosConVolver(
+    texto: String,
+    mostrarBotonVolver: Boolean,
+    onVolverClick: () -> Unit
+) {
+    Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 12.dp),
-        style = TextStyle(
-            fontSize = 25.sp,
-            fontWeight = Bold
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        if (mostrarBotonVolver) {
+            IconButton(
+                onClick = onVolverClick,
+                modifier = Modifier
+                    .background(Color(0xFF1E1E1E),CircleShape)
+                    .size(40.dp)
+            ) {
+                Icon(
+                    Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Volver",
+                    tint = Color.White
+                )
+            }
+            Spacer(Modifier.width(15.dp))
+        }
+
+        Text(
+            text = texto,
+            color = Color.White,
+            style = TextStyle(fontSize = 25.sp, fontWeight = Bold)
         )
-    )
+    }
 }
 
 @Composable
-fun CardItemSneakerUnificada(
-    modelo: String,
-    precio: Double,
-    urlFoto: String,
-    onClick: () -> Unit
-) {
+fun CardItemSneakerUnificada(modelo: String, precio: Double, urlFoto: String, onClick: () -> Unit) {
     Card(
         Modifier
             .fillMaxWidth()
@@ -227,22 +266,12 @@ fun CardItemSneakerUnificada(
                     .fillMaxWidth()
                     .height(160.dp)
                     .background(Color(0xFF252525)),
-               Alignment.Center
+                Alignment.Center
             ) {
-                AsyncImage(
-                    urlFoto,
-                    modelo,
-                    modifier = Modifier.padding(12.dp)
-                )
+                AsyncImage(urlFoto, modelo, modifier = Modifier.padding(12.dp))
             }
             Column(modifier = Modifier.padding(15.dp)) {
-                Text(
-                    modelo,
-                    color = Color.White,
-                    fontSize = 17.sp,
-                    fontWeight = Bold,
-                    maxLines = 1
-                )
+                Text(modelo, color = Color.White, fontSize = 17.sp, fontWeight = Bold, maxLines = 1)
                 Spacer(Modifier.height(5.dp))
                 Text("$precio €", color = Color.White, fontSize = 16.sp, fontWeight = Bold)
             }
@@ -251,12 +280,8 @@ fun CardItemSneakerUnificada(
 }
 
 @Composable
-fun BarraInferiorCompra(
-    listaCarrito: List<PublicacionPerfilItem>,
-    onComprarClick: () -> Unit
-) {
+fun BarraInferiorCompra(listaCarrito: List<PublicacionPerfilItem>, onComprarClick: () -> Unit) {
     val costeTotal = listaCarrito.sumOf { it.precio }
-
     Card(
         Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E1E)),
@@ -266,8 +291,8 @@ fun BarraInferiorCompra(
             Modifier
                 .padding(20.dp)
                 .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+            Arrangement.SpaceBetween,
+            Alignment.CenterVertically
         ) {
             Column {
                 Text("Total", color = Color.Gray, fontSize = 14.sp)
