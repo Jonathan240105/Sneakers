@@ -13,6 +13,9 @@ data class ModelListados(
     val cargandoCarrito: Boolean = false,
     val exitoCarrito: Boolean = false,
 
+    val cargandoPago: Boolean = false,
+    val error: String? = null,
+
     val listaColeccion: List<ProductoColeccionItem> = emptyList(),
     val listaVentas: List<PublicacionPerfilItem> = emptyList(),
     val listaCarrito: List<PublicacionPerfilItem> = emptyList()

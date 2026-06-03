@@ -1,5 +1,6 @@
 package com.example.snkrsapp.Views.Pantallas
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -27,11 +28,11 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SegmentedButtonDefaults.Icon
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults
@@ -47,6 +48,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.text.style.TextAlign
@@ -65,13 +67,18 @@ fun PantallaListados(
     uid: String? = null
 ) {
 
+    val contexto = LocalContext.current
     LaunchedEffect(uid) {
         myViewModel.cargarDatosPerfil(uid)
     }
 
     val model by myViewModel.model.collectAsState()
     val esMiPerfil = model.esMiPerfil
-
+    LaunchedEffect(model.listaCarrito) {
+        if (model.listaCarrito.isEmpty() && model.cargandoPago) {
+            Toast.makeText(contexto, "¡Compra realizada con éxito!", Toast.LENGTH_SHORT).show()
+        }
+    }
     var pestañaSeleccionada by remember { mutableIntStateOf(id) }
 
     val listadoPestañas = if (esMiPerfil) {
@@ -186,6 +193,24 @@ fun PantallaListados(
                                 MensajeListadoVacio("No tienes productos añadidos al carrito.")
                             }
                         } else {
+                            if (model.error != null) {
+                                item(span = { GridItemSpan(2) }) {
+                                    Text(
+                                        text = model.error!!,
+                                        color = Color(0xFFFF6B6B),
+                                        fontSize = 14.sp,
+                                        fontWeight = Bold,
+                                        textAlign = TextAlign.Center,
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .background(
+                                                Color(0xFF2D1616),
+                                                RoundedCornerShape(12.dp)
+                                            )
+                                            .padding(12.dp)
+                                    )
+                                }
+                            }
                             items(model.listaCarrito) { articulo ->
                                 CardItemSneakerUnificada(
                                     articulo.modelo,
@@ -208,7 +233,8 @@ fun PantallaListados(
             ) {
                 BarraInferiorCompra(
                     model.listaCarrito,
-                    { myViewModel.procesarCompra() }
+                    { myViewModel.procesarCompra() },
+                    model.cargandoPago
                 )
             }
         }
@@ -231,7 +257,7 @@ fun TituloListadosConVolver(
             IconButton(
                 onClick = onVolverClick,
                 modifier = Modifier
-                    .background(Color(0xFF1E1E1E),CircleShape)
+                    .background(Color(0xFF1E1E1E), CircleShape)
                     .size(40.dp)
             ) {
                 Icon(
@@ -280,7 +306,11 @@ fun CardItemSneakerUnificada(modelo: String, precio: Double, urlFoto: String, on
 }
 
 @Composable
-fun BarraInferiorCompra(listaCarrito: List<PublicacionPerfilItem>, onComprarClick: () -> Unit) {
+fun BarraInferiorCompra(
+    listaCarrito: List<PublicacionPerfilItem>,
+    onComprarClick: () -> Unit,
+    cargandopago: Boolean
+) {
     val costeTotal = listaCarrito.sumOf { it.precio }
     Card(
         Modifier.fillMaxWidth(),
@@ -300,11 +330,21 @@ fun BarraInferiorCompra(listaCarrito: List<PublicacionPerfilItem>, onComprarClic
             }
             Button(
                 onComprarClick,
+                enabled = !cargandopago,
                 colors = ButtonDefaults.buttonColors(containerColor = Color.White),
                 shape = RoundedCornerShape(16.dp),
                 contentPadding = PaddingValues(horizontal = 24.dp, vertical = 12.dp)
             ) {
-                Text("Comprar", color = Color.Black, fontWeight = Bold, fontSize = 16.sp)
+                if (cargandopago) {
+                    CircularProgressIndicator(
+                        color = Color.Black,
+                        modifier = Modifier.size(20.dp),
+                        strokeWidth = 2.dp
+                    )
+                } else {
+
+                    Text("Comprar", color = Color.Black, fontWeight = Bold, fontSize = 16.sp)
+                }
             }
         }
     }

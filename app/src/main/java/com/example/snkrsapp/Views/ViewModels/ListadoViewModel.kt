@@ -3,6 +3,7 @@ package com.example.snkrsapp.Views.ViewModels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.snkrsapp.Data.Repository.UsuarioRepository.UsuarioRepository
+import com.example.snkrsapp.Domain.EstadoCompra
 import com.example.snkrsapp.Domain.ModelListados
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -34,15 +35,16 @@ class ListadoViewModel @Inject constructor(
                 if (token != null) {
                     _model.update { it.copy(cargandoColeccion = true, esMiPerfil = esMiPerfil) }
                     viewModelScope.launch {
-                        productoRepository.traerColeccionUsuario(token, uidObjetivo).collect { lista ->
-                            _model.update {
-                                it.copy(
-                                    listaColeccion = lista,
-                                    cargandoColeccion = false,
-                                    exitoColeccion = true
-                                )
+                        productoRepository.traerColeccionUsuario(token, uidObjetivo)
+                            .collect { lista ->
+                                _model.update {
+                                    it.copy(
+                                        listaColeccion = lista,
+                                        cargandoColeccion = false,
+                                        exitoColeccion = true
+                                    )
+                                }
                             }
-                        }
                     }
 
                     _model.update { it.copy(cargandoVentas = true) }
@@ -88,7 +90,52 @@ class ListadoViewModel @Inject constructor(
     fun procesarCompra() {
         viewModelScope.launch {
             val productosAComprar = _model.value.listaCarrito
-            if (productosAComprar.isNotEmpty()) {
+            if (productosAComprar.isNotEmpty() && !_model.value.cargandoPago) {
+
+                val usuarioFirebase = FirebaseAuth.getInstance().currentUser
+                val miUid = usuarioFirebase?.uid ?: return@launch
+
+                usuarioFirebase.getIdToken(true)?.addOnCompleteListener { tarea ->
+                    if (tarea.isSuccessful) {
+                        val token = tarea.result.token
+                        if (token != null) {
+
+                            viewModelScope.launch {
+                                productoRepository.procesarPagoCarrito(token).collect { resultado ->
+                                    when (resultado) {
+                                        is EstadoCompra.Cargando -> {
+                                            _model.update {
+                                                it.copy(cargandoPago = true, error = null)
+                                            }
+                                        }
+
+                                        is EstadoCompra.Exito -> {
+                                            _model.update {
+                                                it.copy(
+                                                    cargandoPago = false,
+                                                    listaCarrito = emptyList(),
+                                                    error = null
+                                                )
+                                            }
+                                        }
+
+                                        is EstadoCompra.Error -> {
+                                            _model.update {
+                                                it.copy(
+                                                    cargandoPago = false,
+                                                    error = resultado.mensajeError
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                        }
+                    } else {
+                        _model.update { it.copy(error = "Error de autenticación con el servidor.") }
+                    }
+                }
             }
         }
     }

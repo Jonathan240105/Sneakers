@@ -50,4 +50,9 @@ interface PublicacionDao {
         @Query("idPublicacion") idPublicacion: Int
     ): Response<AgregarACarritoRespuesta>
 
+    @POST("/publicaciones/comprar")
+    suspend fun comprarCarrito(
+        @Header("Authorization") token: String
+    ): Response<CompraRespuesta>
+
 }

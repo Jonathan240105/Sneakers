@@ -32,6 +32,7 @@ import kotlinx.coroutines.tasks.await
 import java.io.IOException
 import javax.inject.Inject
 import com.example.snkrsapp.Data.LocalData.Perfil.toVentasEntity
+import com.example.snkrsapp.Domain.EstadoCompra
 import kotlinx.coroutines.flow.first
 
 class UsuarioRepositoryImp @Inject constructor(
@@ -131,7 +132,11 @@ class UsuarioRepositoryImp @Inject constructor(
         }
     }
 
-    override suspend fun traerPerfil(token: String, uidSoli: String?, miUid: String): Flow<Usuario> = flow {
+    override suspend fun traerPerfil(
+        token: String,
+        uidSoli: String?,
+        miUid: String
+    ): Flow<Usuario> = flow {
 
         if (uidSoli == null || uidSoli == miUid) {
             val usuarioLocal = usuarioDao.obtenerUsuarioPorUID(miUid)
@@ -286,6 +291,24 @@ class UsuarioRepositoryImp @Inject constructor(
             println(
                 "Error al traer ventas: ${e.message}"
             )
+        }
+    }
+
+    override fun procesarPagoCarrito(token: String): Flow<EstadoCompra> = flow {
+        emit(EstadoCompra.Cargando)
+
+        try {
+            val respuesta = publicacionDao.comprarCarrito("Bearer $token")
+            if (respuesta.isSuccessful && respuesta.body()?.ok == true) {
+                emit(EstadoCompra.Exito("Compra realizada con éxito"))
+            } else {
+                val mensaje =
+                    respuesta.errorBody()?.string() ?: "Error inesperado en el servidor"
+                emit(EstadoCompra.Error(mensaje))
+            }
+        } catch (e: Exception) {
+            print("Error : ${e.message}")
+            emit(EstadoCompra.Error("Error en la red"))
         }
     }
 }
