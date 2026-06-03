@@ -22,6 +22,7 @@ import com.example.snkrsapp.Views.Pantallas.PantallaPerfil
 import com.example.snkrsapp.Views.Pantallas.PantallaPrincipal
 import com.example.snkrsapp.Views.Pantallas.PantallaProductoDetallado
 import com.example.snkrsapp.Views.Pantallas.PantallaRegistro
+import com.example.snkrsapp.Views.Pantallas.PantallaUsuariosAdmin
 import com.example.snkrsapp.Views.ViewModels.ActualizarPerfilViewModel
 import com.example.snkrsapp.Views.ViewModels.EventosViewModel
 import com.example.snkrsapp.Views.ViewModels.InicioSesionViewModel
@@ -30,6 +31,7 @@ import com.example.snkrsapp.Views.ViewModels.PerfilViewModel
 import com.example.snkrsapp.Views.ViewModels.PrincipalViewModel
 import com.example.snkrsapp.Views.ViewModels.ProductoDetalladoViewModel
 import com.example.snkrsapp.Views.ViewModels.RegistroViewModel
+import com.example.snkrsapp.Views.ViewModels.UsuariosAdminViewModel
 import com.example.snkrsapp.Views.ViewModels.ViewmodelAgregarProducto
 
 @Composable
@@ -46,6 +48,7 @@ fun Controlador() {
     val evenViewModel: EventosViewModel = hiltViewModel()
     val agregarProductoViewModel: ViewmodelAgregarProducto = hiltViewModel()
     val listadoViewModel: ListadoViewModel = hiltViewModel()
+    val usuariosAdminViewModel: UsuariosAdminViewModel = hiltViewModel()
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -56,7 +59,8 @@ fun Controlador() {
             "AgregarProducto",
             "ProductoDetallado/{id}/{marca}",
             "Perfil/{uid}",
-            "Listados/{id}/{uid}"
+            "Listados/{id}/{uid}",
+            "UsuariosAdmin"
         )
     var mostrarSheet by remember { mutableStateOf(false) }
 
@@ -86,7 +90,19 @@ fun Controlador() {
                                 inclusive = true
                             }
                         }
-                    })
+                    },
+                    {
+                        navController.navigate("UsuariosAdmin") {
+                            popUpTo("InicioSesion") {
+                                inclusive = true
+                            }
+                        }
+                    }
+                )
+            }
+
+            composable("UsuariosAdmin") {
+                PantallaUsuariosAdmin(usuariosAdminViewModel, paddingValues,navController)
             }
             composable("Registro") {
                 PantallaRegistro(registroViewModel, { navController.navigate("InicioSesion") })

@@ -1,9 +1,9 @@
 package com.example.snkrsapp.Data.Repository.UsuarioRepository
 
-import android.util.Log
 import com.example.snkrsapp.Data.LocalData.Perfil.toCarritoEntity
 import com.example.snkrsapp.Data.LocalData.Perfil.toColeccionEntity
 import com.example.snkrsapp.Data.LocalData.Perfil.toDomain
+import com.example.snkrsapp.Data.LocalData.Perfil.toVentasEntity
 import com.example.snkrsapp.Data.LocalData.PublicacionPropia.PublicacionesPropiasLocalDao
 import com.example.snkrsapp.Data.LocalData.UsuariosConectados.EntityToUsuario
 import com.example.snkrsapp.Data.LocalData.UsuariosConectados.UsuarioEntity
@@ -12,9 +12,12 @@ import com.example.snkrsapp.Data.LocalData.UsuariosConectados.UsuariosConectados
 import com.example.snkrsapp.Data.RemoteData.ActualizacionDao.ActualizacionDao
 import com.example.snkrsapp.Data.RemoteData.ActualizacionDao.ActualizarPerfilSolicitud
 import com.example.snkrsapp.Data.RemoteData.AutorizacionDao.AutorizacionDao
+import com.example.snkrsapp.Data.RemoteData.AutorizacionDao.EliminarUsuariosSolicitud
 import com.example.snkrsapp.Data.RemoteData.AutorizacionDao.Usuario
 import com.example.snkrsapp.Data.RemoteData.AutorizacionDao.UsuarioSolicitud
 import com.example.snkrsapp.Data.RemoteData.PublicacionDao.PublicacionDao
+import com.example.snkrsapp.Domain.EstadoCompra
+import com.example.snkrsapp.Domain.EstadoEliminarUsuarios
 import com.example.snkrsapp.Domain.EstadoLogin
 import com.example.snkrsapp.Domain.EstadoRegistro
 import com.example.snkrsapp.Domain.ProductoColeccionItem
@@ -26,14 +29,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.io.IOException
 import javax.inject.Inject
-import com.example.snkrsapp.Data.LocalData.Perfil.toVentasEntity
-import com.example.snkrsapp.Domain.EstadoCompra
-import kotlinx.coroutines.flow.first
 
 class UsuarioRepositoryImp @Inject constructor(
     private val autDao: AutorizacionDao,
@@ -62,7 +63,6 @@ class UsuarioRepositoryImp @Inject constructor(
                                 val respuesta = autDao.iniciarSesion("Bearer $token")
 
                                 if (respuesta.isSuccessful && respuesta.body() != null) {
-                                    Log.d("TOKEN_DEBUG", token ?: "")
                                     trySend(
                                         EstadoLogin.Exito(
                                             respuesta.body()?.usuario ?: Usuario()
@@ -294,7 +294,7 @@ class UsuarioRepositoryImp @Inject constructor(
         }
     }
 
-    override fun procesarPagoCarrito(token: String): Flow<EstadoCompra> = flow {
+    override suspend fun procesarPagoCarrito(token: String): Flow<EstadoCompra> = flow {
         emit(EstadoCompra.Cargando)
 
         try {
@@ -310,5 +310,44 @@ class UsuarioRepositoryImp @Inject constructor(
             print("Error : ${e.message}")
             emit(EstadoCompra.Error("Error en la red"))
         }
+    }
+
+    override suspend fun getUsuarios(token: String): Flow<List<Usuario>> = flow {
+        try {
+            val respuesta = autDao.getUsuarios("Bearer $token")
+            if (respuesta.isSuccessful) {
+                emit(respuesta.body()!!)
+            } else {
+                emit(emptyList())
+            }
+        } catch (e: Exception) {
+            emit(emptyList())
+        }
+    }
+
+    override suspend fun eliminarUsuarios(
+        token: String,
+        uids: List<String>
+    ): Flow<EstadoEliminarUsuarios> = flow {
+
+        emit(EstadoEliminarUsuarios.Cargando)
+
+        try {
+            val body = EliminarUsuariosSolicitud(uids)
+            val respuesta = autDao.eliminarUsuarios("Bearer $token", body)
+
+            if (respuesta.isSuccessful) {
+                emit(
+                    EstadoEliminarUsuarios.Exito(
+                        respuesta.body()?.mensaje ?: "Usuarios eliminados"
+                    )
+                )
+            } else {
+                emit(EstadoEliminarUsuarios.Error(respuesta.body()?.mensaje ?: respuesta.message()))
+            }
+        } catch (e: Exception) {
+            emit(EstadoEliminarUsuarios.Error("Error en la red ${e.message}"))
+        }
+
     }
 }

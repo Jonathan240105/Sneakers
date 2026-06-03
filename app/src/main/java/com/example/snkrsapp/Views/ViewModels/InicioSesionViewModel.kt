@@ -2,9 +2,9 @@ package com.example.snkrsapp.Views.ViewModels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.snkrsapp.Data.RemoteData.AutorizacionDao.Usuario
 import com.example.snkrsapp.Data.Repository.UsuarioRepository.UsuarioRepository
 import com.example.snkrsapp.Domain.EstadoLogin
-import com.example.snkrsapp.Domain.EstadoRegistro
 import com.example.snkrsapp.Domain.ModelInicioSesion
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,7 +26,13 @@ class InicioSesionViewModel @Inject constructor(
             usuarioRepository.iniciarSesion(email, contra).collect { resultado ->
 
                 if (resultado is EstadoLogin.Exito) {
-                    _model.update { it.copy(exito = true, cargando = false) }
+                    _model.update {
+                        it.copy(
+                            exito = true,
+                            cargando = false,
+                            usuario = resultado.usuario
+                        )
+                    }
                     println("Todo fue bien")
                 } else if (resultado is EstadoLogin.Error && resultado.errorFirebase) {
                     _model.update {
@@ -70,7 +76,8 @@ class InicioSesionViewModel @Inject constructor(
                 error = "",
                 cargando = false,
                 email = "",
-                contra = ""
+                contra = "",
+                usuario = Usuario()
             )
         }
     }

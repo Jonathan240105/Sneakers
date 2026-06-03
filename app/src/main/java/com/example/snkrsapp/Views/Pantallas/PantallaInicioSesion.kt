@@ -47,14 +47,19 @@ import com.example.snkrsapp.Views.ViewModels.InicioSesionViewModel
 fun PantallaInicioSesion(
     myViewModel: InicioSesionViewModel,
     cambiarARegistro: () -> Unit,
-    cambiarAListado: () -> Unit
+    cambiarAListado: () -> Unit,
+    cambiarAAdmin: () -> Unit
 ) {
 
     val model by myViewModel.model.collectAsState()
 
     LaunchedEffect(model.exito) {
         if (model.exito) {
-            cambiarAListado()
+            if (model.usuario.esAdmin == 1) {
+                cambiarAAdmin()
+            } else {
+                cambiarAListado()
+            }
             myViewModel.resetearEstadoPantalla()
         }
     }

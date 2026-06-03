@@ -3,6 +3,7 @@ package com.example.snkrsapp.Data.Repository.UsuarioRepository
 import com.example.snkrsapp.Data.RemoteData.ActualizacionDao.ActualizarPerfilRespuesta
 import com.example.snkrsapp.Data.RemoteData.AutorizacionDao.Usuario
 import com.example.snkrsapp.Domain.EstadoCompra
+import com.example.snkrsapp.Domain.EstadoEliminarUsuarios
 import com.example.snkrsapp.Domain.EstadoLogin
 import com.example.snkrsapp.Domain.EstadoRegistro
 import com.example.snkrsapp.Domain.ProductoColeccionItem
@@ -41,6 +42,8 @@ interface UsuarioRepository {
         uidObjetivo: String
     ): Flow<List<PublicacionPerfilItem>>
 
-    fun procesarPagoCarrito(token: String): Flow<EstadoCompra>
+    suspend fun procesarPagoCarrito(token: String): Flow<EstadoCompra>
+    suspend fun getUsuarios(token: String): Flow<List<Usuario>>
 
+    suspend fun eliminarUsuarios(token: String, uids: List<String>): Flow<EstadoEliminarUsuarios>
 }

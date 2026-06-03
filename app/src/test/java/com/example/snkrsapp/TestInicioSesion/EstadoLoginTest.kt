@@ -15,7 +15,7 @@ class EstadoLoginTest {
         val usuario = Usuario("1")
         val estado = EstadoLogin.Exito(usuario)
 
-        assertEquals("1", estado.usario.UID)
+        assertEquals("1", estado.usuario.UID)
     }
 
     @Test

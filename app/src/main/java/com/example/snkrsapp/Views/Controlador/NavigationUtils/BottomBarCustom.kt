@@ -204,3 +204,54 @@ fun BottomBar(navController: NavController) {
         }
     }
 }
+
+@Composable
+fun BottomBarAdmin(navController: NavController) {
+
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+    val cs = MaterialTheme.colorScheme
+
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .navigationBarsPadding()
+            .padding(horizontal = 12.dp, vertical = 8.dp),
+        color = cs.surface,
+        shape = RoundedCornerShape(24.dp),
+        tonalElevation = 2.dp,
+        shadowElevation = 8.dp
+    ) {
+        NavigationBar(
+            modifier = Modifier.height(65.dp),
+            tonalElevation = 0.dp,
+            containerColor = Color.Transparent
+        ) {
+
+            NavigationBarItem(
+                selected = currentRoute == "UsuariosAdmin",
+                onClick = { navController.navigate("UsuariosAdmin") },
+                icon = {
+                    Box(
+                        modifier = Modifier
+                            .size(width = 52.dp, height = 34.dp)
+                            .clip(RoundedCornerShape(20.dp))
+                            .background(
+                                if (currentRoute == "UsuariosAdmin") cs.primary.copy(alpha = 0.15f)
+                                else Color.Transparent
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            Icons.Default.Person,
+                            "",
+                            tint = if (currentRoute == "UsuariosAdmin") cs.primary else Color.Gray,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                }
+            )
+
+        }
+    }
+}
