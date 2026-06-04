@@ -30,6 +30,7 @@ import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -133,8 +134,8 @@ fun PantallaUsuariosAdmin(
 fun BottomBarBorradoLocal(
     cantidadSeleccionados: Int, onBorrar: () -> Unit, onCancelar: () -> Unit
 ) {
-    androidx.compose.material3.Surface(
-        modifier = Modifier
+    Surface(
+         Modifier
             .fillMaxWidth()
             .navigationBarsPadding()
             .padding(horizontal = 12.dp, vertical = 8.dp),
@@ -143,7 +144,7 @@ fun BottomBarBorradoLocal(
         shadowElevation = 8.dp
     ) {
         Row(
-            modifier = Modifier
+            Modifier
                 .fillMaxWidth()
                 .height(65.dp)
                 .padding(horizontal = 24.dp),
@@ -151,9 +152,9 @@ fun BottomBarBorradoLocal(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "$cantidadSeleccionados seleccionados",
+                "$cantidadSeleccionados seleccionados",
                 color = Color.White,
-                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                fontWeight = Bold,
                 fontSize = 15.sp
             )
 
@@ -182,7 +183,7 @@ fun ItemUsuarioSeleccionable(
     seleccionar: (Boolean) -> Unit
 ) {
     Card(
-        modifier = Modifier
+        Modifier
             .fillMaxWidth()
             .combinedClickable(onClick = {
                 if (modoBorrado) {

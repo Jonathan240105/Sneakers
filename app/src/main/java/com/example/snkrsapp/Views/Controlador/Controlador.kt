@@ -16,8 +16,10 @@ import com.example.snkrsapp.Views.Controlador.NavigationUtils.BottomBar
 import com.example.snkrsapp.Views.Pantallas.PantallaActualizarPerfil
 import com.example.snkrsapp.Views.Pantallas.PantallaAgregarProducto
 import com.example.snkrsapp.Views.Pantallas.PantallaEventos
+import com.example.snkrsapp.Views.Pantallas.PantallaEventosAdmin
 import com.example.snkrsapp.Views.Pantallas.PantallaInicioSesion
 import com.example.snkrsapp.Views.Pantallas.PantallaListados
+import com.example.snkrsapp.Views.Pantallas.PantallaMarcasAdmin
 import com.example.snkrsapp.Views.Pantallas.PantallaPerfil
 import com.example.snkrsapp.Views.Pantallas.PantallaPrincipal
 import com.example.snkrsapp.Views.Pantallas.PantallaProductoDetallado
@@ -27,6 +29,8 @@ import com.example.snkrsapp.Views.ViewModels.ActualizarPerfilViewModel
 import com.example.snkrsapp.Views.ViewModels.EventosViewModel
 import com.example.snkrsapp.Views.ViewModels.InicioSesionViewModel
 import com.example.snkrsapp.Views.ViewModels.ListadoViewModel
+import com.example.snkrsapp.Views.ViewModels.MarcasAdminViewModel
+import com.example.snkrsapp.Views.ViewModels.PantallaEventosViewModel
 import com.example.snkrsapp.Views.ViewModels.PerfilViewModel
 import com.example.snkrsapp.Views.ViewModels.PrincipalViewModel
 import com.example.snkrsapp.Views.ViewModels.ProductoDetalladoViewModel
@@ -49,6 +53,8 @@ fun Controlador() {
     val agregarProductoViewModel: ViewmodelAgregarProducto = hiltViewModel()
     val listadoViewModel: ListadoViewModel = hiltViewModel()
     val usuariosAdminViewModel: UsuariosAdminViewModel = hiltViewModel()
+    val marcasAdminViewModel: MarcasAdminViewModel = hiltViewModel()
+    val eventosAdminViewModel: PantallaEventosViewModel = hiltViewModel()
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -60,7 +66,9 @@ fun Controlador() {
             "ProductoDetallado/{id}/{marca}",
             "Perfil/{uid}",
             "Listados/{id}/{uid}",
-            "UsuariosAdmin"
+            "UsuariosAdmin",
+            "MarcasAdmin",
+            "EventosAdmin"
         )
     var mostrarSheet by remember { mutableStateOf(false) }
 
@@ -102,7 +110,18 @@ fun Controlador() {
             }
 
             composable("UsuariosAdmin") {
-                PantallaUsuariosAdmin(usuariosAdminViewModel, paddingValues,navController)
+                PantallaUsuariosAdmin(usuariosAdminViewModel, paddingValues, navController)
+            }
+            composable("MarcasAdmin") {
+                PantallaMarcasAdmin(
+                    marcasAdminViewModel,
+                    agregarProductoViewModel,
+                    paddingValues,
+                    navController
+                )
+            }
+            composable("EventosAdmin") {
+                PantallaEventosAdmin(eventosAdminViewModel, paddingValues, navController)
             }
             composable("Registro") {
                 PantallaRegistro(registroViewModel, { navController.navigate("InicioSesion") })

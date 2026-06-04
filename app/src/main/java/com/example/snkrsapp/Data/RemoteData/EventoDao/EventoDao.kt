@@ -3,6 +3,7 @@ package com.example.snkrsapp.Data.RemoteData.EventoDao
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.HTTP
 import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.Path
@@ -27,4 +28,21 @@ interface EventoDao {
         @Header("Authorization") token: String,
         @Body nuevoEvento: EventosSolicitud
     ): Response<EventosRespuestaSimple>
+
+    @GET("eventos/admin")
+    suspend fun obtenerEventosAdmin(
+        @Header("Authorization") token: String
+    ): Response<List<EventosRespuesta>>
+
+    @HTTP(method = "DELETE", path = "eventos/eliminar", hasBody = true)
+    suspend fun eliminarEventos(
+        @Header("Authorization") token: String,
+        @Body request: EliminarEventoSolicitud
+    ): Response<EliminarEventosRespuesta>
+
+    @POST("eventos/nuevo/admin")
+    suspend fun crearEventoGLobal(
+        @Header("Authorization") token: String,
+        @Body body: CrearEventoSolicitud
+    ): Response<CrearEventoRespuesta>
 }

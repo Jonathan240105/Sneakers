@@ -12,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -252,6 +253,52 @@ fun BottomBarAdmin(navController: NavController) {
                 }
             )
 
+            NavigationBarItem(
+                selected = currentRoute == "MarcasAdmin",
+                onClick = { navController.navigate("MarcasAdmin") },
+                icon = {
+                    Box(
+                        modifier = Modifier
+                            .size(width = 52.dp, height = 34.dp)
+                            .clip(RoundedCornerShape(20.dp))
+                            .background(
+                                if (currentRoute == "MarcasAdmin") cs.primary.copy(alpha = 0.15f)
+                                else Color.Transparent
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            Icons.Default.Menu,
+                            "",
+                            tint = if (currentRoute == "MarcasAdmin") cs.primary else Color.Gray,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                }
+            )
+            NavigationBarItem(
+                selected = currentRoute == "EventosAdmin",
+                onClick = { navController.navigate("EventosAdmin") },
+                icon = {
+                    Box(
+                        modifier = Modifier
+                            .size(width = 52.dp, height = 34.dp)
+                            .clip(RoundedCornerShape(20.dp))
+                            .background(
+                                if (currentRoute == "EventosAdmin") cs.primary.copy(alpha = 0.15f)
+                                else Color.Transparent
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            Icons.Default.Menu,
+                            "",
+                            tint = if (currentRoute == "EventosAdmin") cs.primary else Color.Gray,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                }
+            )
         }
     }
 }

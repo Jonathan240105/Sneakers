@@ -50,6 +50,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.snkrsapp.Views.ViewModels.RegistroViewModel
+import kotlinx.datetime.LocalDate
 import network.chaintech.kmp_date_time_picker.ui.datepicker.WheelDatePickerView
 
 @Composable
@@ -139,7 +140,9 @@ fun PantallaRegistro(myViewModel: RegistroViewModel, volverAInicioSesion: () -> 
                         SelectorFecha(
                             mostrarSelectorFecha,
                             { mostrarSelectorFecha = false },
-                            { myViewModel.cambiarFecha(it) })
+                            { myViewModel.cambiarFecha(it) },
+                            LocalDate(1926, 1, 1),
+                            LocalDate(2026, 12, 31))
                     }
                 }
             }
@@ -155,8 +158,7 @@ fun PantallaRegistro(myViewModel: RegistroViewModel, volverAInicioSesion: () -> 
                     .padding(horizontal = 24.dp, vertical = 8.dp)
                     .testTag("errorRegistroMensaje")
             )
-        }
-        else if (model.errorFirebase) {
+        } else if (model.errorFirebase) {
             Text(
                 "Error de autenticación con Firebase. Inténtalo de nuevo.",
                 color = Color(0xFFEF5350),
@@ -448,7 +450,11 @@ fun TercerPaso(
 
 @Composable
 fun SelectorFecha(
-    mostrar: Boolean, cerrarSelectorFecha: () -> Unit, confirmarFecha: (String) -> Unit
+    mostrar: Boolean,
+    cerrarSelectorFecha: () -> Unit,
+    confirmarFecha: (String) -> Unit,
+    fechaMinima: LocalDate,
+    fechaMaxima: LocalDate
 ) {
 
     WheelDatePickerView(
@@ -460,6 +466,7 @@ fun SelectorFecha(
             confirmarFecha(fecha.toString())
             cerrarSelectorFecha()
         },
+        minDate = fechaMinima,
         onDismiss = cerrarSelectorFecha,
         title = "Fecha de nacimiento",
         doneLabel = "Aceptar",

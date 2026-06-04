@@ -31,6 +31,9 @@ fun EntityToMarca(marca: MarcaEntity): Marca {
     return Marca(
         idMarca = marca.idMarca,
         nombre = marca.nombre,
-        logoUrl = marca.logoUrl
+        logoUrl = marca.logoUrl,
+        paisOrigen = marca.paisOrigen,
+        fechaFundacion = marca.fechaFundacion,
+        web = marca.web
     )
 }

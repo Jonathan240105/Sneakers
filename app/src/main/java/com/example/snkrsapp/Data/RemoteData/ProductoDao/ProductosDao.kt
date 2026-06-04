@@ -1,11 +1,14 @@
 package com.example.snkrsapp.Data.RemoteData.ProductoDao
 
+import com.example.snkrsapp.Data.RemoteData.AutorizacionDao.EliminarUsuariosSolicitud
 import com.example.snkrsapp.Data.RemoteData.PublicacionDao.SugerenciaProductoRespuesta
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.HTTP
 import retrofit2.http.Header
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Query
 
 interface ProductosDao {
@@ -51,4 +54,22 @@ interface ProductosDao {
         @Query("idMarca") idMarca: Int,
         @Query("modeloBuscado") modeloBuscado: String
     ): Response<List<SugerenciaProductoRespuesta>>
+
+    @HTTP(method = "DELETE", path = "/marcas/eliminar-bloque", hasBody = true)
+    suspend fun eliminarMarcas(
+        @Header("Authorization") token: String,
+        @Body solicitud: EliminarMarcasSolicitud
+    ): Response<EliminarMarcasRespuesta>
+
+    @PUT("/marcas/completar")
+    suspend fun completarMarca(
+        @Header("Authorization") token: String,
+        @Body solicitud: CompletarMarcaSolicitud
+    ): Response<CompletarMarcaRespuesta>
+
+    @POST("/marcas/nuevo")
+    suspend fun crearMarca(
+        @Header("Authorization") token: String,
+        @Body solicitud: CrearMarcaSolicitud
+    ) : Response<CrearMarcaRespuesta>
 }

@@ -2,6 +2,7 @@ package com.example.snkrsapp.Data.Repository.ProductoRepository
 
 import android.content.Context
 import android.net.Uri
+import androidx.compose.foundation.isSystemInDarkTheme
 import com.cloudinary.android.MediaManager
 import com.cloudinary.android.callback.ErrorInfo
 import com.cloudinary.android.callback.UploadCallback
@@ -20,10 +21,17 @@ import com.example.snkrsapp.Data.LocalData.Publicaciones.EntityToPublicacion
 import com.example.snkrsapp.Data.LocalData.Publicaciones.PublicacionEntity
 import com.example.snkrsapp.Data.LocalData.Publicaciones.PublicacionLocalDao
 import com.example.snkrsapp.Data.LocalData.Publicaciones.PublicacionToEntity
+import com.example.snkrsapp.Data.RemoteData.AutorizacionDao.EliminarUsuariosSolicitud
+import com.example.snkrsapp.Data.RemoteData.ProductoDao.CompletarMarcaRespuesta
+import com.example.snkrsapp.Data.RemoteData.ProductoDao.CompletarMarcaSolicitud
+import com.example.snkrsapp.Data.RemoteData.ProductoDao.CrearMarcaSolicitud
+import com.example.snkrsapp.Data.RemoteData.ProductoDao.EliminarMarcasSolicitud
 import com.example.snkrsapp.Data.RemoteData.ProductoDao.ProductosDao
 import com.example.snkrsapp.Data.RemoteData.PublicacionDao.AgregarPublicacionesSolicitud
 import com.example.snkrsapp.Data.RemoteData.PublicacionDao.PublicacionDao
 import com.example.snkrsapp.Data.RemoteData.PublicacionDao.toEntity
+import com.example.snkrsapp.Domain.EstadoCrearMarca
+import com.example.snkrsapp.Domain.EstadoEliminarMarcas
 import com.example.snkrsapp.Domain.EstadoProductoNuevo
 import com.example.snkrsapp.Domain.Marca
 import com.example.snkrsapp.Domain.Producto
@@ -111,7 +119,6 @@ class ProductoRepositoryImp @Inject constructor(
 
         if (marcasLocales.isNotEmpty()) {
             emit(marcasLocales.map { EntityToMarca(it) })
-            return@flow
         }
 
         try {
@@ -442,6 +449,79 @@ class ProductoRepositoryImp @Inject constructor(
         } catch (e: Exception) {
             println("Error al agregar al carrito 2: ${e.message}")
             emit(false)
+        }
+    }
+
+    override suspend fun eliminarMarcas(
+        token: String,
+        listaIds: List<Int>
+    ): Flow<EstadoEliminarMarcas> = flow {
+        emit(EstadoEliminarMarcas.Cargando)
+
+        try {
+
+            val respuesta = productosDao.eliminarMarcas(
+                "Bearer $token",
+                EliminarMarcasSolicitud(listaIds)
+            )
+
+            if (respuesta.isSuccessful) {
+                emit(EstadoEliminarMarcas.Exito(respuesta.body()?.mensaje ?: "Marcas eliminadas"))
+            } else {
+                emit(
+                    EstadoEliminarMarcas.Error(
+                        respuesta.body()?.mensaje ?: "Error al eliminar marcas"
+                    )
+                )
+            }
+        } catch (e: Exception) {
+            emit(EstadoEliminarMarcas.Error("Error: ${e.message}"))
+        }
+    }
+
+    override suspend fun completarRegistroMarca(
+        token: String,
+        idMarca: Int,
+        pais: String,
+        fecha: String,
+        logo: String,
+        webUrl: String
+    ): Flow<CompletarMarcaRespuesta> = flow {
+        try {
+            val respuesta = productosDao.completarMarca(
+                "Bearer $token",
+                CompletarMarcaSolicitud(idMarca, pais, fecha, logo, webUrl)
+            )
+            if (respuesta.isSuccessful) {
+                emit(respuesta.body() ?: CompletarMarcaRespuesta(true, "Marca completada"))
+            } else {
+                emit(respuesta.body() ?: CompletarMarcaRespuesta(false, "Error al completar marca"))
+            }
+        } catch (e: Exception) {
+            emit(CompletarMarcaRespuesta(false, "Error: ${e.message}"))
+        }
+    }
+
+    override suspend fun crearMarca(
+        token: String,
+        body: CrearMarcaSolicitud
+    ): Flow<EstadoCrearMarca> = flow {
+
+        emit(EstadoCrearMarca.Cargando)
+
+        try {
+            val respuesta = productosDao.crearMarca("Bearer $token", body)
+
+            if (respuesta.isSuccessful && respuesta.body()?.ok == true) {
+                println("Marca creada")
+                emit(EstadoCrearMarca.Exito(respuesta.body()?.mensaje ?: "Marca creada"))
+            } else {
+                println("Error al crear marca")
+                emit(EstadoCrearMarca.Error(respuesta.body()?.mensaje ?: "Error al crear marca"))
+            }
+        } catch (e: Exception) {
+            println("Error al crear marca: ${e.message}")
+            emit(EstadoCrearMarca.Error("Error: ${e.message}"))
         }
     }
 }
