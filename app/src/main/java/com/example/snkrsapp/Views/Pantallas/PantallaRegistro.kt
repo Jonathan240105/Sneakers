@@ -1,10 +1,16 @@
 package com.example.snkrsapp.Views.Pantallas
 
+import android.Manifest
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -25,13 +31,17 @@ import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -41,44 +51,91 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.text.font.FontWeight.Companion.ExtraBold
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.FileProvider
 import com.example.snkrsapp.Views.ViewModels.RegistroViewModel
+import com.example.snkrsapp.Views.ViewModels.ViewmodelAgregarProducto
 import kotlinx.datetime.LocalDate
 import network.chaintech.kmp_date_time_picker.ui.datepicker.WheelDatePickerView
+import java.io.File
+
 
 @Composable
-fun PantallaRegistro(myViewModel: RegistroViewModel, volverAInicioSesion: () -> Unit) {
+fun PantallaRegistro(
+    myViewModel: RegistroViewModel,
+    agregarProductoViewModel: ViewmodelAgregarProducto,
+    volverAInicioSesion: () -> Unit
+) {
 
     var paso by remember { mutableIntStateOf(0) }
     var mostrarSelectorFecha by remember { mutableStateOf(false) }
 
     val model by myViewModel.model.collectAsState()
+    val model2 by agregarProductoViewModel.model.collectAsState()
+
+    LaunchedEffect(model.exito) {
+        if (model.exito) {
+            volverAInicioSesion()
+        }
+    }
+
     Column(
         Modifier
             .fillMaxSize()
             .navigationBarsPadding()
             .background(Color(0xFF121212))
-            .padding(top = 40.dp),
+            .padding(top = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(Modifier.height(50.dp))
-        TituloRegistro("¡Unete a nosotros!")
-        Spacer(Modifier.height(50.dp))
+        // Espacio superior aumentado para bajar la cabecera
+        Spacer(Modifier.height(65.dp))
+
+        // --- CABECERA REESTRUCTURADA (CANCELAR Y TÍTULO) ---
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = "Cancelar",
+                color = Color.Gray,
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier
+                    .align(Alignment.CenterStart)
+                    .clickable {
+                        volverAInicioSesion()
+                        myViewModel.resetearPantalla()
+                    }
+                    .padding(8.dp)
+            )
+
+        }
+        Spacer(Modifier.height(10.dp))
+        Text(
+            text = "¡Únete!",
+            fontSize = 24.sp,
+            color = Color.White,
+            fontWeight = ExtraBold,
+            modifier = Modifier.testTag("tituloRegistro")
+        )
+
+        Spacer(Modifier.height(20.dp))
 
         Row(
             Modifier
                 .fillMaxWidth()
-                .padding(vertical = 20.dp),
+                .padding(vertical = 10.dp),
             horizontalArrangement = Arrangement.Center
         ) {
-            repeat(3) { index ->
+            repeat(4) { index ->
                 val color = if (paso == index) Color.White else Color.Gray
                 Box(
                     Modifier
@@ -88,6 +145,9 @@ fun PantallaRegistro(myViewModel: RegistroViewModel, volverAInicioSesion: () -> 
                 )
             }
         }
+
+        Spacer(Modifier.weight(1f))
+
         AnimatedContent(
             targetState = paso,
             transitionSpec = {
@@ -99,12 +159,15 @@ fun PantallaRegistro(myViewModel: RegistroViewModel, volverAInicioSesion: () -> 
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp), label = "stepAnimation"
+                .padding(horizontal = 16.dp),
+            label = "stepAnimation"
         ) { pasoActual ->
             Box(
                 modifier = Modifier
-                    .height(350.dp)
-                    .padding(24.dp)
+                    .fillMaxWidth()
+                    .height(380.dp)
+                    .padding(horizontal = 24.dp),
+                contentAlignment = Alignment.Center
             ) {
                 when (pasoActual) {
 
@@ -119,7 +182,7 @@ fun PantallaRegistro(myViewModel: RegistroViewModel, volverAInicioSesion: () -> 
                         model.nombreUsuario,
                         { myViewModel.cambiarNombreUsuario(it) },
                         model.apellidos,
-                        { myViewModel.cambuiarApellidos(it) },
+                        { myViewModel.cambiarApellidos(it) },
                         { paso++ },
                         { paso-- })
 
@@ -128,86 +191,75 @@ fun PantallaRegistro(myViewModel: RegistroViewModel, volverAInicioSesion: () -> 
                             model.fecha,
                             { mostrarSelectorFecha = true },
                             { paso-- },
-                            {
-                                myViewModel.registrarUsuario(
-                                    model.email,
-                                    model.contra,
-                                    model.nombreUsuario,
-                                    model.apellidos,
-                                    model.fecha
-                                )
-                            })
+                            { paso++ }
+                        )
                         SelectorFecha(
                             mostrarSelectorFecha,
                             { mostrarSelectorFecha = false },
                             { myViewModel.cambiarFecha(it) },
                             LocalDate(1926, 1, 1),
-                            LocalDate(2026, 12, 31))
+                            LocalDate(2026, 12, 31)
+                        )
+                    }
+
+                    3 -> {
+                        CuartoPasoFotoPerfil(
+                            cargandoImagen = model2.cargandoImagen == true,
+                            urlImagen = model2.urlImagenNuevaPublicacion,
+                            errorImagen = model2.errorImagen,
+                            onSubirImagen = {
+                                agregarProductoViewModel.subirFotoACloudinary(it)
+                            },
+                            volver = { paso-- },
+                            onFinalizar = {
+                                myViewModel.registrarUsuario(
+                                    model.email,
+                                    model.contra,
+                                    model.nombreUsuario,
+                                    model.apellidos,
+                                    model.fecha,
+                                    model2.urlImagenNuevaPublicacion ?: ""
+                                )
+                            }
+                        )
                     }
                 }
             }
         }
 
-        if (!model.error.isNullOrBlank()) {
-            Text(
-                model.error ?: "",
-                color = Color(0xFFEF5350),
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Bold,
+        if (model.intentadoRegistrar && !model.cargando) {
+            Box(
                 modifier = Modifier
-                    .padding(horizontal = 24.dp, vertical = 8.dp)
-                    .testTag("errorRegistroMensaje")
-            )
-        } else if (model.errorFirebase) {
-            Text(
-                "Error de autenticación con Firebase. Inténtalo de nuevo.",
-                color = Color(0xFFEF5350),
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(vertical = 8.dp)
-            )
-        } else if (!model.exito && !model.cargando && (model.email.isNotEmpty() && paso == 2)) {
-            Text(
-                "Error de conexión con el servidor.",
-                color = Color(0xFFEF5350),
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(vertical = 8.dp)
-            )
-        }
-        Spacer(Modifier.height(60.dp))
-
-        Text(
-            "Cancelar",
-            color = Color.LightGray,
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Medium,
-            modifier = Modifier
-                .clickable {
-                    volverAInicioSesion()
-                    myViewModel.resetearPantalla()
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp, vertical = 8.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                if (!model.error.isNullOrBlank()) {
+                    Text(
+                        model.error ?: "",
+                        color = Color(0xFFEF5350),
+                        fontSize = 14.sp,
+                        fontWeight = Bold,
+                        modifier = Modifier.testTag("errorRegistroMensaje")
+                    )
+                } else if (model.errorFirebase) {
+                    Text(
+                        "Error de autenticación con Firebase. Inténtalo de nuevo.",
+                        color = Color(0xFFEF5350),
+                        fontSize = 14.sp,
+                        fontWeight = Bold
+                    )
+                } else if (!model.exito && !model.cargando && (model.email.isNotEmpty() && paso == 3)) {
+                    Text(
+                        "Error de conexión con el servidor.",
+                        color = Color(0xFFEF5350),
+                        fontSize = 14.sp,
+                        fontWeight = Bold
+                    )
                 }
-                .padding(10.dp)
-        )
-    }
-}
-
-@Composable
-fun TituloRegistro(titulo: String) {
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .padding(5.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center
-    ) {
-        Text(
-            titulo,
-            fontSize = 32.sp,
-            color = Color.White,
-            fontWeight = ExtraBold,
-            modifier = Modifier.testTag("tituloRegistro")
-        )
+            }
+        }
+        Spacer(Modifier.weight(1f))
     }
 }
 
@@ -219,9 +271,9 @@ fun PrimerPaso(
     cambiarContra: (String) -> Unit,
     siguientePaso: () -> Unit
 ) {
-    Column(
-        Modifier.fillMaxSize()
-    ) {
+    val camposCompletados = email.isNotBlank() && contra.isNotBlank()
+
+    Column(Modifier.fillMaxSize()) {
         Spacer(Modifier.height(15.dp))
         OutlinedTextField(
             email,
@@ -250,7 +302,6 @@ fun PrimerPaso(
                 .fillMaxWidth()
                 .testTag("textFieldContra"),
             trailingIcon = { Icon(Icons.Default.Lock, "") },
-            visualTransformation = PasswordVisualTransformation(),
             label = { Text("Contraseña") },
             placeholder = { Text("123abc456") },
             shape = RoundedCornerShape(12.dp),
@@ -263,17 +314,23 @@ fun PrimerPaso(
                 unfocusedLabelColor = Color.White
             )
         )
+        Spacer(Modifier.height(15.dp))
+        Row(Modifier.fillMaxWidth()) {
+            Text("MInimo 8 caracteres", color = Color.Gray, modifier = Modifier.weight(1f))
+        }
         Spacer(Modifier.height(50.dp))
         Row(
             Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.End
         ) {
             Button(
-                siguientePaso,
+                onClick = siguientePaso,
+                enabled = camposCompletados,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.White,
-                    disabledContainerColor = Color.DarkGray,
-                    contentColor = Color.Black
+                    disabledContainerColor = Color(0xFF2E2E2E),
+                    contentColor = Color.Black,
+                    disabledContentColor = Color.Gray
                 ),
                 modifier = Modifier
                     .width(130.dp)
@@ -294,9 +351,9 @@ fun SegundoPaso(
     siguientePaso: () -> Unit,
     volverPaso: () -> Unit
 ) {
-    Column(
-        Modifier.fillMaxSize()
-    ) {
+    val camposCompletados = nombreUsuario.isNotBlank() && apellidos.isNotBlank()
+
+    Column(Modifier.fillMaxSize()) {
         Spacer(Modifier.height(15.dp))
         OutlinedTextField(
             nombreUsuario,
@@ -339,8 +396,7 @@ fun SegundoPaso(
         )
         Spacer(Modifier.height(50.dp))
         Row(
-            Modifier
-                .fillMaxWidth(),
+            Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Button(
@@ -358,21 +414,23 @@ fun SegundoPaso(
                 Text("Volver")
             }
             Button(
-                siguientePaso,
+                onClick = siguientePaso,
+                enabled = camposCompletados,
                 modifier = Modifier
                     .width(130.dp)
                     .height(56.dp)
                     .testTag("botonSegundoPaso"),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.White,
-                    contentColor = Color.Black
+                    disabledContainerColor = Color(0xFF2E2E2E),
+                    contentColor = Color.Black,
+                    disabledContentColor = Color.Gray
                 ),
                 shape = RoundedCornerShape(12.dp)
             ) {
                 Text("Continuar", fontWeight = FontWeight.Bold)
             }
         }
-
     }
 }
 
@@ -381,12 +439,11 @@ fun TercerPaso(
     fecha: String,
     abrirSelector: () -> Unit,
     volver: () -> Unit,
-    registrarUsuario: () -> Unit
+    siguientePaso: () -> Unit
 ) {
-    Column(
-        Modifier
-            .fillMaxSize()
-    ) {
+    val fechaSeleccionada = fecha.isNotBlank()
+
+    Column(Modifier.fillMaxSize()) {
         Spacer(Modifier.height(35.dp))
         OutlinedTextField(
             fecha,
@@ -416,8 +473,7 @@ fun TercerPaso(
 
         Spacer(Modifier.height(60.dp))
         Row(
-            Modifier
-                .fillMaxWidth(),
+            Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Button(
@@ -434,17 +490,189 @@ fun TercerPaso(
                 Text("Volver")
             }
             Button(
-                registrarUsuario,
-                Modifier
+                onClick = siguientePaso,
+                enabled = fechaSeleccionada,
+                modifier = Modifier
                     .width(130.dp)
                     .height(56.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.White,
+                    disabledContainerColor = Color(0xFF2E2E2E),
+                    contentColor = Color.Black,
+                    disabledContentColor = Color.Gray
+                ),
+                shape = RoundedCornerShape(12.dp)
+            ) { Text("Continuar", fontWeight = FontWeight.Bold) }
+        }
+    }
+}
+
+@Composable
+fun CuartoPasoFotoPerfil(
+    cargandoImagen: Boolean,
+    urlImagen: String?,
+    errorImagen: String?,
+    onSubirImagen: (Uri) -> Unit,
+    volver: () -> Unit,
+    onFinalizar: () -> Unit
+) {
+    val context = LocalContext.current
+    var mostrarOpciones by remember { mutableStateOf(false) }
+    var uriCamaraTemporal by remember { mutableStateOf<Uri?>(null) }
+
+    val launcherGaleria = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        uri?.let { onSubirImagen(it) }
+    }
+
+    val launcherCamara = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture()
+    ) { exito ->
+        if (exito) {
+            uriCamaraTemporal?.let { onSubirImagen(it) }
+        }
+    }
+
+    val launcherPermisoCamara = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { concedido ->
+        if (concedido) {
+            val archivo = File.createTempFile("avatar_registro_", ".jpg", context.cacheDir)
+            val uriSegura = FileProvider.getUriForFile(
+                context,
+                "${context.packageName}.fileprovider",
+                archivo
+            )
+            uriCamaraTemporal = uriSegura
+            launcherCamara.launch(uriSegura)
+        }
+    }
+
+    Column(Modifier.fillMaxSize()) {
+        Text(
+            text = "Foto de Perfil",
+            color = Color.Gray,
+            fontSize = 14.sp
+        )
+        Spacer(Modifier.height(8.dp))
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(160.dp)
+                .background(Color(0xFF1E1E1E), RoundedCornerShape(12.dp))
+                .background(
+                    color = if (!errorImagen.isNullOrBlank()) Color(0x1AFF5252) else Color.Transparent,
+                    shape = RoundedCornerShape(12.dp)
+                )
+                .border(
+                    width = 1.dp,
+                    color = if (!errorImagen.isNullOrBlank()) Color.Red else Color(0xFF333333),
+                    shape = RoundedCornerShape(12.dp)
+                )
+                .clickable(enabled = !cargandoImagen) { mostrarOpciones = true },
+            contentAlignment = Alignment.Center
+        ) {
+            if (cargandoImagen) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    CircularProgressIndicator(color = Color.White)
+                    Spacer(Modifier.height(8.dp))
+                    Text("Subiendo avatar...", color = Color.Gray, fontSize = 12.sp)
+                }
+            } else if (!urlImagen.isNullOrBlank()) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        "Foto subida con éxito",
+                        color = Color.White,
+                        fontWeight = Bold,
+                        fontSize = 16.sp
+                    )
+                    Spacer(Modifier.height(4.dp))
+                    Text("Pulsa para cambiar la foto", color = Color.Gray, fontSize = 12.sp)
+                }
+            } else {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("+ Añadir Foto", color = Color.White, fontWeight = Bold, fontSize = 15.sp)
+                    Spacer(Modifier.height(4.dp))
+                    Text("Cámara o Galería", color = Color.Gray, fontSize = 12.sp)
+                }
+            }
+        }
+
+        if (!errorImagen.isNullOrBlank()) {
+            Spacer(Modifier.height(6.dp))
+            Text(
+                text = errorImagen,
+                color = Color.Red,
+                fontSize = 12.sp,
+                modifier = Modifier.padding(horizontal = 4.dp)
+            )
+        }
+
+        Spacer(Modifier.height(40.dp))
+
+        Row(
+            Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Button(
+                onClick = volver,
+                modifier = Modifier
+                    .width(130.dp)
+                    .height(56.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.LightGray,
                     contentColor = Color.Black
                 ),
                 shape = RoundedCornerShape(12.dp)
-            ) { Text("Finalizar") }
+            ) {
+                Text("Volver")
+            }
+            Button(
+                onClick = onFinalizar,
+                enabled = !cargandoImagen,
+                modifier = Modifier
+                    .width(130.dp)
+                    .height(56.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.White,
+                    disabledContainerColor = Color(0xFF2E2E2E),
+                    contentColor = Color.Black,
+                    disabledContentColor = Color.Gray
+                ),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Text("Finalizar")
+            }
         }
+    }
+
+    if (mostrarOpciones) {
+        AlertDialog(
+            onDismissRequest = { mostrarOpciones = false },
+            containerColor = Color(0xFF1E1E1E),
+            title = { Text("Añadir imagen", color = Color.White, fontWeight = Bold) },
+            text = { Text("Elige cómo quieres capturar tu foto de perfil:", color = Color.Gray) },
+            confirmButton = {
+                TextButton(onClick = {
+                    mostrarOpciones = false
+                    launcherPermisoCamara.launch(Manifest.permission.CAMERA)
+                }) {
+                    Text("Cámara", color = Color.White, fontWeight = Bold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    mostrarOpciones = false
+                    launcherGaleria.launch(
+                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                    )
+                }) {
+                    Text("Galería", color = Color.Gray)
+                }
+            }
+        )
     }
 }
 
@@ -456,7 +684,6 @@ fun SelectorFecha(
     fechaMinima: LocalDate,
     fechaMaxima: LocalDate
 ) {
-
     WheelDatePickerView(
         showDatePicker = mostrar,
         height = 200.dp,
@@ -467,17 +694,11 @@ fun SelectorFecha(
             cerrarSelectorFecha()
         },
         minDate = fechaMinima,
+        maxDate = fechaMaxima,
         onDismiss = cerrarSelectorFecha,
         title = "Fecha de nacimiento",
         doneLabel = "Aceptar",
         shape = RoundedCornerShape(12.dp),
         showMonthAsNumber = false
-
     )
 }
-
-//@Preview(showBackground = true)
-//@Composable
-//fun previeww() {
-//    PantallaRegistro()
-//}

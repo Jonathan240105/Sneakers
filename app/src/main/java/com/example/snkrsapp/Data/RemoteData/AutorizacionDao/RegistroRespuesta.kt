@@ -9,5 +9,6 @@ data class UsuarioSolicitud(
     val nombreUsuario: String = "",
     val email: String = "",
     val apellidos: String = "",
-    val fechaNacimiento: String = ""
+    val fechaNacimiento: String = "",
+    val urlFoto: String = ""
 )

@@ -164,7 +164,6 @@ fun PantallaListados(
                                     sneaker.modelo,
                                     sneaker.precio,
                                     sneaker.urlFoto,
-                                    navegarADetalle
                                 )
                             }
                         }
@@ -181,7 +180,6 @@ fun PantallaListados(
                                     publicacion.modelo,
                                     publicacion.precio,
                                     publicacion.urlFoto,
-                                    onClick = navegarADetalle
                                 )
                             }
                         }
@@ -216,7 +214,7 @@ fun PantallaListados(
                                     articulo.modelo,
                                     articulo.precio,
                                     articulo.urlFoto,
-                                    navegarADetalle
+
                                 )
                             }
                         }
@@ -278,11 +276,10 @@ fun TituloListadosConVolver(
 }
 
 @Composable
-fun CardItemSneakerUnificada(modelo: String, precio: Double, urlFoto: String, onClick: () -> Unit) {
+fun CardItemSneakerUnificada(modelo: String, precio: Double, urlFoto: String) {
     Card(
         Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick),
+            .fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E1E)),
         shape = RoundedCornerShape(25.dp)
     ) {

@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -27,6 +28,7 @@ import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.BottomSheetDefaults
@@ -98,6 +100,7 @@ fun PantallaPrincipal(myViewModel: PrincipalViewModel, navegarADetalle: (Int, In
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .navigationBarsPadding()
             .background((Color(0xFF121212)))
     ) {
         Column(
@@ -114,6 +117,22 @@ fun PantallaPrincipal(myViewModel: PrincipalViewModel, navegarADetalle: (Int, In
                 nombreBuscado = nombreBuscado,
                 cambiarBuscador = { texto -> nombreBuscado = texto },
                 mostrarFiltros = { mostrarFiltros = true }
+            )
+            Spacer(Modifier.height(5.dp))
+            BarraFiltrosActivos(
+                model,
+                {
+                    myViewModel.cambiarTalla(null)
+                    myViewModel.aplicarFiltrosDesdeHoja()
+                },
+                {
+                    myViewModel.cambiarRangoPrecio(0, 1000)
+                    myViewModel.aplicarFiltrosDesdeHoja()
+                },
+                { idMarca ->
+                    myViewModel.alternarMarcaTemporal(idMarca)
+                    myViewModel.aplicarFiltrosDesdeHoja()
+                }
             )
             Spacer(modifier = Modifier.height(8.dp))
         }
@@ -221,7 +240,7 @@ fun CardMarca(marca: Marca, seleccionada: Boolean, elegirMarca: () -> Unit) {
                 "",
                 modifier = Modifier
                     .padding(start = 12.dp)
-                    .size(28.dp),
+                    .size(50.dp),
                 contentScale = ContentScale.Fit
             )
 
@@ -229,16 +248,9 @@ fun CardMarca(marca: Marca, seleccionada: Boolean, elegirMarca: () -> Unit) {
                 modifier = Modifier
                     .fillMaxSize()
                     .background(
-                        Brush.horizontalGradient(
-                            colors = listOf(
-                                Color.Transparent,
-                                Color(0xFF1E1E1E).copy(alpha = 0.5f),
-                                Color(0xFF1E1E1E)
-                            ),
-                        )
+                        Color(0xFF1E1E1E)
                     )
             )
-
             Text(
                 text = marca.nombre ?: "",
                 color = Color.White,
@@ -307,12 +319,6 @@ fun CardProducto(producto: Producto, onclick: () -> Unit, nombreMarca: String) {
                         fontSize = 16.sp,
                         fontWeight = Bold
                     )
-                    Icon(
-                        Icons.Default.ShoppingCart,
-                        "",
-                        tint = Color.White,
-                        modifier = Modifier.size(20.dp)
-                    )
                 }
             }
         }
@@ -371,7 +377,72 @@ fun BuscadorConFiltros(
         }
     }
 }
+@Composable
+fun BarraFiltrosActivos(
+    model: ModelPrincipal,
+    onQuitarTalla: () -> Unit,
+    onQuitarPrecio: () -> Unit,
+    onQuitarMarca: (Int) -> Unit
+) {
+    val tieneTalla = model.talla != null
+    val tienePrecio = (model.minPrecio != null && model.minPrecio != 0) || (model.maxPrecio != null && model.maxPrecio != 1000)
+    val marcasActivas = model.marcasSeleccionadas ?: emptyList()
 
+    val hayFiltros = tieneTalla || tienePrecio || marcasActivas.isNotEmpty()
+
+    if (hayFiltros) {
+        LazyRow(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 4.dp),
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            if (tieneTalla) {
+                item {
+                    ChipFiltro(texto = "Talla: ${model.talla}", onBorrar = onQuitarTalla)
+                }
+            }
+
+            if (tienePrecio) {
+                item {
+                    ChipFiltro(
+                        texto = "${model.minPrecio ?: 0}€ - ${model.maxPrecio ?: 1000}€",
+                        onBorrar = onQuitarPrecio
+                    )
+                }
+            }
+
+            items(marcasActivas) { idMarca ->
+                val nombreMarca = model.listaMarcas.find { it.idMarca == idMarca }?.nombre ?: "Marca"
+                ChipFiltro(texto = nombreMarca, onBorrar = { onQuitarMarca(idMarca) })
+            }
+        }
+        Spacer(Modifier.height(4.dp))
+    }
+}
+
+@Composable
+fun ChipFiltro(texto: String, onBorrar: () -> Unit) {
+    Row(
+        Modifier
+            .background(Color(0xFF252525), RoundedCornerShape(50.dp))
+            .border(1.dp, Color(0xFF333333), RoundedCornerShape(50.dp))
+            .padding(horizontal = 12.dp, vertical = 6.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        Text(text = texto, color = Color.White, fontSize = 12.sp, fontWeight = Bold)
+        Icon(
+            Icons.Default.Close,
+            contentDescription = "Quitar filtro",
+            tint = Color.Gray,
+            modifier = Modifier
+                .size(14.dp)
+                .clickable { onBorrar() }
+        )
+    }
+}
 @Composable
 fun CardFiltros(
     model: ModelPrincipal,

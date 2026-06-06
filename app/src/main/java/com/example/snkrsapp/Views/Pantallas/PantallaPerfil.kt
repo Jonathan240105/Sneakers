@@ -35,9 +35,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -75,7 +77,7 @@ fun PantallaPerfil(
 
         HeaderPerfilTop(
             texto = if (esMiPerfil) "Mi Perfil" else "Perfil",
-            mostrarBotonVolver = uidPerfilAVisualizar !=null,
+            mostrarBotonVolver = uidPerfilAVisualizar != null,
             onVolverClick = volverAtras
         )
 
@@ -100,14 +102,16 @@ fun PantallaPerfil(
                             .clip(RoundedCornerShape(18.dp))
                             .background(Color(0xFF252525)), contentAlignment = Alignment.Center
                     ) {
-                        AsyncImage(model.usuarioActual.urlFoto,"", Modifier.size(40.dp))
+                        AsyncImage(model.usuarioActual.urlFoto, "", Modifier.size(40.dp))
                     }
-                    Spacer(Modifier.width(15.dp))
-                    Column {
+                    Spacer(Modifier.weight(1f))
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
                             "@${model.usuarioActual.nombreUsuario}",
                             color = Color.White,
                             fontSize = 20.sp,
+                            overflow = TextOverflow.Ellipsis,
+                            maxLines = 1,
                             fontWeight = Bold
                         )
                         Text(model.usuarioActual.email, color = Color.Gray, fontSize = 13.sp)
@@ -264,22 +268,47 @@ fun ListaProductos(
             LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 items(items) { item ->
                     Card(
-                        Modifier.size(width = 140.dp, height = 100.dp),
+                        Modifier.size(width = 140.dp, height = 120.dp),
                         colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E1E)),
                         shape = RoundedCornerShape(16.dp)
                     ) {
-                        Box(
-                            contentAlignment = Alignment.Center,
-                            modifier = Modifier.fillMaxSize()
-                        ) {
-                            AsyncImage(item.urlFoto, "")
+                        Box(modifier = Modifier.fillMaxSize()) {
+                            AsyncImage(
+                                item.urlFoto,
+                                "",
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(horizontal = 12.dp)
+                                    .padding(top = 8.dp, bottom = 24.dp)
+                            )
+
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(45.dp)
+                                    .align(Alignment.BottomCenter)
+                                    .background(
+                                        Brush.verticalGradient(
+                                            colors = listOf(
+                                                Color.Transparent,
+                                                Color(0xAA000000),
+                                                Color(0xFF000000)
+                                            )
+                                        )
+                                    )
+                            )
+
                             Text(
-                                item.modelo,
+                                text = item.modelo,
                                 color = Color.White,
-                                fontSize = 12.sp,
+                                fontSize = 11.sp,
+                                fontWeight = Bold,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
                                 modifier = Modifier
                                     .align(Alignment.BottomCenter)
-                                    .padding(bottom = 8.dp)
+                                    .padding(bottom = 6.dp)
+                                    .padding(horizontal = 8.dp)
                             )
                         }
                     }
@@ -321,18 +350,46 @@ fun ListaProductosVentasYCarrito(
                         colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E1E)),
                         shape = RoundedCornerShape(16.dp)
                     ) {
-                        Box(
-                            contentAlignment = Alignment.Center,
-                            modifier = Modifier.fillMaxSize()
-                        ) {
-                            AsyncImage(item.urlFoto, "")
+                        Box(modifier = Modifier.fillMaxSize()) {
+
+                            AsyncImage(
+                                model = item.urlFoto,
+                                contentDescription = "",
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(horizontal = 12.dp)
+                                    .padding(
+                                        top = 8.dp,
+                                        bottom = 24.dp
+                                    )
+                            )
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(45.dp)
+                                    .align(Alignment.BottomCenter)
+                                    .background(
+                                        Brush.verticalGradient(
+                                            colors = listOf(
+                                                Color.Transparent,
+                                                Color(0xAA000000),
+                                                Color(0xFF000000)
+                                            )
+                                        )
+                                    )
+                            )
+
                             Text(
-                                item.modelo,
+                                text = item.modelo,
                                 color = Color.White,
-                                fontSize = 12.sp,
+                                fontSize = 11.sp,
+                                fontWeight = Bold,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
                                 modifier = Modifier
                                     .align(Alignment.BottomCenter)
-                                    .padding(bottom = 8.dp)
+                                    .padding(bottom = 6.dp)
+                                    .padding(horizontal = 8.dp)
                             )
                         }
                     }

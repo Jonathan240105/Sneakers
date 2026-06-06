@@ -102,7 +102,7 @@ fun PantallaProductoDetallado(
                     ), contentAlignment = Alignment.Center
             ) {
                 AsyncImage(
-                    model = model.productoSeleccionado.imagenUrl,
+                    model = model.publicacionSeleccionada.urlFoto,
                     contentDescription = model.productoSeleccionado.modelo,
                     modifier = Modifier
                         .fillMaxSize()

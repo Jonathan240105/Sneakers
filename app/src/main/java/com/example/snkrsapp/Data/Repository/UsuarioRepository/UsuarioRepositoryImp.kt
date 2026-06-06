@@ -87,31 +87,45 @@ class UsuarioRepositoryImp @Inject constructor(
         }
 
     override suspend fun registrarUsuario(
-        email: String, contra: String, nombre: String, apellidos: String?, fecha: String
+        email: String, contra: String, nombre: String, apellidos: String?, fecha: String,urlFoto : String
     ): Flow<EstadoRegistro> = flow {
         emit(EstadoRegistro.Cargando)
 
-        try {
-            val resultadoAuth =
-                FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, contra).await()
+        var firebaseUser: com.google.firebase.auth.FirebaseUser? = null
 
-            val uid = resultadoAuth.user!!.uid
+        try {
+            val resultadoAuth = FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, contra).await()
+            firebaseUser = resultadoAuth.user
+
+            val uid = firebaseUser!!.uid
             val usuario = UsuarioSolicitud(
-                uid, nombre, email, apellidos ?: "", fecha
+                uid, nombre, email, apellidos ?: "", fecha, urlFoto
             )
 
             val respuesta = autDao.registrarUsuario(usuario)
+
             if (respuesta.isSuccessful) {
                 println("Todo bien ${respuesta.body()?.exito}")
                 emit(EstadoRegistro.Exito("Usuario añadido a la base de datos"))
             } else {
+                println("Error en la base de datos")
+                firebaseUser?.delete()?.await()
+
                 emit(
                     EstadoRegistro.Error(
-                        "Error al añadir en la base de datos: ${respuesta.code()}", false
+                        "Error al añadir en la base de datos: ${respuesta.code()}", errorFirebase = false
                     )
                 )
             }
         } catch (e: Exception) {
+            if (e !is FirebaseAuthException && firebaseUser != null) {
+                try {
+                    firebaseUser.delete().await()
+                } catch (deleteException: Exception) {
+                    println("No se pudo limpiar el usuario de Firebase: ${deleteException.message}")
+                }
+            }
+
             val estadoError = when (e) {
                 is FirebaseAuthException -> {
                     println("Error de Auth: ${e.errorCode}")
@@ -119,11 +133,9 @@ class UsuarioRepositoryImp @Inject constructor(
                         "Error en Firebase: ${e.message}", errorFirebase = true
                     )
                 }
-
                 is IOException -> {
-                    EstadoRegistro.Error("no hay internet", errorFirebase = false)
+                    EstadoRegistro.Error("No hay internet o el servidor no responde", errorFirebase = false)
                 }
-
                 else -> {
                     EstadoRegistro.Error("Error inesperado: ${e.message}", errorFirebase = false)
                 }

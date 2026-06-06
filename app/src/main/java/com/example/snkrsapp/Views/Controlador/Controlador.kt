@@ -124,7 +124,7 @@ fun Controlador() {
                 PantallaEventosAdmin(eventosAdminViewModel, paddingValues, navController)
             }
             composable("Registro") {
-                PantallaRegistro(registroViewModel, { navController.navigate("InicioSesion") })
+                PantallaRegistro(registroViewModel,agregarProductoViewModel, { navController.navigate("InicioSesion") })
             }
             composable("Principal") {
                 PantallaPrincipal(

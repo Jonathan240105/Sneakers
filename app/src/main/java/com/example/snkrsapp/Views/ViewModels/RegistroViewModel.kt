@@ -41,14 +41,24 @@ class RegistroViewModel @Inject constructor(
         contra: String,
         nombre: String,
         apellidos: String?,
-        fecha: String
+        fecha: String,
+        urlFoto: String
     ) {
         if (!fechaValida(fecha)) {
             println("Formato de fecha incorrecto : año mes y dia bro")
             return
         }
+
+        _model.update {
+            it.copy(
+                cargando = true,
+                intentadoRegistrar = true,
+                error = null,
+                errorFirebase = false
+            )
+        }
         viewModelScope.launch {
-            usuarioRepository.registrarUsuario(email, contra, nombre, apellidos, fecha)
+            usuarioRepository.registrarUsuario(email, contra, nombre, apellidos, fecha, urlFoto)
                 .collect { resultado ->
                     if (resultado is EstadoRegistro.Exito) {
                         _model.update { it.copy(exito = true, cargando = false) }
@@ -86,7 +96,7 @@ class RegistroViewModel @Inject constructor(
         }
     }
 
-    fun cambuiarApellidos(apellidos: String) {
+    fun cambiarApellidos(apellidos: String) {
         viewModelScope.launch {
             _model.update {
                 it.copy(apellidos = apellidos)
@@ -122,7 +132,7 @@ class RegistroViewModel @Inject constructor(
         _model.update {
             it.copy(
                 exito = false, errorFirebase = false, cargando = false, nombreUsuario = "",
-                apellidos = "", email = "", contra = "", fecha = ""
+                apellidos = "", email = "", contra = "", fecha = "", intentadoRegistrar = false
             )
         }
     }

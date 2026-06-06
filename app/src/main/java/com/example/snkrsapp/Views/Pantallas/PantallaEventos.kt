@@ -95,7 +95,7 @@ fun PantallaEventos(
         TituloEventos("Próximos Eventos")
 
         Text(
-            "$nombreMes 2024",
+            "$nombreMes 2026",
             color = Color.Gray,
             fontSize = 15.sp,
             modifier = Modifier.padding(bottom = 12.dp)
@@ -217,7 +217,7 @@ fun CardEvento(evento: Evento) {
                 Spacer(Modifier.height(8.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        evento.fechaEvento,
+                        evento.fechaEvento.formatearFecha(),
                         color = Color.White,
                         fontSize = 12.sp,
                         fontWeight = Bold
