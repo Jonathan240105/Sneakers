@@ -1,5 +1,10 @@
 package com.example.snkrsapp.Data.Repository.ProductoRepository
 
+import android.content.Context
+import android.net.Uri
+import com.cloudinary.android.MediaManager
+import com.cloudinary.android.callback.ErrorInfo
+import com.cloudinary.android.callback.UploadCallback
 import com.example.snkrsapp.Data.LocalData.Marcas.EntityToMarca
 import com.example.snkrsapp.Data.LocalData.Marcas.MarcaEntity
 import com.example.snkrsapp.Data.LocalData.Marcas.MarcaLocalDao
@@ -15,18 +20,27 @@ import com.example.snkrsapp.Data.LocalData.Publicaciones.EntityToPublicacion
 import com.example.snkrsapp.Data.LocalData.Publicaciones.PublicacionEntity
 import com.example.snkrsapp.Data.LocalData.Publicaciones.PublicacionLocalDao
 import com.example.snkrsapp.Data.LocalData.Publicaciones.PublicacionToEntity
-import com.example.snkrsapp.Data.RemoteData.ProductoDao.AgregarProductoSolicitud
+import com.example.snkrsapp.Data.RemoteData.ProductoDao.CompletarMarcaRespuesta
+import com.example.snkrsapp.Data.RemoteData.ProductoDao.CompletarMarcaSolicitud
+import com.example.snkrsapp.Data.RemoteData.ProductoDao.CrearMarcaSolicitud
+import com.example.snkrsapp.Data.RemoteData.ProductoDao.EliminarMarcasSolicitud
 import com.example.snkrsapp.Data.RemoteData.ProductoDao.ProductosDao
 import com.example.snkrsapp.Data.RemoteData.PublicacionDao.AgregarPublicacionesSolicitud
 import com.example.snkrsapp.Data.RemoteData.PublicacionDao.PublicacionDao
+import com.example.snkrsapp.Data.RemoteData.PublicacionDao.toEntity
+import com.example.snkrsapp.Domain.EstadoCrearMarca
+import com.example.snkrsapp.Domain.EstadoEliminarMarcas
 import com.example.snkrsapp.Domain.EstadoProductoNuevo
 import com.example.snkrsapp.Domain.Marca
 import com.example.snkrsapp.Domain.Producto
 import com.example.snkrsapp.Domain.ProductoItem
 import com.example.snkrsapp.Domain.Publicacion
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.suspendCancellableCoroutine
 import javax.inject.Inject
+import kotlin.coroutines.resume
 
 class ProductoRepositoryImp @Inject constructor(
     private val productosDao: ProductosDao,
@@ -34,18 +48,53 @@ class ProductoRepositoryImp @Inject constructor(
     private val marcaLocalDao: MarcaLocalDao,
     private val publicacionLocalDao: PublicacionLocalDao,
     private val publicacionDao: PublicacionDao,
-    private val publicacionPropiaLocalDao: PublicacionesPropiasLocalDao
+    private val publicacionPropiaLocalDao: PublicacionesPropiasLocalDao,
+    @ApplicationContext private val context: Context
 ) : ProductoRepository {
+
+    init {
+        try {
+            val config = mapOf(
+                "cloud_name" to "deyxqemca"
+            )
+            MediaManager.init(context, config)
+        } catch (e: IllegalStateException) {
+            println("Error al inicializar Cloudinary: ${e.message}")
+        }
+    }
+
+    override suspend fun subirImagenACloudinary(uri: Uri): String? =
+        suspendCancellableCoroutine { continuation ->
+            MediaManager.get().upload(uri)
+                .unsigned("SneakersPreset")
+                .callback(object : UploadCallback {
+                    override fun onStart(requestId: String) {}
+                    override fun onProgress(requestId: String, bytes: Long, totalBytes: Long) {}
+
+                    override fun onSuccess(requestId: String, resultData: Map<*, *>) {
+                        val secureUrl = resultData["secure_url"] as? String
+                        if (continuation.isActive) continuation.resume(secureUrl)
+                    }
+
+                    override fun onError(requestId: String, error: ErrorInfo) {
+                        if (continuation.isActive) continuation.resume(null)
+                    }
+
+                    override fun onReschedule(requestId: String, error: ErrorInfo) {
+                        if (continuation.isActive) continuation.resume(null)
+                    }
+                }).dispatch()
+        }
 
     override suspend fun traerPaginaProductos(limite: Int, salto: Int): Flow<List<Producto>> =
         flow {
             val localesIniciales = productoLocalDao.obtenerPaginaProductos(limite, salto)
             if (localesIniciales.isNotEmpty()) {
                 emit(localesIniciales.map { ProductoEntityToProducto(it) })
-                return@flow
             }
             try {
                 val respuesta = productosDao.obtenerPaginaProductos(limite, salto)
+
                 if (respuesta.isSuccessful && respuesta.body() != null) {
                     productoLocalDao.insertarLista(respuesta.body()?.map {
                         ProductoRespuestaToProductoEntity(it)
@@ -55,6 +104,9 @@ class ProductoRepositoryImp @Inject constructor(
                     emit(localesActualizados.map { ProductoEntityToProducto(it) })
                 }
             } catch (e: Exception) {
+                println(
+                    "Error al traer productos: ${e.message}"
+                )
             }
         }
 
@@ -63,7 +115,6 @@ class ProductoRepositoryImp @Inject constructor(
 
         if (marcasLocales.isNotEmpty()) {
             emit(marcasLocales.map { EntityToMarca(it) })
-            return@flow
         }
 
         try {
@@ -160,9 +211,7 @@ class ProductoRepositoryImp @Inject constructor(
                             idProducto = datos.idProducto,
                             idMarca = idMarcaFinal ?: 0,
                             modelo = body.nombreProductoNuevo ?: "",
-                            precio = body.precio.toInt(),
-                            talla = body.talla.toInt(),
-                            uidVendedor = "SISTEMA",
+                            precio = body.precio,
                             imagenUrl = body.urlFoto
                         )
                     )
@@ -181,7 +230,6 @@ class ProductoRepositoryImp @Inject constructor(
                                     estado = body.estado,
                                     urlFoto = body.urlFoto,
                                     fechaPublicacion = body.fecha_publicacion,
-                                    disponible = true,
                                     uidUsuario = uid
                                 )
                             )
@@ -261,7 +309,7 @@ class ProductoRepositoryImp @Inject constructor(
     }
 
     override suspend fun traerPaginaProductosFiltrado(
-        token : String,
+        token: String,
         minPrecio: Double?,
         maxPrecio: Double?,
         talla: Double?,
@@ -294,10 +342,8 @@ class ProductoRepositoryImp @Inject constructor(
                         idProducto = it.idProducto,
                         idMarca = it.idMarca,
                         modelo = it.modelo,
-                        precio = it.precio?:0,
-                        talla = it.talla?:0,
-                        uidVendedor = it.uidVendedor?:"",
-                        imagenUrl = it.imagenUrl?:""
+                        precio = it.precio ?: 0.0,
+                        imagenUrl = it.imagenUrl ?: ""
                     )
                 } ?: emptyList())
             }
@@ -307,6 +353,7 @@ class ProductoRepositoryImp @Inject constructor(
         }
 
     }
+
     override suspend fun buscarProductosPorTexto(
         token: String,
         busqueda: String
@@ -331,9 +378,7 @@ class ProductoRepositoryImp @Inject constructor(
                         idProducto = it.idProducto,
                         idMarca = it.idMarca,
                         modelo = it.modelo,
-                        precio = it.precio?:0,
-                        talla = it.talla?:0,
-                        uidVendedor = it.uidVendedor?:"",
+                        precio = it.precio ?: 0.0,
                         imagenUrl = it.imagenUrl
                     )
                 }
@@ -343,7 +388,129 @@ class ProductoRepositoryImp @Inject constructor(
             }
         } catch (e: Exception) {
             println("Error al buscar productos globalmente: ${e.message}")
-            emit(emptyList()) // En caso de caída de red o error, emitimos vacío para no romper la UI
+            emit(emptyList())
+        }
+    }
+
+    override suspend fun traerPublicacionesPorProducto(
+        token: String,
+        idProducto: Int
+    ): Flow<List<Publicacion>> = flow {
+
+        val publicacionesLocales = publicacionLocalDao.getPublicaciones(idProducto)
+        if (publicacionesLocales.isNotEmpty()) {
+            emit(publicacionesLocales.map { EntityToPublicacion(it) })
+        }
+
+        try {
+            val respuesta = publicacionDao.getPublicacionesPorProducto(idProducto, "Bearer $token")
+
+            if (respuesta.isSuccessful && respuesta.body() != null) {
+                val listadoRespuesta = respuesta.body()!!
+
+                val entidadesRoom = listadoRespuesta.map {
+                    it.toEntity()
+                }
+                publicacionLocalDao.agregarPublicaciones(entidadesRoom)
+
+                val localesActualizados = publicacionLocalDao.getPublicaciones(idProducto)
+                emit(localesActualizados.map { EntityToPublicacion(it) })
+            } else {
+                emit(emptyList())
+            }
+        } catch (e: Exception) {
+            println("Error: ${e.message}")
+            emit(emptyList())
+        }
+    }
+
+    override suspend fun agregarAlCarrito(token: String, idPublicacion: Int): Flow<Boolean> = flow {
+        try {
+            val respuesta = publicacionDao.agregarAlCarrito("Bearer $token", idPublicacion)
+            if (respuesta.isSuccessful && respuesta.body()?.ok == true) {
+                println("Producto agregado")
+                emit(true)
+            } else {
+                println("Error al agregar al carrito 1")
+                emit(false)
+
+            }
+        } catch (e: Exception) {
+            println("Error al agregar al carrito 2: ${e.message}")
+            emit(false)
+        }
+    }
+
+    override suspend fun eliminarMarcas(
+        token: String,
+        listaIds: List<Int>
+    ): Flow<EstadoEliminarMarcas> = flow {
+        emit(EstadoEliminarMarcas.Cargando)
+
+        try {
+
+            val respuesta = productosDao.eliminarMarcas(
+                "Bearer $token",
+                EliminarMarcasSolicitud(listaIds)
+            )
+
+            if (respuesta.isSuccessful) {
+                emit(EstadoEliminarMarcas.Exito(respuesta.body()?.mensaje ?: "Marcas eliminadas"))
+            } else {
+                emit(
+                    EstadoEliminarMarcas.Error(
+                        respuesta.body()?.mensaje ?: "Error al eliminar marcas"
+                    )
+                )
+            }
+        } catch (e: Exception) {
+            emit(EstadoEliminarMarcas.Error("Error: ${e.message}"))
+        }
+    }
+
+    override suspend fun completarRegistroMarca(
+        token: String,
+        idMarca: Int,
+        pais: String,
+        fecha: String,
+        logo: String,
+        webUrl: String
+    ): Flow<CompletarMarcaRespuesta> = flow {
+        try {
+            val respuesta = productosDao.completarMarca(
+                "Bearer $token",
+                CompletarMarcaSolicitud(idMarca, pais, fecha, logo, webUrl)
+            )
+            if (respuesta.isSuccessful) {
+                emit(respuesta.body() ?: CompletarMarcaRespuesta(true, "Marca completada"))
+            } else {
+                emit(respuesta.body() ?: CompletarMarcaRespuesta(false, "Error al completar marca"))
+            }
+        } catch (e: Exception) {
+            emit(CompletarMarcaRespuesta(false, "Error: ${e.message}"))
+        }
+    }
+
+    override suspend fun crearMarca(
+        token: String,
+        body: CrearMarcaSolicitud
+    ): Flow<EstadoCrearMarca> = flow {
+
+        emit(EstadoCrearMarca.Cargando)
+
+        try {
+            val respuesta = productosDao.crearMarca("Bearer $token", body)
+
+            if (respuesta.isSuccessful && respuesta.body()?.ok == true) {
+                println("Marca creada")
+                emit(EstadoCrearMarca.Exito(respuesta.body()?.mensaje ?: "Marca creada"))
+            } else {
+                println("Error al crear marca")
+                emit(EstadoCrearMarca.Error(respuesta.body()?.mensaje ?: "Error al crear marca"))
+            }
+        } catch (e: Exception) {
+            println("Error al crear marca: ${e.message}")
+            emit(EstadoCrearMarca.Error("Error: ${e.message}"))
         }
     }
 }

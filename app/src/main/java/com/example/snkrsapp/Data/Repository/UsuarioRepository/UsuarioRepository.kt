@@ -2,6 +2,8 @@ package com.example.snkrsapp.Data.Repository.UsuarioRepository
 
 import com.example.snkrsapp.Data.RemoteData.ActualizacionDao.ActualizarPerfilRespuesta
 import com.example.snkrsapp.Data.RemoteData.AutorizacionDao.Usuario
+import com.example.snkrsapp.Domain.EstadoCompra
+import com.example.snkrsapp.Domain.EstadoEliminarUsuarios
 import com.example.snkrsapp.Domain.EstadoLogin
 import com.example.snkrsapp.Domain.EstadoRegistro
 import com.example.snkrsapp.Domain.ProductoColeccionItem
@@ -16,10 +18,11 @@ interface UsuarioRepository {
         contra: String,
         nombre: String,
         apellidos: String?,
-        fecha: String
+        fecha: String,
+        url : String
     ): Flow<EstadoRegistro>
 
-    suspend fun traerPerfil(token: String): Flow<Usuario>
+    suspend fun traerPerfil(token: String, uidSoli: String?, miUid: String): Flow<Usuario>
     suspend fun actualizarPerfil(
         token: String,
         nombre: String?,
@@ -34,9 +37,14 @@ interface UsuarioRepository {
         token: String,
         uidObjetivo: String
     ): Flow<List<ProductoColeccionItem>>
+
     suspend fun traerVentasUsuario(
         token: String,
         uidObjetivo: String
     ): Flow<List<PublicacionPerfilItem>>
 
+    suspend fun procesarPagoCarrito(token: String): Flow<EstadoCompra>
+    suspend fun getUsuarios(token: String): Flow<List<Usuario>>
+
+    suspend fun eliminarUsuarios(token: String, uids: List<String>): Flow<EstadoEliminarUsuarios>
 }

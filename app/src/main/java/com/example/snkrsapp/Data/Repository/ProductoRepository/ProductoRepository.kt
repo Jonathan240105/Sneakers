@@ -1,7 +1,11 @@
 package com.example.snkrsapp.Data.Repository.ProductoRepository
 
-import com.example.snkrsapp.Data.RemoteData.ProductoDao.AgregarProductoSolicitud
+import android.net.Uri
+import com.example.snkrsapp.Data.RemoteData.ProductoDao.CompletarMarcaRespuesta
+import com.example.snkrsapp.Data.RemoteData.ProductoDao.CrearMarcaSolicitud
 import com.example.snkrsapp.Data.RemoteData.PublicacionDao.AgregarPublicacionesSolicitud
+import com.example.snkrsapp.Domain.EstadoCrearMarca
+import com.example.snkrsapp.Domain.EstadoEliminarMarcas
 import com.example.snkrsapp.Domain.EstadoProductoNuevo
 import com.example.snkrsapp.Domain.Marca
 import com.example.snkrsapp.Domain.Producto
@@ -38,4 +42,23 @@ interface ProductoRepository {
         token: String,
         busqueda: String
     ): Flow<List<Producto>>
+
+    suspend fun traerPublicacionesPorProducto(
+        token: String,
+        idProducto: Int
+    ): Flow<List<Publicacion>>
+
+    suspend fun subirImagenACloudinary(uri: Uri): String?
+    suspend fun agregarAlCarrito(token: String, idPublicacion: Int): Flow<Boolean>
+    suspend fun eliminarMarcas(token: String, listaIds: List<Int>): Flow<EstadoEliminarMarcas>
+    suspend fun completarRegistroMarca(
+        token: String,
+        idMarca: Int,
+        pais: String,
+        fecha: String,
+        logo: String,
+        webUrl: String
+    ): Flow<CompletarMarcaRespuesta>
+
+    suspend fun crearMarca(token: String, body: CrearMarcaSolicitud): Flow<EstadoCrearMarca>
 }

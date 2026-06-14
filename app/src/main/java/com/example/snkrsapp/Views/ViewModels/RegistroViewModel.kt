@@ -41,34 +41,93 @@ class RegistroViewModel @Inject constructor(
         contra: String,
         nombre: String,
         apellidos: String?,
-        fecha: String
+        fecha: String,
+        urlFoto: String
     ) {
         if (!fechaValida(fecha)) {
             println("Formato de fecha incorrecto : año mes y dia bro")
             return
         }
+
+        _model.update {
+            it.copy(
+                cargando = true,
+                intentadoRegistrar = true,
+                error = null,
+                errorFirebase = false
+            )
+        }
         viewModelScope.launch {
-            usuarioRepository.registrarUsuario(email, contra, nombre, apellidos, fecha)
+            usuarioRepository.registrarUsuario(email, contra, nombre, apellidos, fecha, urlFoto)
                 .collect { resultado ->
-                    if (resultado is EstadoRegistro.Exito) {
-                        _model.update { it.copy(exito = true, cargando = false) }
-                        println("Todo fue bien")
-                    } else if (resultado is EstadoRegistro.Error && resultado.errorFirebase) {
-                        _model.update {
-                            it.copy(
-                                exito = false, errorFirebase = true, cargando = false
-                            )
+                    when (resultado) {
+                        is EstadoRegistro.Exito -> {
+                            _model.update { it.copy(exito = true, cargando = false, error = null) }
                         }
-                        println("Algo fue mal,culpa de firebase")
-                    } else if (resultado is EstadoRegistro.Error) {
-                        _model.update {
-                            it.copy(
-                                exito = false, errorFirebase = false, cargando = false
-                            )
+                        is EstadoRegistro.Error -> {
+                            _model.update {
+                                it.copy(
+                                    exito = false,
+                                    cargando = false,
+                                    error = resultado.mensaje,
+                                    errorFirebase = resultado.errorFirebase
+                                )
+                            }
                         }
-                        println("Algo fue mal con el servidor")
+                        is EstadoRegistro.Cargando -> {
+                            _model.update { it.copy(cargando = true) }
+                        }
                     }
                 }
+        }
+    }
+
+    fun cambiarNombreUsuario(nombre: String) {
+        viewModelScope.launch {
+            _model.update {
+                it.copy(nombreUsuario = nombre)
+            }
+        }
+    }
+
+    fun cambiarApellidos(apellidos: String) {
+        viewModelScope.launch {
+            _model.update {
+                it.copy(apellidos = apellidos)
+            }
+        }
+    }
+
+    fun cambiarEmail(email: String) {
+        viewModelScope.launch {
+            _model.update {
+                it.copy(email = email)
+            }
+        }
+    }
+
+    fun cambiarContra(contra: String) {
+        viewModelScope.launch {
+            _model.update {
+                it.copy(contra = contra)
+            }
+        }
+    }
+
+    fun cambiarFecha(fecha: String) {
+        viewModelScope.launch {
+            _model.update {
+                it.copy(fecha = fecha)
+            }
+        }
+    }
+
+    fun resetearPantalla() {
+        _model.update {
+            it.copy(
+                exito = false, errorFirebase = false, cargando = false, nombreUsuario = "",
+                apellidos = "", email = "", contra = "", fecha = "", intentadoRegistrar = false
+            )
         }
     }
 }

@@ -2,9 +2,9 @@ package com.example.snkrsapp.Views.ViewModels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.snkrsapp.Data.RemoteData.AutorizacionDao.Usuario
 import com.example.snkrsapp.Data.Repository.UsuarioRepository.UsuarioRepository
 import com.example.snkrsapp.Domain.EstadoLogin
-import com.example.snkrsapp.Domain.EstadoRegistro
 import com.example.snkrsapp.Domain.ModelInicioSesion
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,20 +25,54 @@ class InicioSesionViewModel @Inject constructor(
         viewModelScope.launch {
             usuarioRepository.iniciarSesion(email, contra).collect { resultado ->
 
-                if (resultado is EstadoLogin.Exito) {
-                    _model.update { it.copy(exito = true, cargando = false) }
-                    println("Todo fue bien")
-                } else if (resultado is EstadoLogin.Error && resultado.errorFirebase) {
-                    _model.update { it.copy(exito = false, errorFirebase = true, cargando = false) }
-                    println("Algo fue mal,culpa de firebase")
-                } else if (resultado is EstadoLogin.Error) {
-                    _model.update {
-                        it.copy(exito = false, errorFirebase = false, cargando = false)
+                when (resultado) {
+                    is EstadoLogin.Exito -> {
+                        _model.update {
+                            it.copy(
+                                exito = true,
+                                cargando = false,
+                                usuario = resultado.usuario,
+                                error = ""
+                            )
+                        }
                     }
-                    println("Algo fue mal con el servidor")
-
+                    is EstadoLogin.Error -> {
+                        _model.update {
+                            it.copy(
+                                exito = false,
+                                cargando = false,
+                                error = resultado.mensaje,
+                                errorFirebase = resultado.errorFirebase
+                            )
+                        }
+                    }
+                    is EstadoLogin.Cargando -> {
+                        _model.update { it.copy(cargando = true) }
+                    }
                 }
             }
+        }
+    }
+
+    fun cambiarEmail(email: String) {
+        _model.update { it.copy(email = email) }
+    }
+
+    fun cambiarContra(contra: String) {
+        _model.update { it.copy(contra = contra) }
+    }
+
+    fun resetearEstadoPantalla() {
+        _model.update {
+            it.copy(
+                exito = false,
+                errorFirebase = false,
+                error = "",
+                cargando = false,
+                email = "",
+                contra = "",
+                usuario = Usuario()
+            )
         }
     }
 }

@@ -16,20 +16,27 @@ import com.example.snkrsapp.Views.Controlador.NavigationUtils.BottomBar
 import com.example.snkrsapp.Views.Pantallas.PantallaActualizarPerfil
 import com.example.snkrsapp.Views.Pantallas.PantallaAgregarProducto
 import com.example.snkrsapp.Views.Pantallas.PantallaEventos
+import com.example.snkrsapp.Views.Pantallas.PantallaEventosAdmin
 import com.example.snkrsapp.Views.Pantallas.PantallaInicioSesion
 import com.example.snkrsapp.Views.Pantallas.PantallaListados
+import com.example.snkrsapp.Views.Pantallas.PantallaMarcasAdmin
 import com.example.snkrsapp.Views.Pantallas.PantallaPerfil
+import com.example.snkrsapp.Views.Pantallas.PantallaPerfilAdmin
 import com.example.snkrsapp.Views.Pantallas.PantallaPrincipal
 import com.example.snkrsapp.Views.Pantallas.PantallaProductoDetallado
 import com.example.snkrsapp.Views.Pantallas.PantallaRegistro
+import com.example.snkrsapp.Views.Pantallas.PantallaUsuariosAdmin
 import com.example.snkrsapp.Views.ViewModels.ActualizarPerfilViewModel
 import com.example.snkrsapp.Views.ViewModels.EventosViewModel
 import com.example.snkrsapp.Views.ViewModels.InicioSesionViewModel
 import com.example.snkrsapp.Views.ViewModels.ListadoViewModel
+import com.example.snkrsapp.Views.ViewModels.MarcasAdminViewModel
+import com.example.snkrsapp.Views.ViewModels.PantallaEventosViewModel
 import com.example.snkrsapp.Views.ViewModels.PerfilViewModel
 import com.example.snkrsapp.Views.ViewModels.PrincipalViewModel
 import com.example.snkrsapp.Views.ViewModels.ProductoDetalladoViewModel
 import com.example.snkrsapp.Views.ViewModels.RegistroViewModel
+import com.example.snkrsapp.Views.ViewModels.UsuariosAdminViewModel
 import com.example.snkrsapp.Views.ViewModels.ViewmodelAgregarProducto
 
 @Composable
@@ -46,10 +53,25 @@ fun Controlador() {
     val evenViewModel: EventosViewModel = hiltViewModel()
     val agregarProductoViewModel: ViewmodelAgregarProducto = hiltViewModel()
     val listadoViewModel: ListadoViewModel = hiltViewModel()
+    val usuariosAdminViewModel: UsuariosAdminViewModel = hiltViewModel()
+    val marcasAdminViewModel: MarcasAdminViewModel = hiltViewModel()
+    val eventosAdminViewModel: PantallaEventosViewModel = hiltViewModel()
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
-    val listaSinBottombar = listOf("InicioSesion", "Registro", "AgregarProducto"    )
+    val listaSinBottombar =
+        listOf(
+            "InicioSesion",
+            "Registro",
+            "AgregarProducto",
+            "ProductoDetallado/{id}/{marca}",
+            "Perfil/{uid}",
+            "Listados/{id}/{uid}",
+            "UsuariosAdmin",
+            "MarcasAdmin",
+            "EventosAdmin",
+            "PerfilAdmin"
+        )
     var mostrarSheet by remember { mutableStateOf(false) }
 
     Scaffold(
@@ -72,32 +94,94 @@ fun Controlador() {
                 PantallaInicioSesion(
                     iniSesViewModel,
                     { navController.navigate("Registro") },
-                    { navController.navigate("Principal") })
+                    {
+                        navController.navigate("Principal") {
+                            popUpTo("InicioSesion") {
+                                inclusive = true
+                            }
+                        }
+                    },
+                    {
+                        navController.navigate("UsuariosAdmin") {
+                            popUpTo("InicioSesion") {
+                                inclusive = true
+                            }
+                        }
+                    }
+                )
+            }
+
+            composable("UsuariosAdmin") {
+                PantallaUsuariosAdmin(usuariosAdminViewModel, paddingValues, navController)
+            }
+            composable("MarcasAdmin") {
+                PantallaMarcasAdmin(
+                    marcasAdminViewModel,
+                    agregarProductoViewModel,
+                    paddingValues,
+                    navController
+                )
+            }
+            composable("EventosAdmin") {
+                PantallaEventosAdmin(eventosAdminViewModel, paddingValues, navController)
+            }
+            composable("PerfilAdmin") {
+                PantallaPerfilAdmin(
+                    {},
+                    actuViewModel,
+                    { navController.navigate("InicioSesion") { popUpTo(0) { inclusive = true } } },
+                    perfilViewModel,
+                    navController
+                )
             }
             composable("Registro") {
-                PantallaRegistro(registroViewModel)
+                PantallaRegistro(
+                    registroViewModel,
+                    agregarProductoViewModel,
+                    { navController.navigate("InicioSesion") })
             }
             composable("Principal") {
                 PantallaPrincipal(
                     principalViewModel,
-                    { navController.navigate("ProductoDetallado") })
+                    { pr, m -> navController.navigate("ProductoDetallado/${pr}/${m}") })
             }
-            composable("ProductoDetallado") {
+            composable("ProductoDetallado/{id}/{marca}") {
+                val id = it.arguments?.getString("id")?.toIntOrNull() ?: 0
+                val marca = it.arguments?.getString("marca")?.toIntOrNull() ?: 0
                 PantallaProductoDetallado(
-                    14,
-                    1,
+                    id,
+                    marca,
                     { navController.navigate("Principal") },
-                    productoDetalladoViewModel
+                    productoDetalladoViewModel,
+                    paddingValues,
+                    { navController.navigate("Perfil/${it}") }
                 )
             }
 
             composable("Perfil") {
-                PantallaPerfil({ navController.navigate("ActualizarPerfil") }, perfilViewModel)
+                PantallaPerfil(
+                    null,
+                    { navController.navigate("ActualizarPerfil") },
+                    {},
+                    perfilViewModel,
+                    { navController.navigate("Listados/${it}") })
+            }
+            composable(
+                "Perfil/{uid}",
+            ) {
+                val uidVendedor = it.arguments?.getString("uid")
+                PantallaPerfil(
+                    uidPerfilAVisualizar = uidVendedor,
+                    cambiarAConfig = { },
+                    { navController.popBackStack() },
+                    myViewModel = perfilViewModel,
+                    navegarAListado = { navController.navigate("Listados/${it}/${uidVendedor}") }
+                )
             }
             composable("ActualizarPerfil") {
                 PantallaActualizarPerfil(
                     { navController.navigate("Perfil") },
-                    {},
+                    { navController.navigate("InicioSesion") { popUpTo(0) { inclusive = true } } },
                     perfilViewModel,
                     actuViewModel
                 )
@@ -115,10 +199,28 @@ fun Controlador() {
                 )
             }
 
-            composable("Listados") {
-                PantallaListados({ navController.navigate("Perfil") }, listadoViewModel,paddingValues)
+            composable("Listados/{id}") {
+                val id = it.arguments?.getString("id")?.toIntOrNull() ?: 0
+                PantallaListados(
+                    { navController.navigate("Perfil") },
+                    listadoViewModel,
+                    paddingValues,
+                    id,
+                    null
+                )
+            }
+            composable("Listados/{id}/{uid}") { backStackEntry ->
+                val id = backStackEntry.arguments?.getString("id")?.toIntOrNull() ?: 0
+                val uid = backStackEntry.arguments?.getString("uid")
+
+                PantallaListados(
+                    navegarADetalle = { navController.popBackStack() },
+                    myViewModel = listadoViewModel,
+                    paddingValues = paddingValues,
+                    id = id,
+                    uid = uid
+                )
             }
         }
     }
-
 }

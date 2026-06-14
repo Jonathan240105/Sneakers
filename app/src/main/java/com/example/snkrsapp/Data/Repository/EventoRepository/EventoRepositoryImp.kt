@@ -4,8 +4,11 @@ import com.example.snkrsapp.Data.LocalData.Eventos.EntityToEvento
 import com.example.snkrsapp.Data.LocalData.Eventos.EventoEntity
 import com.example.snkrsapp.Data.LocalData.Eventos.EventoLocalDao
 import com.example.snkrsapp.Data.LocalData.Eventos.EventoToEntity
+import com.example.snkrsapp.Data.RemoteData.EventoDao.CrearEventoSolicitud
+import com.example.snkrsapp.Data.RemoteData.EventoDao.EliminarEventoSolicitud
 import com.example.snkrsapp.Data.RemoteData.EventoDao.EventoDao
 import com.example.snkrsapp.Data.RemoteData.EventoDao.EventosSolicitud
+import com.example.snkrsapp.Domain.EstadoEliminarEventos
 import com.example.snkrsapp.Domain.EstadoEventosListado
 import com.example.snkrsapp.Domain.Evento
 import kotlinx.coroutines.flow.Flow
@@ -26,7 +29,6 @@ class EventoRepositoryImp @Inject constructor(
 
         if (eventosLocales.isNotEmpty()) {
             emit(eventosLocales.map { EntityToEvento(it) })
-            return@flow
         }
         try {
 
@@ -84,6 +86,60 @@ class EventoRepositoryImp @Inject constructor(
             val msg = respuesta.body()?.message ?: "Error al crear el evento"
             emit(EstadoEventosListado(false, msg))
         }
+    }
+
+    override suspend fun getEventosAdmin(token: String): Flow<List<Evento>> = flow {
+        try {
+
+            val respuesta = eventoDao.obtenerEventosAdmin("Bearer $token")
+
+            if (respuesta.isSuccessful) {
+                emit(respuesta.body()?.map { EntityToEvento(EventoToEntity(it)) } ?: emptyList())
+            } else {
+                emit(emptyList())
+            }
+        } catch (e: Exception) {
+            println("Error: ${e.message}")
+            emit(emptyList())
+        }
+    }
+
+    override suspend fun eliminarEventos(
+        token: String,
+        ids: List<Int>
+    ): Flow<EstadoEliminarEventos> = flow {
+
+        try {
+            emit(EstadoEliminarEventos.Cargando)
+            val respuesta = eventoDao.eliminarEventos("Bearer $token", EliminarEventoSolicitud(ids))
+
+            if (respuesta.isSuccessful && respuesta.body()?.ok == true) {
+                emit(EstadoEliminarEventos.Exito("Eventos eliminados correctamente"))
+            } else {
+                emit(EstadoEliminarEventos.Error("Error al eliminar los eventos"))
+            }
+        } catch (e: Exception) {
+            emit(EstadoEliminarEventos.Error("Error de conexión: ${e.message}"))
+        }
+    }
+
+    override suspend fun crearEvento(
+        token: String,
+        body: CrearEventoSolicitud
+    ): Flow<EstadoEventosListado> = flow {
+        try {
+            val respuesta = eventoDao.crearEventoGLobal("Bearer $token", body)
+
+            if (respuesta.isSuccessful) {
+                emit(EstadoEventosListado(true, "Evento creado con éxito"))
+            } else {
+                val msg = respuesta.body()?.message ?: "Error al crear el evento"
+                emit(EstadoEventosListado(false, msg))
+            }
+        } catch (e: Exception) {
+            emit(EstadoEventosListado(false, "Error de conexión: ${e.message}"))
+        }
+
     }
 
 }

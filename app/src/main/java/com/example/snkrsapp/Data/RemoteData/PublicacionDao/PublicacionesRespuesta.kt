@@ -9,5 +9,4 @@ data class PublicacionesRespuesta(
     val estado: String,
     val urlFoto: String,
     val fechaPublicacion: String,
-    val disponible: Boolean
 )

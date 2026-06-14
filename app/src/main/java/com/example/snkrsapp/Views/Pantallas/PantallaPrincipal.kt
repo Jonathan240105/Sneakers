@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -27,11 +28,14 @@ import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
@@ -51,14 +55,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.font.FontWeight.Companion.ExtraBold
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -67,11 +71,19 @@ import com.example.snkrsapp.Domain.ModelPrincipal
 import com.example.snkrsapp.Domain.Producto
 import com.example.snkrsapp.R
 import com.example.snkrsapp.Views.ViewModels.PrincipalViewModel
+import com.example.snkrsapp.ui.theme.ColorAcento
+import com.example.snkrsapp.ui.theme.ColorBordeTextField
+import com.example.snkrsapp.ui.theme.ColorNeutroFondo
+import com.example.snkrsapp.ui.theme.ColorPrimario
+import com.example.snkrsapp.ui.theme.ColorTextFieldNoSeleccionado
+import com.example.snkrsapp.ui.theme.ColorTextFieldSeleccionado
+import com.example.snkrsapp.ui.theme.ColorTextoSecundario
+import com.example.snkrsapp.ui.theme.miTipografia
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PantallaPrincipal(myViewModel: PrincipalViewModel, navegarADetalle: () -> Unit) {
+fun PantallaPrincipal(myViewModel: PrincipalViewModel, navegarADetalle: (Int, Int) -> Unit) {
 
     val model by myViewModel.model.collectAsState()
     var nombreBuscado by remember { mutableStateOf("") }
@@ -90,10 +102,16 @@ fun PantallaPrincipal(myViewModel: PrincipalViewModel, navegarADetalle: () -> Un
         myViewModel.buscarZapatillasPorTexto(nombreBuscado)
     }
 
+    LaunchedEffect(Unit) {
+        myViewModel.cargarPaginaProductos()
+        myViewModel.cargarMarcas()
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background((Color(0xFF121212)))
+            .navigationBarsPadding()
+            .background(ColorNeutroFondo)
     ) {
         Column(
             Modifier
@@ -107,8 +125,28 @@ fun PantallaPrincipal(myViewModel: PrincipalViewModel, navegarADetalle: () -> Un
 
             BuscadorConFiltros(
                 nombreBuscado = nombreBuscado,
-                cambiarBuscador = { texto -> nombreBuscado = texto },
+                cambiarBuscador = {
+                    if (it.length <= 50) {
+                        nombreBuscado = it
+                    }
+                },
                 mostrarFiltros = { mostrarFiltros = true }
+            )
+            Spacer(Modifier.height(5.dp))
+            BarraFiltrosActivos(
+                model,
+                {
+                    myViewModel.cambiarTalla(null)
+                    myViewModel.aplicarFiltrosDesdeHoja()
+                },
+                {
+                    myViewModel.cambiarRangoPrecio(0, 1000)
+                    myViewModel.aplicarFiltrosDesdeHoja()
+                },
+                { idMarca ->
+                    myViewModel.alternarMarcaTemporal(idMarca)
+                    myViewModel.aplicarFiltrosDesdeHoja()
+                }
             )
             Spacer(modifier = Modifier.height(8.dp))
         }
@@ -133,7 +171,8 @@ fun PantallaPrincipal(myViewModel: PrincipalViewModel, navegarADetalle: () -> Un
                         contentPadding = PaddingValues(end = 12.dp)
                     ) {
                         items(model.listaMarcas) { marca ->
-                            val estaSeleccionada = model.marcasSeleccionadas?.contains(marca.idMarca) == true
+                            val estaSeleccionada =
+                                model.marcasSeleccionadas?.contains(marca.idMarca) == true
                             CardMarca(
                                 marca = marca,
                                 seleccionada = estaSeleccionada,
@@ -149,18 +188,27 @@ fun PantallaPrincipal(myViewModel: PrincipalViewModel, navegarADetalle: () -> Un
             }
 
             items(model.listaDeproductos) {
-                CardProducto(it, navegarADetalle, myViewModel.getNombreMarca(it.idMarca))
+                CardProducto(
+                    it,
+                    { navegarADetalle(it.idProducto ?: 0, it.idMarca) },
+                    myViewModel.getNombreMarca(it.idMarca)
+                )
             }
 
             if (model.cargandoProductos) {
                 item(span = { GridItemSpan(2) }) {
-                    Text(
-                        "Buscando más zapatillas ...",
-                        Modifier
-                            .padding(vertical = 30.dp)
-                            .fillMaxWidth(),
-                        textAlign = TextAlign.Center, color = Color.DarkGray, fontSize = 15.sp
-                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 32.dp),
+                        Alignment.Center
+                    ) {
+                        CircularProgressIndicator(
+                            Modifier.size(40.dp),
+                            color = Color.White,
+                            strokeWidth = 4.dp
+                        )
+                    }
                 }
             }
         }
@@ -169,7 +217,7 @@ fun PantallaPrincipal(myViewModel: PrincipalViewModel, navegarADetalle: () -> Un
             ModalBottomSheet(
                 onDismissRequest = { mostrarFiltros = false },
                 sheetState = estadoHoja,
-                containerColor = Color(0xFF1E1E1E),
+                containerColor = ColorNeutroFondo,
                 dragHandle = { BottomSheetDefaults.DragHandle(color = Color.Gray) }
             ) {
                 CardFiltros(
@@ -206,7 +254,7 @@ fun CardMarca(marca: Marca, seleccionada: Boolean, elegirMarca: () -> Unit) {
                 "",
                 modifier = Modifier
                     .padding(start = 12.dp)
-                    .size(28.dp),
+                    .size(50.dp),
                 contentScale = ContentScale.Fit
             )
 
@@ -214,20 +262,14 @@ fun CardMarca(marca: Marca, seleccionada: Boolean, elegirMarca: () -> Unit) {
                 modifier = Modifier
                     .fillMaxSize()
                     .background(
-                        Brush.horizontalGradient(
-                            colors = listOf(
-                                Color.Transparent,
-                                Color(0xFF1E1E1E).copy(alpha = 0.5f),
-                                Color(0xFF1E1E1E)
-                            ),
-                        )
+                        Color(0xFF1E1E1E)
                     )
             )
-
             Text(
                 text = marca.nombre ?: "",
                 color = Color.White,
                 fontWeight = Bold,
+                fontFamily = miTipografia,
                 fontSize = 14.sp,
                 modifier = Modifier
                     .align(Alignment.CenterEnd)
@@ -243,21 +285,21 @@ fun CardProducto(producto: Producto, onclick: () -> Unit, nombreMarca: String) {
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onclick),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E1E)),
-        shape = RoundedCornerShape(25.dp)
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        shape = RoundedCornerShape(25.dp),
+        border = BorderStroke(1.dp, ColorBordeTextField)
     ) {
         Column {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(160.dp)
-                    .background(Color(0xFF252525)),
+                    .background(Color.Black),
                 contentAlignment = Alignment.Center
             ) {
                 AsyncImage(
                     model = producto.imagenUrl ?: "",
-                    contentDescription = "",
-                    modifier = Modifier.padding(12.dp)
+                    contentDescription = ""
                 )
             }
             Column(
@@ -267,16 +309,19 @@ fun CardProducto(producto: Producto, onclick: () -> Unit, nombreMarca: String) {
             ) {
                 Text(
                     text = producto.modelo,
-                    color = Color.White,
+                    color = ColorPrimario,
+                    fontFamily = miTipografia,
                     fontSize = 17.sp,
-                    fontWeight = Bold,
+                    fontWeight = ExtraBold,
                     maxLines = 1
                 )
                 Spacer(Modifier.height(4.dp))
                 Text(
                     text = nombreMarca ?: "",
                     color = Color.Gray,
-                    fontSize = 14.sp
+                    fontFamily = miTipografia,
+                    fontSize = 14.sp,
+                    fontWeight = ExtraBold
                 )
 
                 Row(
@@ -288,15 +333,10 @@ fun CardProducto(producto: Producto, onclick: () -> Unit, nombreMarca: String) {
                 ) {
                     Text(
                         text = "${producto.precio ?: ""} €",
-                        color = Color.White,
+                        color = ColorTextoSecundario,
+                        fontFamily = miTipografia,
                         fontSize = 16.sp,
-                        fontWeight = Bold
-                    )
-                    Icon(
-                        Icons.Default.ShoppingCart,
-                        "",
-                        tint = Color.White,
-                        modifier = Modifier.size(20.dp)
+                        fontWeight = ExtraBold
                     )
                 }
             }
@@ -316,7 +356,14 @@ fun BuscadorConFiltros(
         OutlinedTextField(
             value = nombreBuscado,
             onValueChange = cambiarBuscador,
-            placeholder = { Text("Buscar zapatilla, modelo ...", color = Color.Gray) },
+            placeholder = {
+                Text(
+                    "Buscar zapatilla, modelo ...",
+                    fontSize = 15.sp,
+                    fontFamily = miTipografia,
+                    fontWeight = Bold
+                )
+            },
             modifier = Modifier
                 .weight(1f)
                 .height(54.dp)
@@ -327,11 +374,17 @@ fun BuscadorConFiltros(
             colors = OutlinedTextFieldDefaults.colors(
                 focusedTextColor = Color.White,
                 unfocusedTextColor = Color.White,
-                unfocusedBorderColor = Color(0xFF333333),
-                focusedBorderColor = Color.White,
+
+                unfocusedBorderColor = Color.Transparent,
+                focusedBorderColor = Color(0xFF011681),
+
                 cursorColor = Color.White,
-                focusedContainerColor = Color.Transparent,
-                unfocusedContainerColor = Color.Transparent
+
+                focusedLeadingIconColor = Color.White,
+                unfocusedLeadingIconColor = Color.DarkGray,
+
+                focusedContainerColor = ColorTextFieldSeleccionado,
+                unfocusedContainerColor = ColorTextFieldNoSeleccionado,
             )
         )
         Box(
@@ -339,11 +392,11 @@ fun BuscadorConFiltros(
                 .size(54.dp)
                 .clickable(onClick = mostrarFiltros)
                 .border(
-                    BorderStroke(width = 1.dp, color = Color(0xFF333333)),
+                    BorderStroke(width = 1.dp, color = Color.Black),
                     shape = RoundedCornerShape(12.dp)
                 )
                 .clip(RoundedCornerShape(12.dp))
-                .background(Color(0xFF1E1E1E))
+                .background(Color.White)
                 .testTag("botonFiltros"),
             contentAlignment = Alignment.Center
         ) {
@@ -351,11 +404,87 @@ fun BuscadorConFiltros(
                 painterResource(R.drawable.baseline_filter_list_alt_24),
                 "",
                 modifier = Modifier.size(24.dp),
-                colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(Color.White)
+                colorFilter = ColorFilter.tint(ColorTextoSecundario)
             )
         }
     }
 }
+
+@Composable
+fun BarraFiltrosActivos(
+    model: ModelPrincipal,
+    onQuitarTalla: () -> Unit,
+    onQuitarPrecio: () -> Unit,
+    onQuitarMarca: (Int) -> Unit
+) {
+    val tieneTalla = model.talla != null
+    val tienePrecio =
+        (model.minPrecio != null && model.minPrecio != 0) || (model.maxPrecio != null && model.maxPrecio != 1000)
+    val marcasActivas = model.marcasSeleccionadas ?: emptyList()
+
+    val hayFiltros = tieneTalla || tienePrecio || marcasActivas.isNotEmpty()
+
+    if (hayFiltros) {
+        LazyRow(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 4.dp),
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            if (tieneTalla) {
+                item {
+                    ChipFiltro(texto = "Talla: ${model.talla}", onBorrar = onQuitarTalla)
+                }
+            }
+
+            if (tienePrecio) {
+                item {
+                    ChipFiltro(
+                        texto = "${model.minPrecio ?: 0}€ - ${model.maxPrecio ?: 1000}€",
+                        onBorrar = onQuitarPrecio
+                    )
+                }
+            }
+
+            items(marcasActivas) { idMarca ->
+                val nombreMarca =
+                    model.listaMarcas.find { it.idMarca == idMarca }?.nombre ?: "Marca"
+                ChipFiltro(texto = nombreMarca, onBorrar = { onQuitarMarca(idMarca) })
+            }
+        }
+        Spacer(Modifier.height(4.dp))
+    }
+}
+
+@Composable
+fun ChipFiltro(texto: String, onBorrar: () -> Unit) {
+    Row(
+        Modifier
+            .background(Color(0xFF252525), RoundedCornerShape(50.dp))
+            .border(1.dp, Color(0xFF333333), RoundedCornerShape(50.dp))
+            .padding(horizontal = 12.dp, vertical = 6.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        Text(
+            text = texto,
+            color = Color.White,
+            fontFamily = miTipografia,
+            fontSize = 12.sp,
+            fontWeight = Bold
+        )
+        Icon(
+            Icons.Default.Close,
+            contentDescription = "Quitar filtro",
+            tint = Color.Gray,
+            modifier = Modifier
+                .size(14.dp)
+                .clickable { onBorrar() }
+        )
+    }
+}
+
 @Composable
 fun CardFiltros(
     model: ModelPrincipal,
@@ -376,15 +505,36 @@ fun CardFiltros(
     ) {
         Text(
             text = "Filtros",
-            style = TextStyle(fontSize = 25.sp, fontWeight = Bold, color = Color.White)
+            style = TextStyle(
+                fontSize = 25.sp,
+                fontFamily = miTipografia,
+                fontWeight = ExtraBold,
+                color = ColorPrimario
+            )
         )
         Spacer(Modifier.height(25.dp))
 
-        Text("Rango de Precio", color = Color.Gray, fontSize = 14.sp)
+        Text(
+            "Rango de Precio",
+            color = ColorTextoSecundario,
+            fontSize = 14.sp,
+            fontFamily = miTipografia,
+            fontWeight = ExtraBold
+        )
         Spacer(Modifier.height(8.dp))
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Text("${minActual.toInt()}€", color = Color.White)
-            Text("${maxActual.toInt()}€", color = Color.White)
+            Text(
+                "${minActual.toInt()}€",
+                fontFamily = miTipografia,
+                color = ColorTextoSecundario,
+                fontWeight = ExtraBold
+            )
+            Text(
+                "${maxActual.toInt()}€",
+                fontFamily = miTipografia,
+                color = ColorTextoSecundario,
+                fontWeight = ExtraBold
+            )
         }
 
         RangeSlider(
@@ -392,14 +542,20 @@ fun CardFiltros(
             onValueChange = { onPrecioChange(it.start.toInt(), it.endInclusive.toInt()) },
             valueRange = 0f..1000f,
             colors = SliderDefaults.colors(
-                thumbColor = Color.White,
-                activeTrackColor = Color.White,
+                thumbColor = ColorTextFieldSeleccionado,
+                activeTrackColor = ColorTextFieldSeleccionado,
                 inactiveTrackColor = Color(0xFF333333)
             )
         )
         Spacer(Modifier.height(25.dp))
 
-        Text("Talla", color = Color.Gray, fontSize = 14.sp)
+        Text(
+            "Talla",
+            color = ColorTextoSecundario,
+            fontFamily = miTipografia,
+            fontSize = 14.sp,
+            fontWeight = ExtraBold
+        )
         Spacer(Modifier.height(12.dp))
 
         LazyVerticalGrid(
@@ -425,14 +581,21 @@ fun CardFiltros(
                     Text(
                         text = tallaItem.toString(),
                         color = if (esTallaSeleccionada) Color.Black else Color.White,
-                        fontWeight = Bold
+                        fontWeight = Bold,
+                        fontFamily = miTipografia
                     )
                 }
             }
         }
         Spacer(Modifier.height(25.dp))
 
-        Text("Marcas", color = Color.Gray, fontSize = 14.sp)
+        Text(
+            "Marcas",
+            color = ColorTextoSecundario,
+            fontFamily = miTipografia,
+            fontSize = 14.sp,
+            fontWeight = ExtraBold
+        )
         Spacer(Modifier.height(12.dp))
 
         LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -455,31 +618,31 @@ fun CardFiltros(
                     Text(
                         text = marca.nombre ?: "",
                         color = if (estaMarcada) Color.Black else Color.White,
-                        fontSize = 14.sp
+                        fontSize = 14.sp,
+                        fontFamily = miTipografia
                     )
                 }
             }
         }
 
         Spacer(Modifier.height(40.dp))
-
-        Card(
+        Button(
+            onAplicarClick,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = ColorAcento,
+                disabledContainerColor = ColorAcento.copy(alpha = 0.5f)
+            ),
             modifier = Modifier
                 .fillMaxWidth()
-                .height(55.dp),
-            shape = RoundedCornerShape(25.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White)
+                .height(85.dp)
+                .padding(vertical = 15.dp)
         ) {
-            Box(
-                Modifier
-                    .fillMaxSize()
-                    .clickable { onAplicarClick() }
-                    .testTag("botonAplicarFiltros"),
-                contentAlignment = Alignment.Center
-            ) {
-                Text("Aplicar Filtros", color = Color.Black, fontWeight = Bold, fontSize = 16.sp)
-            }
+            Text(
+                "Aplicar filtros",
+                fontFamily = miTipografia, color = Color.White, fontWeight = Bold, fontSize = 15.sp
+            )
         }
+
         Spacer(Modifier.height(15.dp))
     }
 }
@@ -488,13 +651,13 @@ fun CardFiltros(
 fun TituloEventos(texto: String) {
     Text(
         texto,
-        color = Color.White,
+        color = ColorPrimario,
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 16.dp)
             .testTag("tituloPrincipal"),
         style = TextStyle(
-            fontSize = 25.sp, fontWeight = Bold
+            fontSize = 32.sp, fontWeight = Bold, fontFamily = miTipografia
         )
     )
 }

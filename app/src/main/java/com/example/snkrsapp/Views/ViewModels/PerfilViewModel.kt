@@ -20,26 +20,36 @@ class PerfilViewModel @Inject constructor(
     private val _model = MutableStateFlow(ModelPerfil())
     val model = _model.asStateFlow()
 
-    fun cargarPerfil() {
+    fun cargarPerfil(uidAVisualizar: String? = null) {
         if (_model.value.cargando) return
 
-        val usuario = FirebaseAuth.getInstance().currentUser
+        val firebaseUser = FirebaseAuth.getInstance().currentUser
+        val miUidLogueado = firebaseUser?.uid ?: ""
 
-        usuario?.getIdToken(true)?.addOnCompleteListener { tarea ->
+        val esMiPerfil = uidAVisualizar == null || uidAVisualizar == miUidLogueado
+
+        firebaseUser?.getIdToken(true)?.addOnCompleteListener { tarea ->
             if (tarea.isSuccessful) {
                 val token = tarea.result.token
                 if (token != null) {
-                    _model.update { it.copy(cargando = true) }
+                    _model.update {
+                        it.copy(
+                            cargando = true,
+                            esMiPerfil = esMiPerfil
+                        )
+                    }
+
                     viewModelScope.launch {
-                        perfilRepository.traerPerfil(token).collect { usuario ->
-                            _model.update {
-                                it.copy(
-                                    usuarioActual = usuario,
-                                    exito = true,
-                                    cargando = false
-                                )
+                        perfilRepository.traerPerfil(token, uidAVisualizar, miUidLogueado)
+                            .collect { usuario ->
+                                _model.update {
+                                    it.copy(
+                                        usuarioActual = usuario,
+                                        exito = true,
+                                        cargando = false
+                                    )
+                                }
                             }
-                        }
                     }
                 }
             } else {
@@ -48,6 +58,71 @@ class PerfilViewModel @Inject constructor(
                         exito = false,
                         cargando = false
                     )
+                }
+            }
+        }
+    }
+
+    fun cargarListados(uid: String? = null) {
+        val usuarioFirebase = FirebaseAuth.getInstance().currentUser
+        val miUidLogueado = usuarioFirebase?.uid ?: return
+
+        val esMiPerfil = uid == null || uid == miUidLogueado
+
+        val uidObjetivo = uid ?: miUidLogueado
+
+        usuarioFirebase.getIdToken(true)?.addOnCompleteListener { tarea ->
+            if (tarea.isSuccessful) {
+                val token = tarea.result.token
+                if (token != null) {
+                    _model.update { it.copy(cargandoColeccion = true) }
+                    viewModelScope.launch {
+                        perfilRepository.traerColeccionUsuario(token, uidObjetivo).collect { lista ->
+                            _model.update {
+                                it.copy(
+                                    listaColeccion = lista,
+                                    cargandoColeccion = false,
+                                    exitoColeccion = true
+                                )
+                            }
+                        }
+                    }
+
+                    _model.update { it.copy(cargandoVentas = true) }
+                    viewModelScope.launch {
+                        perfilRepository.traerVentasUsuario(token, uidObjetivo).collect { lista ->
+                            _model.update {
+                                it.copy(
+                                    listaVentas = lista,
+                                    cargandoVentas = false,
+                                    exitoVentas = true
+                                )
+                            }
+                        }
+                    }
+
+                    if (esMiPerfil) {
+                        _model.update { it.copy(cargandoCarrito = true) }
+                        viewModelScope.launch {
+                            perfilRepository.traerCarrito(token, miUidLogueado).collect { lista ->
+                                _model.update {
+                                    it.copy(
+                                        listaCarrito = lista,
+                                        cargandoCarrito = false,
+                                        exitoCarrito = true
+                                    )
+                                }
+                            }
+                        }
+                    } else {
+                        _model.update {
+                            it.copy(
+                                listaCarrito = emptyList(),
+                                cargandoCarrito = false,
+                                exitoCarrito = false
+                            )
+                        }
+                    }
                 }
             }
         }

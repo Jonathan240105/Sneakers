@@ -10,5 +10,8 @@ data class Usuario(
     val nombreUsuario: String = "",
     val email: String = "",
     val apellidos: String = "",
-    val fechaNacimiento: String = ""
+    val fechaNacimiento: String = "",
+    val saldo: Double = 0.0,
+    val urlFoto: String = "",
+    val esAdmin : Int = 0,
 )

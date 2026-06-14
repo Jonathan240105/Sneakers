@@ -1,6 +1,8 @@
 package com.example.snkrsapp.Views.Pantallas
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -24,11 +26,8 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -55,8 +54,18 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.example.snkrsapp.Views.ViewModels.ActualizarPerfilViewModel
 import com.example.snkrsapp.Views.ViewModels.PerfilViewModel
+import com.example.snkrsapp.ui.theme.ColorAcento
+import com.example.snkrsapp.ui.theme.ColorBordeTextField
+import com.example.snkrsapp.ui.theme.ColorNeutroFondo
+import com.example.snkrsapp.ui.theme.ColorPrimario
+import com.example.snkrsapp.ui.theme.ColorTextFieldNoSeleccionado
+import com.example.snkrsapp.ui.theme.ColorTextFieldSeleccionado
+import com.example.snkrsapp.ui.theme.ColorTextoSecundario
+import com.example.snkrsapp.ui.theme.miTipografia
+import kotlinx.datetime.LocalDate
 
 @Composable
 fun PantallaActualizarPerfil(
@@ -77,11 +86,12 @@ fun PantallaActualizarPerfil(
     var emailCambiado by remember { mutableStateOf("") }
     var apellidosCambiado by remember { mutableStateOf("") }
     var fechaNacimientoCambiado by remember { mutableStateOf("") }
+    var mostrarSelectorFecha by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF121212))
+            .background(ColorNeutroFondo)
             .statusBarsPadding()
             .navigationBarsPadding()
             .padding(horizontal = 20.dp)
@@ -101,7 +111,7 @@ fun PantallaActualizarPerfil(
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Volver",
+                    "",
                     tint = Color.White
                 )
             }
@@ -117,26 +127,25 @@ fun PantallaActualizarPerfil(
                     .background(Color(0xFF1E1E1E)),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(
-                    Icons.Default.Person,
-                    contentDescription = null,
-                    Modifier
-                        .size(60.dp)
-                        .testTag("IconoUsuario"),
-                    tint = Color.White
+                AsyncImage(
+                    model.usuarioActual.urlFoto,
+                    "",
+                    modifier = Modifier.size(60.dp)
                 )
             }
             Spacer(Modifier.height(15.dp))
             Text(
                 "@${model.usuarioActual.nombreUsuario}",
-                color = Color.White,
+                fontFamily = miTipografia,
+                color = ColorPrimario,
                 modifier = Modifier.testTag("NombreUsuario"),
                 fontSize = 24.sp,
                 fontWeight = Bold
             )
             Spacer(Modifier.height(5.dp))
             Text(
-                model.usuarioActual.email, color = Color.Gray, fontSize = 14.sp
+                model.usuarioActual.email,
+                fontFamily = miTipografia, color = Color.DarkGray, fontSize = 16.sp
             )
         }
         Spacer(modifier = Modifier.height(40.dp))
@@ -150,7 +159,8 @@ fun PantallaActualizarPerfil(
         ) {
             Text(
                 "Información Personal",
-                color = Color.White,
+                color = ColorTextoSecundario,
+                fontFamily = miTipografia,
                 fontSize = 18.sp,
                 fontWeight = Bold
             )
@@ -166,17 +176,19 @@ fun PantallaActualizarPerfil(
                             fechaNacimientoCambiado = ""
                         },
                         modifier = Modifier
-                            .size(40.dp)
-                            .background(Color.DarkGray, CircleShape)
+                            .size(38.dp)
+                            .border(BorderStroke(1.dp, Color(0xFF444444)), CircleShape)
+                            .background(Color.Transparent, CircleShape)
                     ) {
                         Icon(
                             Icons.Default.Close,
-                            "",
-                            modifier = Modifier.size(20.dp)
+                            contentDescription = "Cancelar",
+                            tint = Color(0xFFE57373),
+                            modifier = Modifier.size(18.dp)
                         )
                     }
 
-                    Spacer(Modifier.width(12.dp))
+                    Spacer(Modifier.width(20.dp))
 
                     IconButton(
                         onClick = {
@@ -190,23 +202,30 @@ fun PantallaActualizarPerfil(
                             camposHabilitados = false
                         },
                         modifier = Modifier
-                            .size(40.dp)
-                            .background(Color(0xFF1E1E1E), CircleShape)
+                            .size(38.dp)
+                            .background(Color.White, CircleShape)
                     ) {
                         Icon(
                             Icons.Default.Check,
-                            "",
-                            modifier = Modifier.size(20.dp)
+                            contentDescription = "Guardar",
+                            tint = Color.Black,
+                            modifier = Modifier.size(18.dp)
                         )
                     }
                 } else {
                     Button(
-                        onClick = { camposHabilitados = true },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF252525)),
+                        onClick = {
+                            camposHabilitados = true
+                            nombreCambiado = model.usuarioActual.nombreUsuario
+                            apellidosCambiado = model.usuarioActual.apellidos
+                            fechaNacimientoCambiado = model.usuarioActual.fechaNacimiento.take(10)
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = ColorAcento),
                         shape = RoundedCornerShape(20.dp),
                         modifier = Modifier.height(36.dp)
                     ) {
-                        Text("Editar", fontSize = 14.sp, color = Color.White)
+                        Text("Editar",
+                            fontFamily = miTipografia, fontSize = 15.sp, fontWeight = Bold, color = Color.White)
                     }
                 }
             }
@@ -216,14 +235,19 @@ fun PantallaActualizarPerfil(
             Modifier
                 .fillMaxWidth()
                 .testTag("CardPerfil"),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E1E)),
-            shape = RoundedCornerShape(25.dp)
+            colors = CardDefaults.cardColors(containerColor = Color.White),
+            shape = RoundedCornerShape(25.dp),
+            border = BorderStroke(1.dp, ColorBordeTextField)
         ) {
             Column(Modifier.padding(20.dp)) {
                 if (camposHabilitados) {
                     TextFieldCampo(
                         Icons.Default.Person, "Nombre de usuario", nombreCambiado
-                    ) { nombreCambiado = it }
+                    ) {
+                        if (it.length <= 30) {
+                            nombreCambiado = it
+                        }
+                    }
                 } else {
                     ItemInfoPerfil(
                         Icons.Default.Person,
@@ -231,79 +255,112 @@ fun PantallaActualizarPerfil(
                         "${model.usuarioActual.nombreUsuario} "
                     )
                 }
-//                HorizontalDivider(
-//                    Modifier.padding(vertical = 12.dp), thickness = 1.dp, color = Color(0xFF252525)
-//                )
-//                if (camposHabilitados) {
-//                    TextFieldCampo(
-//                        Icons.Default.Person, "Email", emailCambiado
-//                    ) { emailCambiado = it }
-//                } else {
-//                    ItemInfoPerfil(
-//                        Icons.Default.Person, "Email", model.usuarioActual.email
-//                    )
-//
-//                }
                 HorizontalDivider(
                     Modifier.padding(vertical = 12.dp), thickness = 1.dp, color = Color(0xFF252525)
                 )
-                if (model.usuarioActual.apellidos.isNotEmpty()) {
+
+                if (camposHabilitados || model.usuarioActual.apellidos.isNotEmpty()) {
                     if (camposHabilitados) {
                         TextFieldCampo(
                             Icons.Default.Person, "Apellidos", apellidosCambiado
-                        ) { apellidosCambiado = it }
+                        ) {
+                            if (it.length <= 30) {
+                                apellidosCambiado = it
+                            }
+                        }
                     } else {
                         ItemInfoPerfil(
                             Icons.Default.Menu, "Apellidos", model.usuarioActual.apellidos
                         )
-
                     }
+                    HorizontalDivider(
+                        Modifier.padding(vertical = 12.dp),
+                        thickness = 1.dp,
+                        color = Color(0xFF252525)
+                    )
                 }
-                HorizontalDivider(
-                    Modifier.padding(vertical = 12.dp), thickness = 1.dp, color = Color(0xFF252525)
-                )
+
                 if (camposHabilitados) {
-                    TextFieldCampo(
-                        Icons.Default.DateRange, "Fecha de Nacimiento", fechaNacimientoCambiado
-                    ) { fechaNacimientoCambiado = it }
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { mostrarSelectorFecha = true }
+                    ) {
+                        OutlinedTextField(
+                            value = fechaNacimientoCambiado,
+                            onValueChange = {},
+                            label = { Text("Fecha de Nacimiento",
+                                fontFamily = miTipografia, color = Color.Gray) },
+                            singleLine = true,
+                            readOnly = true,
+                            enabled = false,
+                            leadingIcon = {
+                                Icon(
+                                    Icons.Default.DateRange,
+                                    "",
+                                    tint = Color.LightGray
+                                )
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(14.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedTextColor = Color.White,
+                                unfocusedTextColor = Color.White,
+
+                                unfocusedBorderColor = Color.Transparent,
+                                focusedBorderColor = ColorBordeTextField,
+
+                                cursorColor = Color.White,
+
+                                focusedLeadingIconColor = Color.White,
+                                unfocusedLeadingIconColor = Color.DarkGray,
+
+                                focusedContainerColor = ColorTextFieldSeleccionado,
+                                unfocusedContainerColor = ColorTextFieldNoSeleccionado,
+                                focusedLabelColor = ColorBordeTextField
+                            )
+                        )
+                    }
+
+                    SelectorFecha(
+                        mostrarSelectorFecha,
+                        { mostrarSelectorFecha = false },
+                        { fechaNacimientoCambiado = it },
+                        fechaMinima = LocalDate(1926, 1, 1),
+                        fechaMaxima = LocalDate(2026, 12, 31)
+                    )
                 } else {
                     ItemInfoPerfil(
                         Icons.Default.DateRange,
                         "Fecha de Nacimiento",
-                        model.usuarioActual.fechaNacimiento.substring(0, 10)
+                        if (model.usuarioActual.fechaNacimiento.length >= 10) model.usuarioActual.fechaNacimiento.substring(
+                            0,
+                            10
+                        ) else ""
                     )
                 }
             }
         }
         Spacer(Modifier.height(30.dp))
-        Text(
-            "Cuenta",
-            Modifier.padding(bottom = 12.dp),
-            color = Color.White,
-            fontSize = 18.sp,
-            fontWeight = Bold
-        )
-        CardAccion(Icons.Default.Favorite, "Mis Favoritos") {}
-        Spacer(Modifier.height(8.dp))
-        CardAccion(Icons.Default.ShoppingCart, "Mis Pedidos") {}
-        Spacer(Modifier.height(8.dp))
-        CardAccion(Icons.Default.Settings, "Ajustes de Cuenta") {}
-        Spacer(Modifier.height(40.dp))
         Button(
-            onCerrarSesion,
+            {
+                actualizarPerfilViewModel.cerrarSesion()
+                onCerrarSesion()
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(55.dp)
                 .testTag("BotonCerrarSesion"),
-            colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),
-            shape = RoundedCornerShape(25.dp)
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1E1E1E)),
+            shape = RoundedCornerShape(25.dp),
+            border = BorderStroke(1.dp, Color(0xFF333333))
         ) {
             Text(
                 "Cerrar Sesión",
-                color = Color.Red,
+                color = Color(0xFFE57373),
+                fontFamily = miTipografia,
                 fontWeight = Bold,
-                fontSize = 16.sp,
-                modifier = Modifier
+                fontSize = 16.sp
             )
         }
         Spacer(Modifier.height(20.dp))
@@ -314,12 +371,14 @@ fun PantallaActualizarPerfil(
 fun ItemInfoPerfil(icono: ImageVector, titulo: String, valor: String) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Icon(
-            icono, "", tint = Color.LightGray, modifier = Modifier.size(20.dp)
+            icono, "", tint = ColorPrimario, modifier = Modifier.size(20.dp)
         )
         Spacer(Modifier.width(15.dp))
         Column {
-            Text(titulo, color = Color.Gray, fontSize = 12.sp)
-            Text(valor, color = Color.White, fontSize = 15.sp, fontWeight = Bold)
+            Text(titulo, color = Color.DarkGray,
+                fontFamily = miTipografia, fontSize = 12.sp)
+            Text(valor, color = ColorTextoSecundario,
+                fontFamily = miTipografia, fontSize = 15.sp, fontWeight = Bold)
         }
     }
 }
@@ -329,45 +388,30 @@ fun TextFieldCampo(
     icono: ImageVector, titulo: String, texto: String, cambiarTexto: (String) -> Unit
 ) {
     Row(verticalAlignment = Alignment.CenterVertically) {
-//        Icon(
-//            icono, "", tint = Color.LightGray, modifier = Modifier.size(20.dp)
-//        )
-//        Spacer(Modifier.width(15.dp))
         OutlinedTextField(
-            texto,
-            cambiarTexto,
-            label = { Text(titulo) },
+            value = texto,
+            onValueChange = cambiarTexto,
+            label = { Text(titulo, color = Color.Gray, fontFamily = miTipografia) },
             singleLine = true,
-            leadingIcon = { Icon(icono, "") },
+            leadingIcon = { Icon(icono, "", tint = Color.LightGray) },
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(24.dp),
+            shape = RoundedCornerShape(14.dp),
             colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = Color.White, unfocusedTextColor = Color.LightGray
+                focusedTextColor = Color.White,
+                unfocusedTextColor = Color.White,
+
+                unfocusedBorderColor = Color.Transparent,
+                focusedBorderColor = ColorBordeTextField,
+
+                cursorColor = Color.White,
+
+                focusedLeadingIconColor = Color.White,
+                unfocusedLeadingIconColor = Color.DarkGray,
+
+                focusedContainerColor = ColorTextFieldSeleccionado,
+                unfocusedContainerColor = ColorTextFieldNoSeleccionado,
+                focusedLabelColor = ColorBordeTextField
             )
         )
     }
 }
-
-@Composable
-fun CardAccion(icono: ImageVector, titulo: String, onClick: () -> Unit) {
-    Card(
-        Modifier
-            .fillMaxWidth()
-            .clickable { onClick() },
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E1E)),
-        shape = RoundedCornerShape(15.dp)
-    ) {
-        Row(
-            Modifier.padding(16.dp), Arrangement.SpaceBetween, Alignment.CenterVertically
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    icono, null, tint = Color.White, modifier = Modifier.size(25.dp)
-                )
-                Spacer(Modifier.width(15.dp))
-                Text(titulo, color = Color.White, fontSize = 15.sp)
-            }
-        }
-    }
-}
-

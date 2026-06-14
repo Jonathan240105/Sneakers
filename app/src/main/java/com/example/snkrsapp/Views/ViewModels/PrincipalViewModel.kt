@@ -3,7 +3,6 @@ package com.example.snkrsapp.Views.ViewModels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.snkrsapp.Data.Repository.ProductoRepository.ProductoRepository
-import com.example.snkrsapp.Domain.Marca
 import com.example.snkrsapp.Domain.ModelPrincipal
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,10 +22,7 @@ class PrincipalViewModel @Inject constructor(
     private var salto = 0
     private val limite = 20
 
-    init {
-        cargarPaginaProductos()
-        cargarMarcas()
-    }
+
 
     fun cambiarRangoPrecio(minPrecio: Int?, maxPrecio: Int?) {
         _model.update {
@@ -144,7 +140,6 @@ class PrincipalViewModel @Inject constructor(
 
                     viewModelScope.launch {
                         try {
-                            // Decidimos qué flujo escuchar según el estado del modelo
                             val flowProductos = if (estadoActual.esListaFiltrada) {
                                 productoRepository.traerPaginaProductosFiltrado(
                                     token,

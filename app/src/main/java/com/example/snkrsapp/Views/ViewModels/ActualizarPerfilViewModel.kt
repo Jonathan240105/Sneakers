@@ -49,4 +49,8 @@ class ActualizarPerfilViewModel @Inject constructor(
             }
         }
     }
+
+    fun cerrarSesion(){
+        FirebaseAuth.getInstance().signOut()
+    }
 }

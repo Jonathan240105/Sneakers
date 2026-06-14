@@ -10,7 +10,8 @@ data class UsuarioEntity(
     val nombreUsuario: String = "",
     val email: String = "",
     val apellidos: String = "",
-    val fechaNacimiento: String = ""
+    val fechaNacimiento: String = "",
+    val esAdmin: Boolean = false
 )
 
 fun EntityToUsuario(usuario: UsuarioEntity): Usuario {
@@ -19,7 +20,8 @@ fun EntityToUsuario(usuario: UsuarioEntity): Usuario {
         nombreUsuario = usuario.nombreUsuario,
         email = usuario.email,
         apellidos = usuario.apellidos,
-        fechaNacimiento = usuario.fechaNacimiento
+        fechaNacimiento = usuario.fechaNacimiento,
+        esAdmin = if (usuario.esAdmin) 1 else 0
     )
 }
 
@@ -29,6 +31,7 @@ fun UsuarioToEntity(usuario: Usuario): UsuarioEntity {
         nombreUsuario = usuario.nombreUsuario,
         email = usuario.email,
         apellidos = usuario.apellidos,
-        fechaNacimiento = usuario.fechaNacimiento
+        fechaNacimiento = usuario.fechaNacimiento,
+        esAdmin = usuario.esAdmin == 1
     )
 }
