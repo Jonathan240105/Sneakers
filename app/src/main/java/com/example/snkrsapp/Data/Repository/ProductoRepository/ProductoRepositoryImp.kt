@@ -2,7 +2,6 @@ package com.example.snkrsapp.Data.Repository.ProductoRepository
 
 import android.content.Context
 import android.net.Uri
-import androidx.compose.foundation.isSystemInDarkTheme
 import com.cloudinary.android.MediaManager
 import com.cloudinary.android.callback.ErrorInfo
 import com.cloudinary.android.callback.UploadCallback
@@ -21,7 +20,6 @@ import com.example.snkrsapp.Data.LocalData.Publicaciones.EntityToPublicacion
 import com.example.snkrsapp.Data.LocalData.Publicaciones.PublicacionEntity
 import com.example.snkrsapp.Data.LocalData.Publicaciones.PublicacionLocalDao
 import com.example.snkrsapp.Data.LocalData.Publicaciones.PublicacionToEntity
-import com.example.snkrsapp.Data.RemoteData.AutorizacionDao.EliminarUsuariosSolicitud
 import com.example.snkrsapp.Data.RemoteData.ProductoDao.CompletarMarcaRespuesta
 import com.example.snkrsapp.Data.RemoteData.ProductoDao.CompletarMarcaSolicitud
 import com.example.snkrsapp.Data.RemoteData.ProductoDao.CrearMarcaSolicitud
@@ -38,11 +36,9 @@ import com.example.snkrsapp.Domain.Producto
 import com.example.snkrsapp.Domain.ProductoItem
 import com.example.snkrsapp.Domain.Publicacion
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import kotlin.coroutines.resume
 
@@ -216,8 +212,6 @@ class ProductoRepositoryImp @Inject constructor(
                             idMarca = idMarcaFinal ?: 0,
                             modelo = body.nombreProductoNuevo ?: "",
                             precio = body.precio,
-                            talla = body.talla.toInt(),
-                            uidVendedor = "SISTEMA",
                             imagenUrl = body.urlFoto
                         )
                     )
@@ -236,7 +230,6 @@ class ProductoRepositoryImp @Inject constructor(
                                     estado = body.estado,
                                     urlFoto = body.urlFoto,
                                     fechaPublicacion = body.fecha_publicacion,
-                                    disponible = true,
                                     uidUsuario = uid
                                 )
                             )
@@ -350,8 +343,6 @@ class ProductoRepositoryImp @Inject constructor(
                         idMarca = it.idMarca,
                         modelo = it.modelo,
                         precio = it.precio ?: 0.0,
-                        talla = it.talla ?: 0,
-                        uidVendedor = it.uidVendedor ?: "",
                         imagenUrl = it.imagenUrl ?: ""
                     )
                 } ?: emptyList())
@@ -388,8 +379,6 @@ class ProductoRepositoryImp @Inject constructor(
                         idMarca = it.idMarca,
                         modelo = it.modelo,
                         precio = it.precio ?: 0.0,
-                        talla = it.talla ?: 0,
-                        uidVendedor = it.uidVendedor ?: "",
                         imagenUrl = it.imagenUrl
                     )
                 }
@@ -399,7 +388,7 @@ class ProductoRepositoryImp @Inject constructor(
             }
         } catch (e: Exception) {
             println("Error al buscar productos globalmente: ${e.message}")
-            emit(emptyList()) // En caso de caída de red o error, emitimos vacío para no romper la UI
+            emit(emptyList())
         }
     }
 

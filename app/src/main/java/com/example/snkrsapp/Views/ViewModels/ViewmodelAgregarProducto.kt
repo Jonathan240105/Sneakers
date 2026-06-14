@@ -68,7 +68,6 @@ class ViewmodelAgregarProducto @Inject constructor(
             estado = "disponible",
             urlFoto = _model.value.urlImagenNuevaPublicacion,
             fecha_publicacion = LocalDateTime.now().toString(),
-            disponible = true,
             esParaColeccion = _model.value.esColeccion
         )
 

@@ -1,5 +1,6 @@
 package com.example.snkrsapp.Views.Pantallas
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -38,7 +40,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
+import androidx.compose.ui.text.font.FontWeight.Companion.ExtraBold
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -46,6 +50,11 @@ import coil.compose.AsyncImage
 import com.example.snkrsapp.Domain.ProductoColeccionItem
 import com.example.snkrsapp.Domain.PublicacionPerfilItem
 import com.example.snkrsapp.Views.ViewModels.PerfilViewModel
+import com.example.snkrsapp.ui.theme.ColorBordeTextField
+import com.example.snkrsapp.ui.theme.ColorNeutroFondo
+import com.example.snkrsapp.ui.theme.ColorPrimario
+import com.example.snkrsapp.ui.theme.ColorTextoSecundario
+import com.example.snkrsapp.ui.theme.miTipografia
 
 @Composable
 fun PantallaPerfil(
@@ -69,9 +78,10 @@ fun PantallaPerfil(
     Column(
         Modifier
             .fillMaxSize()
-            .background(Color(0xFF121212))
+            .background(ColorNeutroFondo)
             .padding(horizontal = 20.dp)
-            .verticalScroll(estadoScroll)
+            .padding(bottom = 80.dp)
+            .navigationBarsPadding()
     ) {
         Spacer(Modifier.height(20.dp))
 
@@ -87,8 +97,9 @@ fun PantallaPerfil(
             Modifier
                 .fillMaxWidth()
                 .testTag("HeaderPerfil"),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E1E)),
-            shape = RoundedCornerShape(25.dp)
+            colors = CardDefaults.cardColors(containerColor = Color.White),
+            shape = RoundedCornerShape(25.dp),
+            border = BorderStroke(1.dp, ColorBordeTextField)
         ) {
             Column(
                 Modifier.padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally
@@ -108,13 +119,19 @@ fun PantallaPerfil(
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
                             "@${model.usuarioActual.nombreUsuario}",
-                            color = Color.White,
+                            color = ColorTextoSecundario,
+                            fontFamily = miTipografia,
                             fontSize = 20.sp,
                             overflow = TextOverflow.Ellipsis,
                             maxLines = 1,
                             fontWeight = Bold
                         )
-                        Text(model.usuarioActual.email, color = Color.Gray, fontSize = 13.sp)
+                        Text(
+                            model.usuarioActual.email,
+                            fontFamily = miTipografia,
+                            color = ColorTextoSecundario,
+                            fontSize = 13.sp
+                        )
                     }
 
                     Spacer(Modifier.weight(1f))
@@ -124,7 +141,7 @@ fun PantallaPerfil(
                             Icon(
                                 Icons.Default.Settings,
                                 "",
-                                tint = Color.White,
+                                tint = ColorTextoSecundario,
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(12.dp))
                                     .clickable(onClick = { cambiarAConfig() })
@@ -172,31 +189,38 @@ fun PantallaPerfil(
         }
 
         Spacer(Modifier.height(30.dp))
-
-        ListaProductos(
-            titulo = if (esMiPerfil) "Mi Colección" else "Su Colección",
-            items = model.listaColeccion.take(4),
-            verTodo = { navegarAListado(0) }
-        )
-        Spacer(Modifier.height(24.dp))
-
-        ListaProductosVentasYCarrito(
-            titulo = if (esMiPerfil) "Mis Ventas" else "En Venta",
-            items = model.listaVentas.take(4),
-            verTodo = { navegarAListado(1) }
-        )
-
-        if (esMiPerfil) {
-            Spacer(modifier = Modifier.height(24.dp))
-            ListaProductosVentasYCarrito(
-                titulo = "Carrito",
-                items = model.listaCarrito.take(4),
-                verTodo = { navegarAListado(2) },
-                modifier = Modifier.testTag("listaFavoritos")
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .weight(1f)
+                .verticalScroll(estadoScroll)
+                .padding(bottom = 80.dp)
+        ) {
+            ListaProductos(
+                titulo = if (esMiPerfil) "Mi Colección" else "Su Colección",
+                items = model.listaColeccion.take(4),
+                verTodo = { navegarAListado(0) }
             )
-        }
+            Spacer(Modifier.height(24.dp))
 
-        Spacer(modifier = Modifier.height(24.dp))
+            ListaProductosVentasYCarrito(
+                titulo = if (esMiPerfil) "Mis Ventas" else "En Venta",
+                items = model.listaVentas.take(4),
+                verTodo = { navegarAListado(1) }
+            )
+
+            if (esMiPerfil) {
+                Spacer(modifier = Modifier.height(24.dp))
+                ListaProductosVentasYCarrito(
+                    titulo = "Carrito",
+                    items = model.listaCarrito.take(4),
+                    verTodo = { navegarAListado(2) },
+                    modifier = Modifier.testTag("listaFavoritos")
+                )
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+        }
     }
 }
 
@@ -222,7 +246,7 @@ fun HeaderPerfilTop(
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Volver",
+                    "",
                     tint = Color.White
                 )
             }
@@ -231,9 +255,10 @@ fun HeaderPerfilTop(
 
         Text(
             text = texto,
-            color = Color.White,
-            style = androidx.compose.ui.text.TextStyle(
+            color = ColorPrimario,
+            style = TextStyle(
                 fontSize = 25.sp,
+                fontFamily = miTipografia,
                 fontWeight = Bold
             )
         )
@@ -249,67 +274,66 @@ fun ListaProductos(
 ) {
     Column(modifier) {
         Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween, Alignment.CenterVertically) {
-            Text(titulo, color = Color.White, fontSize = 18.sp, fontWeight = Bold)
+            Text(
+                titulo, color = ColorTextoSecundario,
+                fontFamily = miTipografia, fontSize = 18.sp, fontWeight = Bold
+            )
             Text(
                 "Ver todo",
-                color = Color.Gray,
-                fontSize = 14.sp,
+                color = Color.DarkGray,
+                fontFamily = miTipografia,
+                fontSize = 16.sp,
+                fontWeight = Bold,
                 modifier = Modifier.clickable { verTodo() })
         }
         Spacer(Modifier.height(16.dp))
         if (items.isEmpty()) {
             Text(
                 "No hay artículos todavía",
-                color = Color.DarkGray,
-                fontSize = 14.sp,
+                fontFamily = miTipografia,
+                color = ColorTextoSecundario,
+                fontSize = 16.sp,
                 modifier = Modifier.padding(vertical = 20.dp)
             )
         } else {
             LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 items(items) { item ->
                     Card(
-                        Modifier.size(width = 140.dp, height = 120.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E1E)),
-                        shape = RoundedCornerShape(16.dp)
+                        Modifier.size(width = 150.dp, height = 155.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color.White),
+                        shape = RoundedCornerShape(20.dp),
+                        border = BorderStroke(1.dp, ColorTextoSecundario)
                     ) {
-                        Box(modifier = Modifier.fillMaxSize()) {
-                            AsyncImage(
-                                item.urlFoto,
-                                "",
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(horizontal = 12.dp)
-                                    .padding(top = 8.dp, bottom = 24.dp)
-                            )
-
+                        Column {
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(45.dp)
-                                    .align(Alignment.BottomCenter)
-                                    .background(
-                                        Brush.verticalGradient(
-                                            colors = listOf(
-                                                Color.Transparent,
-                                                Color(0xAA000000),
-                                                Color(0xFF000000)
-                                            )
-                                        )
-                                    )
-                            )
-
-                            Text(
-                                text = item.modelo,
-                                color = Color.White,
-                                fontSize = 11.sp,
-                                fontWeight = Bold,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
+                                    .height(100.dp)
+                                    .background(Color.Black),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                AsyncImage(
+                                    model = item.urlFoto,
+                                    contentDescription = "",
+                                    modifier = Modifier.padding(8.dp)
+                                )
+                            }
+                            Column(
                                 modifier = Modifier
-                                    .align(Alignment.BottomCenter)
-                                    .padding(bottom = 6.dp)
-                                    .padding(horizontal = 8.dp)
-                            )
+                                    .padding(horizontal = 10.dp, vertical = 8.dp)
+                                    .fillMaxWidth(),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text(
+                                    text = item.modelo,
+                                    fontFamily = miTipografia,
+                                    color = ColorPrimario,
+                                    fontSize = 14.sp,
+                                    fontWeight = ExtraBold,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
                         }
                     }
                 }
@@ -327,70 +351,63 @@ fun ListaProductosVentasYCarrito(
 ) {
     Column(modifier) {
         Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween, Alignment.CenterVertically) {
-            Text(titulo, color = Color.White, fontSize = 18.sp, fontWeight = Bold)
+            Text(titulo, color = ColorTextoSecundario, fontSize = 18.sp, fontWeight = Bold)
             Text(
                 "Ver todo",
-                color = Color.Gray,
-                fontSize = 14.sp,
+                fontFamily = miTipografia,
+                color = Color.DarkGray,
+                fontSize = 16.sp,
+                fontWeight = Bold,
                 modifier = Modifier.clickable { verTodo() })
         }
         Spacer(Modifier.height(16.dp))
         if (items.isEmpty()) {
             Text(
                 "No hay artículos todavía",
-                color = Color.DarkGray,
-                fontSize = 14.sp,
+                fontFamily = miTipografia,
+                color = ColorTextoSecundario,
+                fontSize = 16.sp,
                 modifier = Modifier.padding(vertical = 20.dp)
             )
         } else {
             LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 items(items) { item ->
                     Card(
-                        Modifier.size(width = 140.dp, height = 100.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E1E)),
-                        shape = RoundedCornerShape(16.dp)
+                        Modifier.size(width = 150.dp, height = 155.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color.White),
+                        shape = RoundedCornerShape(20.dp),
+                        border = BorderStroke(1.dp, ColorTextoSecundario)
                     ) {
-                        Box(modifier = Modifier.fillMaxSize()) {
-
-                            AsyncImage(
-                                model = item.urlFoto,
-                                contentDescription = "",
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(horizontal = 12.dp)
-                                    .padding(
-                                        top = 8.dp,
-                                        bottom = 24.dp
-                                    )
-                            )
+                        Column {
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(45.dp)
-                                    .align(Alignment.BottomCenter)
-                                    .background(
-                                        Brush.verticalGradient(
-                                            colors = listOf(
-                                                Color.Transparent,
-                                                Color(0xAA000000),
-                                                Color(0xFF000000)
-                                            )
-                                        )
-                                    )
-                            )
-
-                            Text(
-                                text = item.modelo,
-                                color = Color.White,
-                                fontSize = 11.sp,
-                                fontWeight = Bold,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
+                                    .height(100.dp)
+                                    .background(Color.Black),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                AsyncImage(
+                                    model = item.urlFoto,
+                                    contentDescription = "",
+                                    modifier = Modifier.padding(8.dp)
+                                )
+                            }
+                            Column(
                                 modifier = Modifier
-                                    .align(Alignment.BottomCenter)
-                                    .padding(bottom = 6.dp)
-                                    .padding(horizontal = 8.dp)
-                            )
+                                    .padding(horizontal = 10.dp, vertical = 8.dp)
+                                    .fillMaxWidth(),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text(
+                                    text = item.modelo,
+                                    fontFamily = miTipografia,
+                                    color = ColorPrimario,
+                                    fontSize = 14.sp,
+                                    fontWeight = ExtraBold,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
                         }
                     }
                 }
@@ -402,7 +419,13 @@ fun ListaProductosVentasYCarrito(
 @Composable
 fun EstadisticaItem(titulo: String, valor: String) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(valor, color = Color.White, fontSize = 18.sp, fontWeight = Bold)
-        Text(titulo, color = Color.Gray, fontSize = 12.sp)
+        Text(
+            valor,
+            fontFamily = miTipografia,
+            color = ColorTextoSecundario,
+            fontSize = 18.sp,
+            fontWeight = Bold
+        )
+        Text(titulo, fontFamily = miTipografia, color = ColorTextoSecundario, fontSize = 12.sp)
     }
 }

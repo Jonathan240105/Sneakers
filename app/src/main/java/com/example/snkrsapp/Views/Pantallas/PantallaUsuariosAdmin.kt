@@ -1,7 +1,9 @@
 package com.example.snkrsapp.Views.Pantallas
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -51,6 +53,11 @@ import coil.compose.AsyncImage
 import com.example.snkrsapp.Data.RemoteData.AutorizacionDao.Usuario
 import com.example.snkrsapp.Views.Controlador.NavigationUtils.BottomBarAdmin
 import com.example.snkrsapp.Views.ViewModels.UsuariosAdminViewModel
+import com.example.snkrsapp.ui.theme.ColorBordeTextField
+import com.example.snkrsapp.ui.theme.ColorNeutroFondo
+import com.example.snkrsapp.ui.theme.ColorPrimario
+import com.example.snkrsapp.ui.theme.ColorTextoSecundario
+import com.example.snkrsapp.ui.theme.miTipografia
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -87,7 +94,7 @@ fun PantallaUsuariosAdmin(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xFF121212))
+                .background(ColorNeutroFondo)
                 .padding(top = paddingValues.calculateTopPadding())
                 .padding(bottom = innerPadding.calculateBottomPadding())
         ) {
@@ -135,7 +142,7 @@ fun BottomBarBorradoLocal(
     cantidadSeleccionados: Int, onBorrar: () -> Unit, onCancelar: () -> Unit
 ) {
     Surface(
-         Modifier
+        Modifier
             .fillMaxWidth()
             .navigationBarsPadding()
             .padding(horizontal = 12.dp, vertical = 8.dp),
@@ -154,6 +161,7 @@ fun BottomBarBorradoLocal(
             Text(
                 "$cantidadSeleccionados seleccionados",
                 color = Color.White,
+                fontFamily = miTipografia,
                 fontWeight = Bold,
                 fontSize = 15.sp
             )
@@ -163,7 +171,8 @@ fun BottomBarBorradoLocal(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    "Cancelar", modifier = Modifier.clickable { onCancelar() }, color = Color.White
+                    "Cancelar",
+                    fontFamily = miTipografia, modifier = Modifier.clickable { onCancelar() }, color = Color.White
                 )
                 IconButton(onClick = onBorrar) {
                     Icon(Icons.Default.Delete, "", tint = Color.White)
@@ -190,8 +199,9 @@ fun ItemUsuarioSeleccionable(
                     seleccionar(!estaSeleccionado)
                 }
             }, onLongClick = { onLongClick() }), colors = CardDefaults.cardColors(
-            containerColor = if (estaSeleccionado) Color(0xFF2A2A2A) else Color(0xFF1E1E1E)
-        ), shape = RoundedCornerShape(16.dp)
+            containerColor = if (estaSeleccionado) Color.LightGray else Color.White
+        ), shape = RoundedCornerShape(16.dp),
+        border = BorderStroke(1.dp, ColorBordeTextField)
     ) {
         Row(
             Modifier
@@ -203,6 +213,7 @@ fun ItemUsuarioSeleccionable(
                 "",
                 modifier = Modifier
                     .size(55.dp)
+                    .border(1.dp, ColorBordeTextField, CircleShape)
                     .clip(CircleShape)
                     .background(Color(0xFF252525)),
                 contentScale = ContentScale.Crop
@@ -215,13 +226,15 @@ fun ItemUsuarioSeleccionable(
             ) {
                 Text(
                     usuario.nombreUsuario ?: "Sin nombre",
-                    color = Color.White,
-                    fontSize = 16.sp,
+                    color = ColorPrimario,
+                    fontFamily = miTipografia,
+                    fontSize = 17.sp,
                     fontWeight = Bold
                 )
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    usuario.email ?: "Sin email", color = Color.Gray, fontSize = 14.sp
+                    usuario.email ?: "Sin email",
+                    fontFamily = miTipografia, color = ColorTextoSecundario, fontSize = 16.sp
                 )
             }
 

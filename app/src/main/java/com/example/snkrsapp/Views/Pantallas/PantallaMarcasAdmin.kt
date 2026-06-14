@@ -1,10 +1,24 @@
 package com.example.snkrsapp.Views.Pantallas
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -14,8 +28,26 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -32,6 +64,14 @@ import com.example.snkrsapp.Domain.Marca
 import com.example.snkrsapp.Views.Controlador.NavigationUtils.BottomBarAdmin
 import com.example.snkrsapp.Views.ViewModels.MarcasAdminViewModel
 import com.example.snkrsapp.Views.ViewModels.ViewmodelAgregarProducto
+import com.example.snkrsapp.ui.theme.ColorAcento
+import com.example.snkrsapp.ui.theme.ColorBordeTextField
+import com.example.snkrsapp.ui.theme.ColorNeutroFondo
+import com.example.snkrsapp.ui.theme.ColorPrimario
+import com.example.snkrsapp.ui.theme.ColorTextFieldNoSeleccionado
+import com.example.snkrsapp.ui.theme.ColorTextFieldSeleccionado
+import com.example.snkrsapp.ui.theme.ColorTextoSecundario
+import com.example.snkrsapp.ui.theme.miTipografia
 import kotlinx.datetime.LocalDate
 import network.chaintech.kmp_date_time_picker.utils.now
 
@@ -86,7 +126,7 @@ fun PantallaMarcasAdmin(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xFF121212))
+                .background(ColorNeutroFondo)
                 .padding(top = paddingValues.calculateTopPadding())
                 .padding(bottom = innerPadding.calculateBottomPadding())
                 .padding(horizontal = 20.dp)
@@ -95,7 +135,8 @@ fun PantallaMarcasAdmin(
 
             Text(
                 text = "Listado de Marcas",
-                color = Color.White,
+                fontFamily = miTipografia,
+                color = ColorPrimario,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 16.dp),
@@ -106,7 +147,7 @@ fun PantallaMarcasAdmin(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 10.dp)
-                    .background(Color(0xFF1E1E1E), RoundedCornerShape(12.dp))
+                    .background(ColorPrimario, RoundedCornerShape(12.dp))
                     .padding(4.dp),
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
@@ -123,9 +164,10 @@ fun PantallaMarcasAdmin(
                 ) {
                     Text(
                         "Pendientes (${model.listaMarcasIncompletas.size})",
-                        color = if (tabSeleccionada == 0) Color.Black else Color.Gray,
+                        color = if (tabSeleccionada == 0) ColorTextoSecundario else Color.White,
                         fontWeight = Bold,
-                        fontSize = 14.sp
+                        fontFamily = miTipografia,
+                        fontSize = 16.sp
                     )
                 }
                 Box(
@@ -141,9 +183,10 @@ fun PantallaMarcasAdmin(
                 ) {
                     Text(
                         "Verificadas",
-                        color = if (tabSeleccionada == 1) Color.Black else Color.Gray,
+                        fontFamily = miTipografia,
+                        color = if (tabSeleccionada == 1) ColorTextoSecundario else Color.White,
                         fontWeight = Bold,
-                        fontSize = 14.sp
+                        fontSize = 16.sp
                     )
                 }
             }
@@ -168,8 +211,9 @@ fun PantallaMarcasAdmin(
                         ) {
                             Text(
                                 "No hay marcas en esta sección",
-                                color = Color.Gray,
-                                fontSize = 15.sp
+                                color = ColorTextoSecundario,
+                                fontSize = 17.sp,
+                                fontFamily = miTipografia
                             )
                         }
                     }
@@ -194,11 +238,10 @@ fun PantallaMarcasAdmin(
                                 }
                             ),
                         colors = CardDefaults.cardColors(
-                            containerColor = if (estaSeleccionado) Color(0xFF2A2A2A) else Color(
-                                0xFF1E1E1E
-                            )
+                            containerColor = if (estaSeleccionado) Color.LightGray else Color.White
                         ),
-                        shape = RoundedCornerShape(12.dp)
+                        shape = RoundedCornerShape(12.dp),
+                        border = BorderStroke(1.dp, ColorBordeTextField)
                     ) {
                         Row(
                             modifier = Modifier.padding(16.dp),
@@ -211,9 +254,10 @@ fun PantallaMarcasAdmin(
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
                                     text = marca.nombre ?: "Sin nombre",
-                                    color = Color.White,
+                                    color = ColorPrimario,
                                     fontSize = 16.sp,
-                                    fontWeight = Bold
+                                    fontWeight = Bold,
+                                    fontFamily = miTipografia
                                 )
 
                                 if (tabSeleccionada == 1) {
@@ -224,15 +268,30 @@ fun PantallaMarcasAdmin(
 
                                     Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                                         if (pais.isNotBlank()) {
-                                            Text(text = pais, color = Color.Gray, fontSize = 13.sp)
+                                            Text(
+                                                text = pais,
+                                                fontFamily = miTipografia,
+                                                color = ColorTextoSecundario,
+                                                fontSize = 15.sp
+                                            )
                                         }
 
                                         if (pais.isNotBlank() && fecha.isNotBlank()) {
-                                            Text(text = "•", color = Color.Gray, fontSize = 13.sp)
+                                            Text(
+                                                text = "•",
+                                                fontFamily = miTipografia,
+                                                color = ColorTextoSecundario,
+                                                fontSize = 15.sp
+                                            )
                                         }
 
                                         if (fecha.isNotBlank()) {
-                                            Text(text = fecha, color = Color.Gray, fontSize = 13.sp)
+                                            Text(
+                                                text = fecha,
+                                                fontFamily = miTipografia,
+                                                color = ColorTextoSecundario,
+                                                fontSize = 15.sp
+                                            )
                                         }
                                     }
                                 }
@@ -257,7 +316,7 @@ fun PantallaMarcasAdmin(
                                     marcaParaCompletar = marca
                                     mostrarDialogoCompletar = true
                                 }) {
-                                    Icon(Icons.Default.Edit, "", tint = Color.White)
+                                    Icon(Icons.Default.Edit, "", tint = ColorTextoSecundario)
                                 }
                             }
                         }
@@ -326,7 +385,7 @@ fun DialogCompletarMarcaAdmin(
                 .padding(horizontal = 24.dp)
                 .wrapContentHeight(),
             shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFF121212))
+            colors = CardDefaults.cardColors(containerColor = ColorNeutroFondo)
         ) {
             Column(
                 modifier = Modifier
@@ -336,15 +395,22 @@ fun DialogCompletarMarcaAdmin(
             ) {
                 Text(
                     "Aprobar y Completar Marca",
-                    color = Color.White,
+                    color = ColorPrimario,
                     fontSize = 20.sp,
+                    fontFamily = miTipografia,
                     fontWeight = Bold
                 )
 
                 SelectorImagen(agregarProductoViewModel, true)
 
                 Column {
-                    Text("Nombre de la Marca", color = Color.Gray, fontSize = 14.sp)
+                    Text(
+                        "Nombre de la Marca",
+                        color = ColorTextoSecundario,
+                        fontSize = 16.sp,
+                        fontFamily = miTipografia,
+                        fontWeight = Bold
+                    )
                     Spacer(Modifier.height(8.dp))
                     OutlinedTextField(
                         value = nombreMarcaText,
@@ -357,7 +423,13 @@ fun DialogCompletarMarcaAdmin(
                 }
 
                 Column {
-                    Text("País de Origen", color = Color.Gray, fontSize = 14.sp)
+                    Text(
+                        "País de Origen",
+                        fontFamily = miTipografia,
+                        color = ColorTextoSecundario,
+                        fontSize = 16.sp,
+                        fontWeight = Bold
+                    )
                     Spacer(Modifier.height(8.dp))
                     OutlinedTextField(
                         value = paisOrigenText,
@@ -370,7 +442,13 @@ fun DialogCompletarMarcaAdmin(
                 }
 
                 Column {
-                    Text("Sitio Web Oficial", color = Color.Gray, fontSize = 14.sp)
+                    Text(
+                        "Sitio Web Oficial",
+                        fontFamily = miTipografia,
+                        color = ColorPrimario,
+                        fontSize = 16.sp,
+                        fontWeight = Bold
+                    )
                     Spacer(Modifier.height(8.dp))
                     OutlinedTextField(
                         value = webOficialText,
@@ -383,12 +461,19 @@ fun DialogCompletarMarcaAdmin(
                 }
 
                 Column {
-                    Text("Fecha de Fundación", color = Color.Gray, fontSize = 14.sp)
+                    Text(
+                        "Fecha de Fundación",
+                        fontFamily = miTipografia,
+                        color = ColorPrimario,
+                        fontSize = 16.sp,
+                        fontWeight = Bold
+                    )
                     Spacer(Modifier.height(8.dp))
                     OutlinedTextField(
                         value = fechaFundacionText,
                         onValueChange = {},
-                        placeholder = { Text("dd/mm/aaaa", color = Color.Gray) },
+                        placeholder = { Text("dd/mm/aaaa",
+                            fontFamily = miTipografia, color = Color.White.copy(0.5f)) },
                         colors = outlinedCustomColors(),
                         trailingIcon = {
                             Icon(
@@ -417,10 +502,17 @@ fun DialogCompletarMarcaAdmin(
                         modifier = Modifier
                             .weight(1f)
                             .height(50.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1E1E1E)),
-                        shape = RoundedCornerShape(12.dp)
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+                        shape = RoundedCornerShape(12.dp),
+                        border = BorderStroke(1.dp, ColorBordeTextField)
                     ) {
-                        Text("Cancelar", color = Color.LightGray, fontWeight = Bold)
+                        Text(
+                            "Cancelar",
+                            fontFamily = miTipografia,
+                            color = ColorTextoSecundario,
+                            fontSize = 15.sp,
+                            fontWeight = Bold
+                        )
                     }
 
                     Button(
@@ -436,10 +528,11 @@ fun DialogCompletarMarcaAdmin(
                         modifier = Modifier
                             .weight(1f)
                             .height(50.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+                        colors = ButtonDefaults.buttonColors(containerColor = ColorAcento),
                         shape = RoundedCornerShape(12.dp)
                     ) {
-                        Text("Verificar", color = Color.Black, fontWeight = Bold)
+                        Text("Verificar",
+                            fontFamily = miTipografia, color = Color.White, fontSize = 15.sp, fontWeight = Bold)
                     }
                 }
             }
@@ -486,7 +579,7 @@ fun DialogCrearMarcaAdmin(
                 .padding(horizontal = 24.dp)
                 .wrapContentHeight(),
             shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFF121212))
+            colors = CardDefaults.cardColors(containerColor = ColorNeutroFondo)
         ) {
             Column(
                 Modifier
@@ -496,7 +589,8 @@ fun DialogCrearMarcaAdmin(
             ) {
                 Text(
                     "Registrar Nueva Marca",
-                    color = Color.White,
+                    color = ColorPrimario,
+                    fontFamily = miTipografia,
                     fontSize = 20.sp,
                     fontWeight = Bold
                 )
@@ -504,54 +598,92 @@ fun DialogCrearMarcaAdmin(
                 SelectorImagen(agregarProductoViewModel, true)
 
                 Column {
-                    Text("Nombre de la Marca", color = Color.Gray, fontSize = 14.sp)
+                    Text(
+                        "Nombre de la Marca",
+                        color = ColorTextoSecundario,
+                        fontSize = 16.sp,
+                        fontFamily = miTipografia,
+                        fontWeight = Bold
+                    )
                     Spacer(Modifier.height(8.dp))
                     OutlinedTextField(
                         nombreMarcaText,
-                        { nombreMarcaText = it },
+                        {
+                            if (it.length <= 50) {
+                                nombreMarcaText = it
+                            }
+                        },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
                         singleLine = true,
                         colors = outlinedCustomColors(),
-                        placeholder = { Text("Ej. Nike, Jordan...", color = Color.DarkGray) }
+                        placeholder = { Text("Ej. Nike, Jordan...",
+                            fontFamily = miTipografia, color = Color.DarkGray) }
                     )
                 }
 
                 Column {
-                    Text("País de Origen", color = Color.Gray, fontSize = 14.sp)
+                    Text(
+                        "País de Origen",
+                        color = ColorTextoSecundario,
+                        fontFamily = miTipografia,
+                        fontSize = 16.sp,
+                        fontWeight = Bold
+                    )
                     Spacer(Modifier.height(8.dp))
                     OutlinedTextField(
                         paisOrigenText,
-                        { paisOrigenText = it },
+                        {
+                            if (it.length <= 30) {
+                                paisOrigenText = it
+                            }
+                        },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
                         singleLine = true,
                         colors = outlinedCustomColors(),
-                        placeholder = { Text("Ej. Estados Unidos", color = Color.DarkGray) }
+                        placeholder = { Text("Ej. Estados Unidos", color = Color.White.copy(0.5f)) }
                     )
                 }
 
                 Column {
-                    Text("Sitio Web Oficial", color = Color.Gray, fontSize = 14.sp)
+                    Text(
+                        "Sitio Web Oficial",
+                        color = ColorTextoSecundario,
+                        fontFamily = miTipografia,
+                        fontSize = 16.sp,
+                        fontWeight = Bold
+                    )
                     Spacer(Modifier.height(8.dp))
                     OutlinedTextField(
                         value = webOficialText,
-                        onValueChange = { webOficialText = it },
+                        onValueChange = {
+                            if (it.length <= 50) {
+                                webOficialText = it
+                            }
+                        },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
                         singleLine = true,
                         colors = outlinedCustomColors(),
-                        placeholder = { Text("https://...", color = Color.DarkGray) }
+                        placeholder = { Text("https://...",
+                            fontFamily = miTipografia, color = Color.White.copy(0.5f)) }
                     )
                 }
 
                 Column {
-                    Text("Fecha de Fundación", color = Color.Gray, fontSize = 14.sp)
+                    Text(
+                        "Fecha de Fundación",
+                        color = ColorTextoSecundario,
+                        fontSize = 16.sp,
+                        fontFamily = miTipografia,
+                        fontWeight = Bold
+                    )
                     Spacer(Modifier.height(8.dp))
                     OutlinedTextField(
                         value = fechaFundacionText,
                         onValueChange = {},
-                        placeholder = { Text("dd/mm/aaaa", color = Color.Gray) },
+                        placeholder = { Text("dd/mm/aaaa", color = Color.White.copy(0.5f)) },
                         colors = outlinedCustomColors(),
                         trailingIcon = {
                             Icon(
@@ -580,10 +712,17 @@ fun DialogCrearMarcaAdmin(
                         modifier = Modifier
                             .weight(1f)
                             .height(50.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1E1E1E)),
-                        shape = RoundedCornerShape(12.dp)
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+                        shape = RoundedCornerShape(12.dp),
+                        border = BorderStroke(1.dp, ColorBordeTextField)
                     ) {
-                        Text("Cancelar", color = Color.LightGray, fontWeight = Bold)
+                        Text(
+                            "Cancelar",
+                            fontFamily = miTipografia,
+                            color = ColorTextoSecundario,
+                            fontSize = 15.sp,
+                            fontWeight = Bold
+                        )
                     }
 
                     Button(
@@ -601,15 +740,18 @@ fun DialogCrearMarcaAdmin(
                             .weight(1f)
                             .height(50.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = if (todoCompletado) Color.White else Color(0xFF2E2E2E),
-                            disabledContainerColor = Color(0xFF2E2E2E)
+                            containerColor = if (todoCompletado) ColorAcento else ColorAcento.copy(
+                                0.5f
+                            )
                         ),
                         shape = RoundedCornerShape(12.dp),
                         enabled = todoCompletado
                     ) {
                         Text(
                             text = "Guardar",
-                            color = if (todoCompletado) Color.Black else Color.Gray,
+                            fontFamily = miTipografia,
+                            color = Color.White,
+                            fontSize = 15.sp,
                             fontWeight = Bold
                         )
                     }
@@ -629,13 +771,25 @@ fun DialogCrearMarcaAdmin(
 
 @Composable
 fun outlinedCustomColors() = OutlinedTextFieldDefaults.colors(
-    unfocusedTextColor = Color.White,
     focusedTextColor = Color.White,
-    unfocusedBorderColor = Color(0xFF333333),
-    focusedBorderColor = Color.White,
+    unfocusedTextColor = Color.White,
+    disabledTextColor = Color.White,
+
+    unfocusedBorderColor = Color.Transparent,
+    focusedBorderColor = ColorBordeTextField,
+
     cursorColor = Color.White,
-    disabledBorderColor = Color(0xFF333333),
-    disabledTextColor = Color.White
+
+    focusedLeadingIconColor = Color.White,
+    unfocusedLeadingIconColor = Color.DarkGray,
+
+    focusedContainerColor = ColorTextFieldSeleccionado,
+    unfocusedContainerColor = ColorTextFieldNoSeleccionado,
+    focusedLabelColor = ColorBordeTextField,
+    disabledContainerColor = ColorTextFieldNoSeleccionado,
+    unfocusedPlaceholderColor = Color.White.copy(0.9f),
+    disabledLabelColor = Color.White,
+    disabledPlaceholderColor = Color.White.copy(0.9f)
 )
 
 @Composable
@@ -644,12 +798,13 @@ fun BotonCrearMarca(onClick: () -> Unit) {
         onClick = onClick,
         modifier = Modifier
             .size(50.dp)
+            .border(1.dp, ColorBordeTextField, RoundedCornerShape(12.dp))
             .background(Color.White, RoundedCornerShape(12.dp))
     ) {
         Icon(
             Icons.Default.Add,
             "",
-            tint = Color.Black,
+            tint = ColorTextoSecundario,
             modifier = Modifier.size(30.dp)
         )
     }

@@ -12,7 +12,6 @@ data class PublicacionesProductoRespuesta(
     val estado: String,
     val urlFoto: String?,
     val fecha_publicacion: String,
-    val disponible: String
 )
 
 fun PublicacionesProductoRespuesta.toEntity(): PublicacionEntity = PublicacionEntity(
@@ -25,5 +24,4 @@ fun PublicacionesProductoRespuesta.toEntity(): PublicacionEntity = PublicacionEn
     estado = estado,
     urlFoto = urlFoto ?: "",
     fechaPublicacion = fecha_publicacion,
-    disponible = disponible == "disponible"
 )

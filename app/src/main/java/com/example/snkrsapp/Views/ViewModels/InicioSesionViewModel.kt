@@ -25,36 +25,30 @@ class InicioSesionViewModel @Inject constructor(
         viewModelScope.launch {
             usuarioRepository.iniciarSesion(email, contra).collect { resultado ->
 
-                if (resultado is EstadoLogin.Exito) {
-                    _model.update {
-                        it.copy(
-                            exito = true,
-                            cargando = false,
-                            usuario = resultado.usuario
-                        )
+                when (resultado) {
+                    is EstadoLogin.Exito -> {
+                        _model.update {
+                            it.copy(
+                                exito = true,
+                                cargando = false,
+                                usuario = resultado.usuario,
+                                error = ""
+                            )
+                        }
                     }
-                    println("Todo fue bien")
-                } else if (resultado is EstadoLogin.Error && resultado.errorFirebase) {
-                    _model.update {
-                        it.copy(
-                            exito = false,
-                            errorFirebase = true,
-                            cargando = false,
-                            error = resultado.mensaje
-                        )
+                    is EstadoLogin.Error -> {
+                        _model.update {
+                            it.copy(
+                                exito = false,
+                                cargando = false,
+                                error = resultado.mensaje,
+                                errorFirebase = resultado.errorFirebase
+                            )
+                        }
                     }
-                    println("Algo fue mal,culpa de firebase")
-                } else if (resultado is EstadoLogin.Error) {
-                    _model.update {
-                        it.copy(
-                            exito = false,
-                            errorFirebase = false,
-                            cargando = false,
-                            error = resultado.mensaje
-                        )
+                    is EstadoLogin.Cargando -> {
+                        _model.update { it.copy(cargando = true) }
                     }
-                    println("Algo fue mal con el servidor")
-
                 }
             }
         }

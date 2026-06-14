@@ -56,6 +56,10 @@ import coil.compose.AsyncImage
 import com.example.snkrsapp.Domain.Marca
 import com.example.snkrsapp.Domain.Publicacion
 import com.example.snkrsapp.Views.ViewModels.ProductoDetalladoViewModel
+import com.example.snkrsapp.ui.theme.ColorNeutroFondo
+import com.example.snkrsapp.ui.theme.ColorPrimario
+import com.example.snkrsapp.ui.theme.ColorTextoSecundario
+import com.example.snkrsapp.ui.theme.miTipografia
 
 @Composable
 fun PantallaProductoDetallado(
@@ -85,7 +89,7 @@ fun PantallaProductoDetallado(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF121212))
+            .background(ColorNeutroFondo)
             .padding(paddingValues)
     ) {
         Column(
@@ -97,13 +101,19 @@ fun PantallaProductoDetallado(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(350.dp)
+                    .padding(bottom = 20.dp)
                     .background(
-                        Color(0xFF121212)
+                        brush = Brush.verticalGradient(
+                            colors = listOf(
+                                ColorPrimario, // Un gris oscuro más suave arriba
+                                ColorNeutroFondo   // Se difumina perfectamente con el fondo de abajo
+                            )
+                        )
                     ), contentAlignment = Alignment.Center
             ) {
                 AsyncImage(
                     model = model.publicacionSeleccionada.urlFoto,
-                    contentDescription = model.productoSeleccionado.modelo,
+                    "",
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(horizontal = 10.dp)
@@ -117,18 +127,19 @@ fun PantallaProductoDetallado(
                 Text(
                     text = model.productoSeleccionado.modelo,
                     modifier = Modifier.testTag("modelo"),
-                    color = Color.White,
+                    color = ColorPrimario,
+                    fontFamily = miTipografia,
                     fontSize = 28.sp,
                     fontWeight = Bold
                 )
+                Spacer(Modifier.height(15.dp))
                 val precioMostrar =
-                    if (model.listaPublicaciones.isNotEmpty())
-                        model.publicacionSeleccionada.precio
-                    else
-                        model.productoSeleccionado.precio
+                    if (model.listaPublicaciones.isNotEmpty()) model.publicacionSeleccionada.precio
+                    else model.productoSeleccionado.precio
                 Text(
                     text = "$precioMostrar €",
-                    color = Color.LightGray,
+                    color = ColorTextoSecundario,
+                    fontFamily = miTipografia,
                     fontSize = 22.sp,
                     fontWeight = Bold
                 )
@@ -138,7 +149,7 @@ fun PantallaProductoDetallado(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(Color(0xFF1E1E1E), RoundedCornerShape(15.dp))
+                        .background(ColorPrimario, RoundedCornerShape(15.dp))
                         .padding(5.dp)
                 ) {
                     BotonTab(
@@ -171,8 +182,7 @@ fun PantallaProductoDetallado(
                         marca = model.marcaSeleccionada,
                         nombreVendedor = model.publicacionSeleccionada.nombreUsuario
                             ?: "Usuario SNKRS",
-                        onVerPerfilClick = { navegarAPerfil(model.publicacionSeleccionada.uidUsuario) }
-                    )
+                        onVerPerfilClick = { navegarAPerfil(model.publicacionSeleccionada.uidUsuario) })
                 }
 
                 Spacer(modifier = Modifier.height(100.dp))
@@ -184,8 +194,7 @@ fun PantallaProductoDetallado(
                 .fillMaxWidth()
                 .padding(horizontal = 20.dp)
                 .padding(top = 10.dp)
-                .statusBarsPadding(),
-            horizontalArrangement = Arrangement.Start
+                .statusBarsPadding(), horizontalArrangement = Arrangement.Start
         ) {
             IconButton(
                 onClick = volverAPrincipal,
@@ -196,7 +205,7 @@ fun PantallaProductoDetallado(
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "Volver",
-                    tint = Color.White
+                    tint = ColorTextoSecundario
                 )
             }
         }
@@ -206,15 +215,26 @@ fun PantallaProductoDetallado(
                 .size(75.dp)
                 .align(Alignment.BottomEnd)
                 .padding(end = 20.dp, bottom = 20.dp)
-                .background(Color(0xFF1E1E1E), RoundedCornerShape(25.dp))
-                .clickable {myViewModel.agregarACarrito()},
-            contentAlignment = Alignment.Center
+                .background(
+                    if (model.publicacionSeleccionada.estado == "disponible") ColorPrimario else ColorPrimario.copy(
+                        0.8f
+                    ),
+                    RoundedCornerShape(10.dp)
+                )
+                .clickable {
+                    if (model.publicacionSeleccionada.estado == "disponible") {
+                        myViewModel.agregarACarrito()
+                    } else {
+                        Toast.makeText(
+                            contexto,
+                            "Este producto ya está vendido",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }, contentAlignment = Alignment.Center
         ) {
             Icon(
-                Icons.Default.ShoppingCart,
-                "",
-                tint = Color.White,
-                modifier = Modifier.size(25.dp)
+                Icons.Default.ShoppingCart, "", tint = Color.White, modifier = Modifier.size(25.dp)
             )
         }
     }
@@ -230,7 +250,10 @@ fun BotonTab(texto: String, activo: Boolean, modifier: Modifier, onClick: () -> 
             .clickable { onClick() }
             .testTag("botonTab"), contentAlignment = Alignment.Center) {
         Text(
-            text = texto, color = if (activo) Color.Black else Color.Gray, fontWeight = Bold
+            text = texto,
+            fontFamily = miTipografia,
+            color = if (activo) ColorTextoSecundario else Color.White,
+            fontWeight = Bold
         )
     }
 }
@@ -247,14 +270,19 @@ fun ContenidoDetalles(
         if (listaPublicaciones.isNotEmpty()) {
             Row {
                 InfoPequeña(
-                    titulo = "Talla de publicación seleccionada:",
-                    valor = "$talla"
+                    titulo = "Talla de publicación seleccionada:", valor = "$talla"
                 )
                 Spacer(modifier = Modifier.width(20.dp))
             }
         }
 
-        Text("Publicaciones Disponibles", color = Color.Gray, fontSize = 14.sp)
+        Text(
+            "Publicaciones Disponibles",
+            color = ColorTextoSecundario,
+            fontSize = 16.sp,
+            fontFamily = miTipografia,
+            fontWeight = Bold
+        )
 
         if (cargandoPublicaciones) {
             Box(
@@ -270,6 +298,7 @@ fun ContenidoDetalles(
                 text = "No hay zapatillas en venta de este modelo actualmente.",
                 color = Color.LightGray,
                 fontSize = 14.sp,
+                fontFamily = miTipografia,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 10.dp)
@@ -287,9 +316,7 @@ fun ContenidoDetalles(
                     shape = RoundedCornerShape(12.dp),
                     border = if (esLaSeleccionada) BorderStroke(1.5.dp, Color.White) else null,
                     colors = CardDefaults.cardColors(
-                        containerColor = if (esLaSeleccionada) Color(0xFF262626) else Color(
-                            0xFF1E1E1E
-                        )
+                        containerColor = if (esLaSeleccionada) Color.LightGray.copy(0.9f) else Color.White
                     )
                 ) {
                     Row(
@@ -302,26 +329,31 @@ fun ContenidoDetalles(
                         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                             Text(
                                 "Talla: ${publicacion.talla}",
-                                color = Color.White,
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.SemiBold
+                                color = ColorPrimario,
+                                fontFamily = miTipografia,
+                                fontSize = 18.sp,
+                                fontWeight = Bold
                             )
                             Text(
                                 "Vendedor : ${publicacion.nombreUsuario}",
-                                color = Color.Gray,
-                                fontSize = 12.sp
+                                color = ColorTextoSecundario,
+                                fontSize = 15.sp,
+                                fontFamily = miTipografia,
+                                fontWeight = Bold
                             )
                             Text(
                                 "Estado:  ${publicacion.estado}",
                                 color = Color.Gray,
-                                fontSize = 12.sp
+                                fontSize = 12.sp,
+                                fontFamily = miTipografia
                             )
                         }
 
                         Text(
                             text = "${publicacion.precio} €",
-                            color = Color.White,
+                            color = ColorTextoSecundario,
                             fontSize = 18.sp,
+                            fontFamily = miTipografia,
                             fontWeight = Bold
                         )
                     }
@@ -333,15 +365,16 @@ fun ContenidoDetalles(
 
 @Composable
 fun ContenidoInformacionCompleta(
-    marca: Marca,
-    nombreVendedor: String,
-    onVerPerfilClick: () -> Unit
+    marca: Marca, nombreVendedor: String, onVerPerfilClick: () -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        Text("Información de la Marca", color = Color.Gray, fontSize = 14.sp)
+        Text(
+            "Información de la Marca",
+            fontFamily = miTipografia, color = ColorPrimario, fontSize = 16.sp
+        )
         Card(
             modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E1E)),
+            colors = CardDefaults.cardColors(containerColor = Color.White),
             shape = RoundedCornerShape(20.dp)
         ) {
             Column(modifier = Modifier.padding(15.dp)) {
@@ -358,20 +391,29 @@ fun ContenidoInformacionCompleta(
                     Column {
                         Text(
                             marca.nombre ?: "",
-                            color = Color.White,
+                            color = ColorTextoSecundario,
+                            fontFamily = miTipografia,
                             fontWeight = Bold,
                             fontSize = 18.sp
                         )
-                        Text("Fundada en 1990", color = Color.Gray, fontSize = 14.sp)
+                        Text(
+                            "Fundada en 1990",
+                            fontFamily = miTipografia,
+                            color = ColorTextoSecundario,
+                            fontSize = 14.sp
+                        )
                     }
                 }
             }
         }
 
-        Text("Información del Vendedor", color = Color.Gray, fontSize = 14.sp)
+        Text(
+            "Información del Vendedor",
+            fontFamily = miTipografia, color = ColorPrimario, fontSize = 16.sp, fontWeight = Bold
+        )
         Card(
             Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E1E)),
+            colors = CardDefaults.cardColors(containerColor = Color.White),
             shape = RoundedCornerShape(20.dp)
         ) {
             Row(
@@ -386,8 +428,7 @@ fun ContenidoInformacionCompleta(
                         modifier = Modifier
                             .size(50.dp)
                             .clip(CircleShape)
-                            .background(Color(0xFF252525)),
-                        contentAlignment = Alignment.Center
+                            .background(Color(0xFF252525)), contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             Icons.Default.Person,
@@ -402,21 +443,22 @@ fun ContenidoInformacionCompleta(
 
                     Text(
                         text = nombreVendedor,
-                        color = Color.White,
+                        color = ColorPrimario,
+                        fontFamily = miTipografia,
                         fontWeight = Bold,
-                        fontSize = 16.sp
+                        fontSize = 17.sp
                     )
                 }
                 Text(
                     text = "Ver perfil",
-                    color = Color.LightGray,
+                    color = Color.DarkGray,
                     fontSize = 14.sp,
-                    fontWeight = FontWeight.SemiBold,
+                    fontFamily = miTipografia,
+                    fontWeight = Bold,
                     textDecoration = TextDecoration.Underline,
                     modifier = Modifier
                         .clickable { onVerPerfilClick() }
-                        .padding(8.dp)
-                )
+                        .padding(8.dp))
             }
         }
     }
@@ -425,7 +467,16 @@ fun ContenidoInformacionCompleta(
 @Composable
 fun InfoPequeña(titulo: String, valor: String) {
     Column {
-        Text(titulo, color = Color.Gray, fontSize = 12.sp)
-        Text(valor, color = Color.White, fontWeight = Bold, fontSize = 16.sp)
+        Text(
+            titulo,
+            fontFamily = miTipografia, color = ColorPrimario, fontSize = 16.sp, fontWeight = Bold
+        )
+        Text(
+            valor,
+            fontFamily = miTipografia,
+            color = ColorTextoSecundario,
+            fontWeight = Bold,
+            fontSize = 15.sp
+        )
     }
 }

@@ -11,6 +11,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.snkrsapp.R
+import com.example.snkrsapp.ui.theme.ColorPrimario
 
 @Composable
 fun BotonCrearEvento(navController: NavController, crearEvento: () -> Unit) {
@@ -19,7 +20,7 @@ fun BotonCrearEvento(navController: NavController, crearEvento: () -> Unit) {
         onClick = {
             crearEvento()
         },
-        containerColor = Color(0xFF1E1E1E),
+        containerColor = ColorPrimario,
         shape = RoundedCornerShape(18.dp),
     ) {
 

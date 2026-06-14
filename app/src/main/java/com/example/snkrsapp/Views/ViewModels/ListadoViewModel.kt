@@ -114,7 +114,8 @@ class ListadoViewModel @Inject constructor(
                                                 it.copy(
                                                     cargandoPago = false,
                                                     listaCarrito = emptyList(),
-                                                    error = null
+                                                    error = null,
+                                                    mensajeExito = "Compra realizada con éxito"
                                                 )
                                             }
                                         }
@@ -138,5 +139,9 @@ class ListadoViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    fun limpiarMensajeExito() {
+        _model.update { it.copy(mensajeExito = null) }
     }
 }

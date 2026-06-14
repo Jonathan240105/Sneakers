@@ -21,6 +21,7 @@ import com.example.snkrsapp.Views.Pantallas.PantallaInicioSesion
 import com.example.snkrsapp.Views.Pantallas.PantallaListados
 import com.example.snkrsapp.Views.Pantallas.PantallaMarcasAdmin
 import com.example.snkrsapp.Views.Pantallas.PantallaPerfil
+import com.example.snkrsapp.Views.Pantallas.PantallaPerfilAdmin
 import com.example.snkrsapp.Views.Pantallas.PantallaPrincipal
 import com.example.snkrsapp.Views.Pantallas.PantallaProductoDetallado
 import com.example.snkrsapp.Views.Pantallas.PantallaRegistro
@@ -68,7 +69,8 @@ fun Controlador() {
             "Listados/{id}/{uid}",
             "UsuariosAdmin",
             "MarcasAdmin",
-            "EventosAdmin"
+            "EventosAdmin",
+            "PerfilAdmin"
         )
     var mostrarSheet by remember { mutableStateOf(false) }
 
@@ -123,8 +125,20 @@ fun Controlador() {
             composable("EventosAdmin") {
                 PantallaEventosAdmin(eventosAdminViewModel, paddingValues, navController)
             }
+            composable("PerfilAdmin") {
+                PantallaPerfilAdmin(
+                    {},
+                    actuViewModel,
+                    { navController.navigate("InicioSesion") { popUpTo(0) { inclusive = true } } },
+                    perfilViewModel,
+                    navController
+                )
+            }
             composable("Registro") {
-                PantallaRegistro(registroViewModel,agregarProductoViewModel, { navController.navigate("InicioSesion") })
+                PantallaRegistro(
+                    registroViewModel,
+                    agregarProductoViewModel,
+                    { navController.navigate("InicioSesion") })
             }
             composable("Principal") {
                 PantallaPrincipal(

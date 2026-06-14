@@ -16,6 +16,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -28,6 +30,7 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,6 +41,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
+import androidx.compose.ui.text.font.FontWeight.Companion.ExtraBold
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -46,8 +50,13 @@ import com.example.snkrsapp.Domain.Marca
 import com.example.snkrsapp.Domain.ProductoItem
 import com.example.snkrsapp.Views.ViewModels.PrincipalViewModel
 import com.example.snkrsapp.Views.ViewModels.ViewmodelAgregarProducto
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import com.example.snkrsapp.ui.theme.ColorAcento
+import com.example.snkrsapp.ui.theme.ColorNeutroFondo
+import com.example.snkrsapp.ui.theme.ColorPrimario
+import com.example.snkrsapp.ui.theme.ColorTextFieldNoSeleccionado
+import com.example.snkrsapp.ui.theme.ColorTextFieldSeleccionado
+import com.example.snkrsapp.ui.theme.ColorTextoSecundario
+import com.example.snkrsapp.ui.theme.miTipografia
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -72,7 +81,7 @@ fun PantallaAgregarProducto(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF121212))
+            .background(ColorNeutroFondo)
             .padding(paddingValues)
             .padding(horizontal = 20.dp)
     ) {
@@ -87,7 +96,7 @@ fun PantallaAgregarProducto(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 10.dp)
-                .background(Color(0xFF1E1E1E), RoundedCornerShape(12.dp))
+                .background(ColorPrimario, RoundedCornerShape(12.dp))
                 .padding(4.dp),
             horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
@@ -105,10 +114,12 @@ fun PantallaAgregarProducto(
             ) {
                 Text(
                     text = "Para Vender",
-                    color = if (!model.esColeccion) Color.Black else Color.Gray,
+                    fontFamily = miTipografia,
+                    color = if (!model.esColeccion) ColorTextoSecundario else ColorTextoSecundario,
                     fontWeight = Bold,
-                    fontSize = 14.sp
-                )
+                    fontSize = 16.sp,
+
+                    )
             }
 
             Box(
@@ -123,8 +134,9 @@ fun PantallaAgregarProducto(
             ) {
                 Text(
                     text = "Mi Colección",
-                    color = if (model.esColeccion) Color.Black else Color.Gray,
+                    fontFamily = miTipografia,
                     fontWeight = Bold,
+                    color = if (model.esColeccion) Color.Black else ColorTextoSecundario,
                     fontSize = 14.sp
                 )
             }
@@ -154,7 +166,11 @@ fun PantallaAgregarProducto(
                         TextoConTextField(
                             label = "Nombre de la nueva Marca",
                             valor = model.nombreNuevaMarcaText
-                        ) { agregarProductoViewModel.cambiarNombreNuevaMarca(it) }
+                        ) {
+                            if (it.length <= 30) {
+                                agregarProductoViewModel.cambiarNombreNuevaMarca(it)
+                            }
+                        }
                     }
                 }
 
@@ -167,11 +183,19 @@ fun PantallaAgregarProducto(
                     creandoMarca,
                     marcaYaElegida,
                     model.textoBuscador,
-                    { agregarProductoViewModel.cambiarBusquedaModelo(it) },
+                    {
+                        if (it.length <= 30) {
+                            agregarProductoViewModel.cambiarBusquedaModelo(it)
+                        }
+                    },
                     model.sugerenciasModelos,
                     { id, producto -> agregarProductoViewModel.cambiarProducto(id, producto) },
                     model.modeloSeleccionado,
-                    { agregarProductoViewModel.cambiarNombreNuevoProducto(it) }
+                    {
+                        if (it.length <= 30) {
+                            agregarProductoViewModel.cambiarNombreNuevoProducto(it)
+                        }
+                    }
                 )
 
                 AnimatedVisibility(visible = model.modeloSeleccionado.lowercase() == "otro" || creandoMarca) {
@@ -191,7 +215,7 @@ fun PantallaAgregarProducto(
                 ) {
                     Box(Modifier.weight(1f)) {
                         TextoConTextField(
-                            label = if (model.esColeccion) "Precio Compra/Valor (€)" else "Precio Venta (€)",
+                            label = if (model.esColeccion) "Precio Valor (€)" else "Precio Venta (€)",
                             valor = if (model.precioNuevaPublicacion == 0.0) "" else model.precioNuevaPublicacion.toString(),
                             isNumeric = true
                         ) {
@@ -228,6 +252,7 @@ fun PantallaAgregarProducto(
                     Text(
                         text = model.mensajeError!!,
                         color = Color.Red,
+                        fontFamily = miTipografia,
                         fontSize = 14.sp,
                         modifier = Modifier.fillMaxWidth(),
                         textAlign = TextAlign.Center
@@ -262,7 +287,10 @@ fun Buscador(
     cambiarNombreNuevoProducto: (String) -> Unit
 ) {
 
-    Text(texto, color = Color.Gray, fontSize = 14.sp)
+    Text(
+        texto, color = ColorTextoSecundario,
+        fontFamily = miTipografia, fontSize = 17.sp, fontWeight = Bold
+    )
     Spacer(Modifier.height(8.dp))
 
     Column(modifier = Modifier.fillMaxWidth()) {
@@ -275,7 +303,8 @@ fun Buscador(
             placeholder = {
                 Text(
                     text = if (marcaYaElegida) "Busca un modelo (Ej: Air Force 1) " else "Primero selecciona una marca",
-                    color = Color.Gray
+                    color = Color.Gray,
+                    fontFamily = miTipografia
                 )
             },
             modifier = Modifier.fillMaxWidth(),
@@ -298,6 +327,7 @@ fun Buscador(
                         Text(
                             text = sugerencia.modelo,
                             color = Color.White,
+                            fontFamily = miTipografia,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable {
@@ -315,6 +345,7 @@ fun Buscador(
                         Text(
                             text = "Crear nuevo modelo: \"${textoBuscador}\"",
                             color = Color.White,
+                            fontFamily = miTipografia,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable {
@@ -346,7 +377,7 @@ fun Selector(
 
     var expandedMarcas by remember { mutableStateOf(false) }
 
-    Text(texto, color = Color.Gray, fontSize = 14.sp)
+    Text(texto, color = ColorTextoSecundario, fontSize = 17.sp, fontWeight = Bold)
     Spacer(Modifier.height(8.dp))
     ExposedDropdownMenuBox(
         expanded = expandedMarcas,
@@ -370,7 +401,12 @@ fun Selector(
         ) {
             listaMarcas.forEach { marca ->
                 DropdownMenuItem(
-                    text = { Text(marca.nombre ?: "", color = Color.White) },
+                    text = {
+                        Text(
+                            marca.nombre ?: "",
+                            fontFamily = miTipografia, color = Color.White
+                        )
+                    },
                     onClick = {
                         cambiarMarca(
                             marca.idMarca ?: 0,
@@ -384,7 +420,8 @@ fun Selector(
                 text = {
                     Text(
                         "Otro (Añadir nueva marca...)",
-                        color = Color.White
+                        color = Color.White,
+                        fontFamily = miTipografia
                     )
                 },
                 onClick = {
@@ -410,29 +447,28 @@ fun BotonesInferiores(
             .padding(vertical = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Card(
+
+        Button(
+            agregarPublicacion,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = ColorAcento,
+                disabledContainerColor = ColorAcento.copy(alpha = 0.5f)
+            ),
             modifier = Modifier
                 .fillMaxWidth()
-                .height(55.dp)
-                .clickable(enabled = !estaCargando) {
-                    agregarPublicacion()
-                },
-            shape = RoundedCornerShape(25.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = if (estaCargando) Color.DarkGray else Color.White
-            )
+                .height(85.dp)
+                .padding(vertical = 15.dp)
         ) {
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                if (estaCargando) {
-                    CircularProgressIndicator(color = Color.Black)
-                } else {
-                    Text(
-                        textoBoton,
-                        color = Color.Black,
-                        fontWeight = Bold,
-                        fontSize = 16.sp
-                    )
-                }
+            if (estaCargando) {
+                CircularProgressIndicator(color = Color.Black)
+            } else {
+                Text(
+                    textoBoton,
+                    color = Color.White,
+                    fontWeight = Bold,
+                    fontFamily = miTipografia,
+                    fontSize = 19.sp
+                )
             }
         }
 
@@ -444,7 +480,9 @@ fun BotonesInferiores(
                 .padding(top = 16.dp)
                 .clickable(enabled = !estaCargando) { volverAtras() },
             textAlign = TextAlign.Center,
-            fontSize = 14.sp
+            fontSize = 17.sp,
+            fontFamily = miTipografia,
+            fontWeight = Bold
         )
     }
 }
@@ -453,13 +491,14 @@ fun BotonesInferiores(
 fun TituloAgregarPublicacion(texto: String) {
     Text(
         texto,
-        color = Color.White,
+        color = ColorPrimario,
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 16.dp)
             .testTag("tituloPrincipal"),
         style = TextStyle(
-            fontSize = 25.sp, fontWeight = Bold
+            fontSize = 25.sp, fontWeight = ExtraBold,
+            fontFamily = miTipografia
         )
     )
 }
@@ -472,7 +511,8 @@ fun TextoConTextField(
     onValueChange: (String) -> Unit
 ) {
     Column {
-        Text(label, color = Color.Gray, fontSize = 14.sp)
+        Text(label, color = ColorTextoSecundario,
+            fontFamily = miTipografia, fontSize = 17.sp, fontWeight = Bold)
         Spacer(Modifier.height(8.dp))
         OutlinedTextField(
             value = valor,
@@ -488,13 +528,24 @@ fun TextoConTextField(
 
 @Composable
 fun outlinedTextFieldCustomColors() = OutlinedTextFieldDefaults.colors(
-    unfocusedTextColor = Color.White,
     focusedTextColor = Color.White,
-    unfocusedBorderColor = Color(0xFF333333),
-    focusedBorderColor = Color.White,
-    cursorColor = Color.White,
+    unfocusedTextColor = Color.White,
+
+    focusedContainerColor = ColorTextFieldSeleccionado,
+    unfocusedContainerColor = ColorTextFieldNoSeleccionado,
+
+    focusedBorderColor = Color(0xFF011681),
+    unfocusedBorderColor = Color.Transparent,
+
+    focusedLabelColor = Color(0xFF011681),
+    unfocusedLabelColor = Color.Gray,
+
+    focusedLeadingIconColor = Color.White,
+    unfocusedLeadingIconColor = Color.DarkGray,
+
     focusedTrailingIconColor = Color.White,
-    unfocusedTrailingIconColor = Color.Gray,
-    disabledBorderColor = Color(0xFF222222),
-    disabledTextColor = Color.DarkGray
+    unfocusedTrailingIconColor = Color.LightGray,
+    disabledContainerColor = ColorTextFieldSeleccionado,
+
+    cursorColor = Color.White
 )

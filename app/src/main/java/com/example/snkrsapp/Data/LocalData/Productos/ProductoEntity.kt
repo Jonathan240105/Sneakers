@@ -12,8 +12,6 @@ data class ProductoEntity(
     val idMarca: Int = 0,
     val modelo: String = "",
     val precio: Double = 0.0,
-    val talla: Int = 0,
-    val uidVendedor: String = "",
     val imagenUrl: String = ""
 )
 
@@ -23,8 +21,6 @@ fun ProductoEntityToProducto(producto: ProductoEntity): Producto {
         idMarca = producto.idMarca,
         modelo = producto.modelo,
         precio = producto.precio,
-        talla = producto.talla,
-        uidVendedor = producto.uidVendedor,
         imagenUrl = producto.imagenUrl
     )
 }
@@ -35,8 +31,6 @@ fun ProductoRespuestaToProductoEntity(producto: TodosProductosRespuesta): Produc
         idMarca = producto.idMarca,
         modelo = producto.modelo,
         precio = producto.precio?:0.0,
-        talla = producto.talla?:0,
-        uidVendedor = producto.uidVendedor?:"",
         imagenUrl = producto.imagenUrl?:""
     )
 

@@ -60,29 +60,23 @@ class RegistroViewModel @Inject constructor(
         viewModelScope.launch {
             usuarioRepository.registrarUsuario(email, contra, nombre, apellidos, fecha, urlFoto)
                 .collect { resultado ->
-                    if (resultado is EstadoRegistro.Exito) {
-                        _model.update { it.copy(exito = true, cargando = false) }
-                        println("Todo fue bien")
-                    } else if (resultado is EstadoRegistro.Error && resultado.errorFirebase) {
-                        _model.update {
-                            it.copy(
-                                exito = false,
-                                errorFirebase = true,
-                                cargando = false,
-                                error = resultado.mensaje
-                            )
+                    when (resultado) {
+                        is EstadoRegistro.Exito -> {
+                            _model.update { it.copy(exito = true, cargando = false, error = null) }
                         }
-                        println("Algo fue mal,culpa de firebase")
-                    } else if (resultado is EstadoRegistro.Error) {
-                        _model.update {
-                            it.copy(
-                                exito = false,
-                                errorFirebase = false,
-                                cargando = false,
-                                error = resultado.mensaje
-                            )
+                        is EstadoRegistro.Error -> {
+                            _model.update {
+                                it.copy(
+                                    exito = false,
+                                    cargando = false,
+                                    error = resultado.mensaje,
+                                    errorFirebase = resultado.errorFirebase
+                                )
+                            }
                         }
-                        println("Algo fue mal con el servidor")
+                        is EstadoRegistro.Cargando -> {
+                            _model.update { it.copy(cargando = true) }
+                        }
                     }
                 }
         }

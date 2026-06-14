@@ -31,20 +31,22 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.snkrsapp.R
+import com.example.snkrsapp.ui.theme.ColorNeutroFondo
+import com.example.snkrsapp.ui.theme.ColorPrimario
+import com.example.snkrsapp.ui.theme.ColorTextoSecundario
 
 
 @Composable
 fun BottomBar(navController: NavController) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
-    val cs = MaterialTheme.colorScheme
 
     Surface(
         modifier = Modifier
             .fillMaxWidth()
             .navigationBarsPadding()
             .padding(horizontal = 12.dp, vertical = 8.dp),
-        color = cs.surface,
+        color = ColorPrimario,
         shape = RoundedCornerShape(24.dp),
         tonalElevation = 2.dp,
         shadowElevation = 8.dp
@@ -65,7 +67,7 @@ fun BottomBar(navController: NavController) {
                             .size(width = 52.dp, height = 34.dp)
                             .clip(RoundedCornerShape(20.dp))
                             .background(
-                                if (currentRoute == "Principal") cs.primary.copy(alpha = 0.15f)
+                                if (currentRoute == "Principal") Color.LightGray
                                 else Color.Transparent
                             ),
                         contentAlignment = Alignment.Center
@@ -73,7 +75,7 @@ fun BottomBar(navController: NavController) {
                         Icon(
                             Icons.Default.Home,
                             "",
-                            tint = if (currentRoute == "Principal") cs.primary else Color.Gray,
+                            tint = if (currentRoute == "Principal") ColorTextoSecundario else Color.White,
                             modifier = Modifier.size(24.dp)
                         )
                     }
@@ -94,7 +96,7 @@ fun BottomBar(navController: NavController) {
                             .size(width = 52.dp, height = 34.dp)
                             .clip(RoundedCornerShape(20.dp))
                             .background(
-                                if (currentRoute == "Eventos") cs.primary.copy(alpha = 0.15f)
+                                if (currentRoute == "Eventos") Color.LightGray
                                 else Color.Transparent
                             ),
                         contentAlignment = Alignment.Center
@@ -102,7 +104,7 @@ fun BottomBar(navController: NavController) {
                         Icon(
                             Icons.Default.DateRange,
                             "",
-                            tint = if (currentRoute == "Eventos") cs.primary else Color.Gray,
+                            tint = if (currentRoute == "Eventos") ColorTextoSecundario else Color.White,
                             modifier = Modifier.size(24.dp)
                         )
                     }
@@ -124,7 +126,7 @@ fun BottomBar(navController: NavController) {
                             .size(width = 52.dp, height = 34.dp)
                             .clip(RoundedCornerShape(20.dp))
                             .background(
-                                if (currentRoute == "AgregarProducto") cs.primary.copy(alpha = 0.15f)
+                                if (currentRoute == "AgregarProducto") Color.LightGray
                                 else Color.Transparent
                             ),
                         contentAlignment = Alignment.Center
@@ -132,7 +134,7 @@ fun BottomBar(navController: NavController) {
                         Icon(
                             painterResource(R.drawable.editperson),
                             "",
-                            tint = if (currentRoute == "AgregarProducto") cs.primary else Color.Gray,
+                            tint = if (currentRoute == "AgregarProducto") ColorTextoSecundario else Color.White,
                             modifier = Modifier.size(24.dp)
                         )
                     }
@@ -153,9 +155,7 @@ fun BottomBar(navController: NavController) {
                             .size(width = 52.dp, height = 34.dp)
                             .clip(RoundedCornerShape(20.dp))
                             .background(
-                                if (currentRoute?.startsWith("Listados") == true) cs.primary.copy(
-                                    alpha = 0.15f
-                                )
+                                if (currentRoute?.startsWith("Listados") == true) Color.LightGray
                                 else Color.Transparent
                             ),
                         contentAlignment = Alignment.Center
@@ -163,7 +163,7 @@ fun BottomBar(navController: NavController) {
                         Icon(
                             Icons.Default.Favorite,
                             "",
-                            tint = if (currentRoute?.startsWith("Listados") == true) cs.primary else Color.Gray,
+                            tint = if (currentRoute?.startsWith("Listados") == true) ColorTextoSecundario else Color.White,
                             modifier = Modifier.size(24.dp)
                         )
                     }
@@ -184,7 +184,7 @@ fun BottomBar(navController: NavController) {
                             .size(width = 52.dp, height = 34.dp)
                             .clip(RoundedCornerShape(20.dp))
                             .background(
-                                if (currentRoute == "Perfil") cs.primary.copy(alpha = 0.15f)
+                                if (currentRoute == "Perfil") Color.LightGray
                                 else Color.Transparent
                             ),
                         contentAlignment = Alignment.Center
@@ -192,7 +192,7 @@ fun BottomBar(navController: NavController) {
                         Icon(
                             Icons.Default.Person,
                             "",
-                            tint = if (currentRoute == "Perfil") cs.primary else Color.Gray,
+                            tint = if (currentRoute == "Perfil") ColorTextoSecundario else Color.White,
                             modifier = Modifier.size(24.dp)
                         )
                     }
@@ -211,14 +211,13 @@ fun BottomBarAdmin(navController: NavController) {
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
-    val cs = MaterialTheme.colorScheme
 
     Surface(
         modifier = Modifier
             .fillMaxWidth()
             .navigationBarsPadding()
             .padding(horizontal = 12.dp, vertical = 8.dp),
-        color = cs.surface,
+        color = ColorPrimario,
         shape = RoundedCornerShape(24.dp),
         tonalElevation = 2.dp,
         shadowElevation = 8.dp
@@ -238,7 +237,7 @@ fun BottomBarAdmin(navController: NavController) {
                             .size(width = 52.dp, height = 34.dp)
                             .clip(RoundedCornerShape(20.dp))
                             .background(
-                                if (currentRoute == "UsuariosAdmin") cs.primary.copy(alpha = 0.15f)
+                                if (currentRoute == "UsuariosAdmin") Color.LightGray
                                 else Color.Transparent
                             ),
                         contentAlignment = Alignment.Center
@@ -246,7 +245,7 @@ fun BottomBarAdmin(navController: NavController) {
                         Icon(
                             Icons.Default.Person,
                             "",
-                            tint = if (currentRoute == "UsuariosAdmin") cs.primary else Color.Gray,
+                            tint = if (currentRoute == "UsuariosAdmin") ColorTextoSecundario else Color.White,
                             modifier = Modifier.size(24.dp)
                         )
                     }
@@ -262,7 +261,7 @@ fun BottomBarAdmin(navController: NavController) {
                             .size(width = 52.dp, height = 34.dp)
                             .clip(RoundedCornerShape(20.dp))
                             .background(
-                                if (currentRoute == "MarcasAdmin") cs.primary.copy(alpha = 0.15f)
+                                if (currentRoute == "MarcasAdmin") Color.LightGray
                                 else Color.Transparent
                             ),
                         contentAlignment = Alignment.Center
@@ -270,7 +269,7 @@ fun BottomBarAdmin(navController: NavController) {
                         Icon(
                             Icons.Default.Menu,
                             "",
-                            tint = if (currentRoute == "MarcasAdmin") cs.primary else Color.Gray,
+                            tint = if (currentRoute == "MarcasAdmin") ColorTextoSecundario else Color.White,
                             modifier = Modifier.size(24.dp)
                         )
                     }
@@ -285,7 +284,7 @@ fun BottomBarAdmin(navController: NavController) {
                             .size(width = 52.dp, height = 34.dp)
                             .clip(RoundedCornerShape(20.dp))
                             .background(
-                                if (currentRoute == "EventosAdmin") cs.primary.copy(alpha = 0.15f)
+                                if (currentRoute == "EventosAdmin") Color.LightGray
                                 else Color.Transparent
                             ),
                         contentAlignment = Alignment.Center
@@ -293,7 +292,30 @@ fun BottomBarAdmin(navController: NavController) {
                         Icon(
                             Icons.Default.Menu,
                             "",
-                            tint = if (currentRoute == "EventosAdmin") cs.primary else Color.Gray,
+                            tint = if (currentRoute == "EventosAdmin") ColorTextoSecundario else Color.White,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                }
+            )
+            NavigationBarItem(
+                selected = currentRoute == "PerfilAdmin",
+                onClick = { navController.navigate("PerfilAdmin") },
+                icon = {
+                    Box(
+                        modifier = Modifier
+                            .size(width = 52.dp, height = 34.dp)
+                            .clip(RoundedCornerShape(20.dp))
+                            .background(
+                                if (currentRoute == "PerfilAdmin") Color.LightGray
+                                else Color.Transparent
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            Icons.Default.Person,
+                            "",
+                            tint = if (currentRoute == "PerfilAdmin") ColorTextoSecundario else Color.White,
                             modifier = Modifier.size(24.dp)
                         )
                     }

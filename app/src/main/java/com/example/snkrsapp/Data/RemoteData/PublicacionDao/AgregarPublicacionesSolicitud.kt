@@ -12,7 +12,6 @@ data class AgregarPublicacionesSolicitud(
     val estado: String,
     val urlFoto: String,
     val fecha_publicacion: String,
-    val disponible: Boolean,
     val esParaColeccion: Boolean
 )
 

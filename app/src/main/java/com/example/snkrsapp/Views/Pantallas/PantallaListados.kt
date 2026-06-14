@@ -1,8 +1,9 @@
 package com.example.snkrsapp.Views.Pantallas
 
 import android.widget.Toast
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -57,6 +58,12 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.snkrsapp.Domain.PublicacionPerfilItem
 import com.example.snkrsapp.Views.ViewModels.ListadoViewModel
+import com.example.snkrsapp.ui.theme.ColorBordeTextField
+import com.example.snkrsapp.ui.theme.ColorNeutroFondo
+import com.example.snkrsapp.ui.theme.ColorPrimario
+import com.example.snkrsapp.ui.theme.ColorTextFieldSeleccionado
+import com.example.snkrsapp.ui.theme.ColorTextoSecundario
+import com.example.snkrsapp.ui.theme.miTipografia
 
 @Composable
 fun PantallaListados(
@@ -79,6 +86,13 @@ fun PantallaListados(
             Toast.makeText(contexto, "¡Compra realizada con éxito!", Toast.LENGTH_SHORT).show()
         }
     }
+
+    LaunchedEffect(model.mensajeExito) {
+        if (!model.mensajeExito.isNullOrBlank()) {
+            Toast.makeText(contexto, model.mensajeExito, Toast.LENGTH_SHORT).show()
+            myViewModel.limpiarMensajeExito()
+        }
+    }
     var pestañaSeleccionada by remember { mutableIntStateOf(id) }
 
     val listadoPestañas = if (esMiPerfil) {
@@ -90,12 +104,12 @@ fun PantallaListados(
     Box(modifier = Modifier.fillMaxSize()) {
         Scaffold(
             Modifier.fillMaxSize(),
-            containerColor = Color(0xFF121212),
+            containerColor = ColorNeutroFondo,
             topBar = {
                 Column(
                     Modifier
                         .fillMaxWidth()
-                        .background(Color(0xFF121212))
+                        .background(ColorNeutroFondo)
                         .statusBarsPadding()
                         .padding(horizontal = 20.dp)
                 ) {
@@ -109,7 +123,7 @@ fun PantallaListados(
 
                     TabRow(
                         selectedTabIndex = pestañaSeleccionada.coerceAtMost(listadoPestañas.lastIndex),
-                        containerColor = Color(0xFF121212),
+                        containerColor = ColorNeutroFondo,
                         contentColor = Color.White,
                         indicator = { posicionesTab ->
                             val indiceFijo =
@@ -119,7 +133,7 @@ fun PantallaListados(
                                 color = Color.White
                             )
                         },
-                        divider = { HorizontalDivider(color = Color(0xFF252525)) }
+                        divider = { HorizontalDivider(color = ColorTextoSecundario) }
                     ) {
                         listadoPestañas.forEachIndexed { indice, titulo ->
                             Tab(
@@ -128,7 +142,9 @@ fun PantallaListados(
                                 text = {
                                     Text(
                                         titulo,
-                                        fontSize = 15.sp,
+                                        fontFamily = miTipografia,
+                                        color = ColorTextoSecundario,
+                                        fontSize = 18.sp,
                                         fontWeight = if (pestañaSeleccionada == indice) Bold else null
                                     )
                                 }
@@ -160,7 +176,7 @@ fun PantallaListados(
                             }
                         } else {
                             items(model.listaColeccion) { sneaker ->
-                                CardItemSneakerUnificada(
+                                CardPublicacion(
                                     sneaker.modelo,
                                     sneaker.precio,
                                     sneaker.urlFoto,
@@ -176,7 +192,7 @@ fun PantallaListados(
                             }
                         } else {
                             items(model.listaVentas) { publicacion ->
-                                CardItemSneakerUnificada(
+                                CardPublicacion(
                                     publicacion.modelo,
                                     publicacion.precio,
                                     publicacion.urlFoto,
@@ -197,6 +213,7 @@ fun PantallaListados(
                                         text = model.error!!,
                                         color = Color(0xFFFF6B6B),
                                         fontSize = 14.sp,
+                                        fontFamily = miTipografia,
                                         fontWeight = Bold,
                                         textAlign = TextAlign.Center,
                                         modifier = Modifier
@@ -210,12 +227,12 @@ fun PantallaListados(
                                 }
                             }
                             items(model.listaCarrito) { articulo ->
-                                CardItemSneakerUnificada(
+                                CardPublicacion(
                                     articulo.modelo,
                                     articulo.precio,
                                     articulo.urlFoto,
 
-                                )
+                                    )
                             }
                         }
                     }
@@ -255,13 +272,14 @@ fun TituloListadosConVolver(
             IconButton(
                 onClick = onVolverClick,
                 modifier = Modifier
-                    .background(Color(0xFF1E1E1E), CircleShape)
+                    .background(Color.White, CircleShape)
                     .size(40.dp)
+                    .border(BorderStroke(2.dp, ColorTextFieldSeleccionado))
             ) {
                 Icon(
                     Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Volver",
-                    tint = Color.White
+                    "",
+                    tint = ColorTextoSecundario
                 )
             }
             Spacer(Modifier.width(15.dp))
@@ -269,34 +287,37 @@ fun TituloListadosConVolver(
 
         Text(
             text = texto,
-            color = Color.White,
+            fontFamily = miTipografia,
+            color = ColorPrimario,
             style = TextStyle(fontSize = 25.sp, fontWeight = Bold)
         )
     }
 }
 
 @Composable
-fun CardItemSneakerUnificada(modelo: String, precio: Double, urlFoto: String) {
+fun CardPublicacion(modelo: String, precio: Double, urlFoto: String) {
     Card(
         Modifier
             .fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E1E)),
-        shape = RoundedCornerShape(25.dp)
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        shape = RoundedCornerShape(25.dp),
+        border = BorderStroke(1.dp, ColorBordeTextField)
     ) {
         Column {
             Box(
                 Modifier
                     .fillMaxWidth()
                     .height(160.dp)
-                    .background(Color(0xFF252525)),
+                    .background(Color.Black),
                 Alignment.Center
             ) {
                 AsyncImage(urlFoto, modelo, modifier = Modifier.padding(12.dp))
             }
             Column(modifier = Modifier.padding(15.dp)) {
-                Text(modelo, color = Color.White, fontSize = 17.sp, fontWeight = Bold, maxLines = 1)
+                Text(modelo, color = ColorPrimario,
+                    fontFamily = miTipografia, fontSize = 17.sp, fontWeight = Bold, maxLines = 1)
                 Spacer(Modifier.height(5.dp))
-                Text("$precio €", color = Color.White, fontSize = 16.sp, fontWeight = Bold)
+                Text("$precio €", fontFamily = miTipografia, color = ColorTextoSecundario, fontSize = 16.sp, fontWeight = Bold)
             }
         }
     }
@@ -311,7 +332,7 @@ fun BarraInferiorCompra(
     val costeTotal = listaCarrito.sumOf { it.precio }
     Card(
         Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E1E)),
+        colors = CardDefaults.cardColors(containerColor = ColorPrimario),
         shape = RoundedCornerShape(topStart = 25.dp, topEnd = 25.dp)
     ) {
         Row(
@@ -322,8 +343,9 @@ fun BarraInferiorCompra(
             Alignment.CenterVertically
         ) {
             Column {
-                Text("Total", color = Color.Gray, fontSize = 14.sp)
-                Text("$costeTotal €", color = Color.White, fontSize = 22.sp, fontWeight = Bold)
+                Text("Total", color = Color.White,
+                    fontFamily = miTipografia, fontSize = 17.sp, fontWeight = Bold)
+                Text("$costeTotal €", fontFamily = miTipografia, color = Color.White, fontSize = 22.sp, fontWeight = Bold)
             }
             Button(
                 onComprarClick,
@@ -340,7 +362,8 @@ fun BarraInferiorCompra(
                     )
                 } else {
 
-                    Text("Comprar", color = Color.Black, fontWeight = Bold, fontSize = 16.sp)
+                    Text("Comprar",
+                        fontFamily = miTipografia, color = Color.Black, fontWeight = Bold, fontSize = 16.sp)
                 }
             }
         }
@@ -351,8 +374,10 @@ fun BarraInferiorCompra(
 fun MensajeListadoVacio(texto: String) {
     Text(
         texto,
-        color = Color.DarkGray,
-        fontSize = 15.sp,
+        color = ColorTextoSecundario,
+        fontWeight = Bold,
+        fontFamily = miTipografia,
+        fontSize = 18.sp,
         textAlign = TextAlign.Center,
         modifier = Modifier
             .fillMaxWidth()

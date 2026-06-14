@@ -24,6 +24,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -44,11 +46,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
+import androidx.compose.ui.text.font.FontWeight.Companion.ExtraBold
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.snkrsapp.Data.RemoteData.EventoDao.EventosSolicitud
 import com.example.snkrsapp.Domain.Evento
 import com.example.snkrsapp.Views.ViewModels.EventosViewModel
+import com.example.snkrsapp.ui.theme.ColorAcento
+import com.example.snkrsapp.ui.theme.ColorNeutroFondo
+import com.example.snkrsapp.ui.theme.ColorPrimario
+import com.example.snkrsapp.ui.theme.ColorTextFieldNoSeleccionado
+import com.example.snkrsapp.ui.theme.ColorTextFieldSeleccionado
+import com.example.snkrsapp.ui.theme.ColorTextoSecundario
+import com.example.snkrsapp.ui.theme.miTipografia
 import kotlinx.datetime.LocalDateTime
 import network.chaintech.kmp_date_time_picker.ui.datetimepicker.WheelDateTimePickerView
 import network.chaintech.kmp_date_time_picker.utils.now
@@ -86,7 +96,7 @@ fun PantallaEventos(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF121212))
+            .background(ColorNeutroFondo)
             .padding(paddingValues)
             .padding(horizontal = 15.dp)
     ) {
@@ -96,8 +106,10 @@ fun PantallaEventos(
 
         Text(
             "$nombreMes 2026",
-            color = Color.Gray,
-            fontSize = 15.sp,
+            color = ColorTextoSecundario,
+            fontFamily = miTipografia,
+            fontSize = 17.sp,
+            fontWeight = Bold,
             modifier = Modifier.padding(bottom = 12.dp)
         )
 
@@ -124,7 +136,13 @@ fun PantallaEventos(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text("Eventos disponibles", color = Color.White, fontSize = 18.sp, fontWeight = Bold)
+            Text(
+                "Eventos disponibles",
+                color = ColorTextoSecundario,
+                fontFamily = miTipografia,
+                fontSize = 20.sp,
+                fontWeight = Bold
+            )
         }
 
         Spacer(Modifier.height(16.dp))
@@ -141,7 +159,7 @@ fun PantallaEventos(
         if (mostrarSheet) {
             ModalBottomSheet(
                 onDismissRequest = { cambiarSheet(false) },
-                containerColor = Color(0xFF121212),
+                containerColor = ColorNeutroFondo,
                 dragHandle = { BottomSheetDefaults.DragHandle(color = Color.Gray) }
             ) {
                 CardNuevoEvento(
@@ -152,7 +170,13 @@ fun PantallaEventos(
                     fecha = model.fechaNuevoEvento,
                     abrirSelector = { mostrarPicker = true },
                     onCrearEvento = {
-                        myViewModel.crearEvento(EventosSolicitud(model.tituloNuevoEvento,model.descripcionNuevoEvento,model.fechaNuevoEventoBd))
+                        myViewModel.crearEvento(
+                            EventosSolicitud(
+                                model.tituloNuevoEvento,
+                                model.descripcionNuevoEvento,
+                                model.fechaNuevoEventoBd
+                            )
+                        )
                         cambiarSheet(false)
                         myViewModel.resetearModelEvento()
                     }
@@ -175,7 +199,8 @@ fun CardEvento(evento: Evento) {
     Card(
         Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(25.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E1E))
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        border = BorderStroke(2.dp, ColorTextFieldSeleccionado)
     ) {
         Row(
             Modifier
@@ -193,7 +218,7 @@ fun CardEvento(evento: Evento) {
                 Icon(
                     Icons.Default.DateRange,
                     "",
-                    tint = Color.White,
+                    tint = ColorTextoSecundario.copy(alpha = 0.9f),
                     modifier = Modifier.size(30.dp)
                 )
             }
@@ -203,23 +228,27 @@ fun CardEvento(evento: Evento) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     evento.titulo,
-                    color = Color.White,
-                    fontSize = 16.sp,
-                    fontWeight = Bold
+                    color = ColorPrimario,
+                    fontSize = 18.sp,
+                    fontFamily = miTipografia,
+                    fontWeight = ExtraBold
                 )
                 Text(
                     evento.descripcion,
-                    color = Color.Gray,
-                    fontSize = 13.sp,
+                    color = ColorTextoSecundario,
+                    fontSize = 16.sp,
                     maxLines = 2,
-                    lineHeight = 18.sp
+                    lineHeight = 18.sp,
+                    fontFamily = miTipografia,
+                    fontWeight = Bold
                 )
                 Spacer(Modifier.height(8.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         evento.fechaEvento.formatearFecha(),
-                        color = Color.White,
-                        fontSize = 12.sp,
+                        color = Color.DarkGray,
+                        fontSize = 15.sp,
+                        fontFamily = miTipografia,
                         fontWeight = Bold
                     )
                     Spacer(Modifier.width(8.dp))
@@ -232,8 +261,10 @@ fun CardEvento(evento: Evento) {
                     Spacer(Modifier.width(8.dp))
                     Text(
                         "Presencial",
-                        color = Color.Gray,
-                        fontSize = 12.sp
+                        color = ColorTextoSecundario,
+                        fontFamily = miTipografia,
+                        fontSize = 15.sp,
+                        fontWeight = Bold
                     )
                 }
             }
@@ -259,7 +290,10 @@ fun cardDia(
         colors = CardDefaults.cardColors(
             containerColor = if (seleccionado) Color.White else Color(0xFF1E1E1E)
         ),
-        border = if (seleccionado) null else BorderStroke(1.dp, Color(0xFF333333))
+        border = if (seleccionado) BorderStroke(2.dp, ColorTextFieldSeleccionado) else BorderStroke(
+            2.dp,
+            Color(0xFF333333)
+        )
     ) {
         Column(
             Modifier.fillMaxSize(),
@@ -268,13 +302,15 @@ fun cardDia(
         ) {
             Text(
                 nombreDelMes.substring(0, 3).uppercase(),
-                fontSize = 10.sp,
+                fontSize = 12.sp,
+                fontFamily = miTipografia,
                 color = if (seleccionado) Color.Black else Color.Gray,
                 fontWeight = Bold
             )
             Text(
                 diaDelMes,
-                fontSize = 18.sp,
+                fontSize = 20.sp,
+                fontFamily = miTipografia,
                 color = if (seleccionado) Color.Black else Color.White,
                 fontWeight = Bold
             )
@@ -300,23 +336,39 @@ fun CardNuevoEvento(
         Text(
             "Nuevo Evento",
             fontSize = 25.sp,
-            fontWeight = Bold,
-            color = Color.White
+            fontFamily = miTipografia,
+            fontWeight = ExtraBold,
+            color = ColorPrimario
 
         )
         Spacer(Modifier.height(25.dp))
 
-        Text("Título", color = Color.Gray, fontSize = 14.sp)
+        Text("Título",
+            fontFamily = miTipografia, color = ColorTextoSecundario, fontSize = 14.sp, fontWeight = ExtraBold)
         Spacer(Modifier.height(8.dp))
         OutlinedTextField(
             value = titulo,
             onValueChange = onTituloChange,
             modifier = Modifier.fillMaxWidth(),
             colors = OutlinedTextFieldDefaults.colors(
-                unfocusedTextColor = Color.White,
                 focusedTextColor = Color.White,
-                unfocusedBorderColor = Color(0xFF333333),
-                focusedBorderColor = Color.White,
+                unfocusedTextColor = Color.White,
+
+                focusedContainerColor = ColorTextFieldSeleccionado,
+                unfocusedContainerColor = ColorTextFieldNoSeleccionado,
+
+                focusedBorderColor = Color(0xFF011681),
+                unfocusedBorderColor = Color.Transparent,
+
+                focusedLabelColor = Color(0xFF011681),
+                unfocusedLabelColor = Color.Gray,
+
+                focusedLeadingIconColor = Color.White,
+                unfocusedLeadingIconColor = Color.DarkGray,
+
+                focusedTrailingIconColor = Color.White,
+                unfocusedTrailingIconColor = Color.LightGray,
+
                 cursorColor = Color.White
             ),
             shape = RoundedCornerShape(12.dp),
@@ -325,7 +377,8 @@ fun CardNuevoEvento(
 
         Spacer(Modifier.height(25.dp))
 
-        Text("Descripción", color = Color.Gray, fontSize = 14.sp)
+        Text("Descripción",
+            fontFamily = miTipografia, color = ColorTextoSecundario, fontSize = 14.sp, fontWeight = ExtraBold)
         Spacer(Modifier.height(12.dp))
         OutlinedTextField(
             descripcion,
@@ -334,10 +387,24 @@ fun CardNuevoEvento(
                 .fillMaxWidth()
                 .height(100.dp),
             colors = OutlinedTextFieldDefaults.colors(
-                unfocusedTextColor = Color.White,
                 focusedTextColor = Color.White,
-                unfocusedBorderColor = Color(0xFF333333),
-                focusedBorderColor = Color.White,
+                unfocusedTextColor = Color.White,
+
+                focusedContainerColor = ColorTextFieldSeleccionado,
+                unfocusedContainerColor = ColorTextFieldNoSeleccionado,
+
+                focusedBorderColor = Color(0xFF011681),
+                unfocusedBorderColor = Color.Transparent,
+
+                focusedLabelColor = Color(0xFF011681),
+                unfocusedLabelColor = Color.Gray,
+
+                focusedLeadingIconColor = Color.White,
+                unfocusedLeadingIconColor = Color.DarkGray,
+
+                focusedTrailingIconColor = Color.White,
+                unfocusedTrailingIconColor = Color.LightGray,
+
                 cursorColor = Color.White
             ),
             shape = RoundedCornerShape(12.dp)
@@ -345,7 +412,13 @@ fun CardNuevoEvento(
 
         Spacer(Modifier.height(25.dp))
 
-        Text("Fecha del evento", color = Color.Gray, fontSize = 14.sp)
+        Text(
+            "Fecha del evento",
+            fontFamily = miTipografia,
+            color = ColorTextoSecundario,
+            fontSize = 14.sp,
+            fontWeight = ExtraBold
+        )
         Spacer(Modifier.height(12.dp))
         Box(
             Modifier
@@ -365,7 +438,8 @@ fun CardNuevoEvento(
                 Text(
                     if (fecha.isEmpty()) "Seleccionar..." else fecha,
                     color = if (fecha.isEmpty()) Color.Gray else Color.White,
-                    fontSize = 14.sp
+                    fontSize = 14.sp,
+                    fontFamily = miTipografia
                 )
                 Icon(
                     Icons.Default.DateRange,
@@ -378,27 +452,21 @@ fun CardNuevoEvento(
 
         Spacer(Modifier.height(40.dp))
 
-        Card(
-            Modifier
+        Button(
+            onCrearEvento,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = ColorAcento,
+                disabledContainerColor = ColorAcento.copy(alpha = 0.5f)
+            ),
+            modifier = Modifier
                 .fillMaxWidth()
-                .height(55.dp),
-            shape = RoundedCornerShape(25.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White)
+                .height(85.dp)
+                .padding(vertical = 15.dp)
         ) {
-            Box(
-                Modifier
-                    .fillMaxSize()
-                    .clickable(onClick = onCrearEvento),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    "Crear Evento",
-                    color = Color.Black,
-                    fontWeight = Bold,
-                    fontSize = 16.sp
-                )
-            }
+            Text("Crear evento",
+                fontFamily = miTipografia, color = Color.White, fontWeight = Bold, fontSize = 15.sp)
         }
+
         Spacer(Modifier.height(15.dp))
     }
 }
@@ -425,8 +493,3 @@ fun SelectorFechaConHora(
         showMonthAsNumber = false
     )
 }
-//@Preview(showBackground = true)
-//@Composable
-//fun prevw() {
-//    PantallaEventos()
-//}

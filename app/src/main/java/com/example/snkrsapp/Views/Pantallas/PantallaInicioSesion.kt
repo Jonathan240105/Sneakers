@@ -2,6 +2,7 @@ package com.example.snkrsapp.Views.Pantallas
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -35,12 +36,23 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.snkrsapp.R
 import com.example.snkrsapp.Views.ViewModels.InicioSesionViewModel
+import com.example.snkrsapp.ui.theme.ColorAcento
+import com.example.snkrsapp.ui.theme.ColorAlerta
+import com.example.snkrsapp.ui.theme.ColorNeutroFondo
+import com.example.snkrsapp.ui.theme.ColorPrimario
+import com.example.snkrsapp.ui.theme.ColorTextFieldNoSeleccionado
+import com.example.snkrsapp.ui.theme.ColorTextFieldSeleccionado
+import com.example.snkrsapp.ui.theme.ColorTextoSecundario
+import com.example.snkrsapp.ui.theme.miTipografia
+import com.example.snkrsapp.ui.theme.otraTipografia
 
 
 @Composable
@@ -66,18 +78,22 @@ fun PantallaInicioSesion(
     Column(
         Modifier
             .fillMaxSize()
-            .background(Color(0xFF121212))
+            .background(ColorNeutroFondo)
             .padding(horizontal = 30.dp),
         Arrangement.Center,
         Alignment.CenterHorizontally
     ) {
-        TextoCentradoLogIn("Bienvenido!")
+        TextoCentradoLogIn("¡Bienvenido a\nGrails Up!")
         Spacer(Modifier.height(40.dp))
         TextoConTextFieldLogin(
             "Email",
             "textFieldEmail",
             model.email,
-            { myViewModel.cambiarEmail(it) },
+            {
+                if (it.length <= 50) {
+                    myViewModel.cambiarEmail(it)
+                }
+            },
             { Icon(Icons.Default.Email, "") },
             false
         )
@@ -86,7 +102,11 @@ fun PantallaInicioSesion(
             "Contraseña",
             "textFieldContra",
             model.contra,
-            { myViewModel.cambiarContra(it) },
+            {
+                if (it.length <= 50) {
+                    myViewModel.cambiarContra(it)
+                }
+            },
             { Icon(Icons.Default.Lock, "") },
             true
         )
@@ -97,32 +117,26 @@ fun PantallaInicioSesion(
                 .padding(8.dp)
         ) {
             Text(
-                "Crear cuenta",
-                Modifier.clickable { cambiarARegistro() },
-                color = Color.White,
+                text = "Crear cuenta",
+                fontFamily = miTipografia,
+                modifier = Modifier.clickable { cambiarARegistro() },
+                color = ColorTextoSecundario,
+                fontWeight = Bold,
+                fontSize = 18.sp
             )
         }
 
-        if (!model.error.isNullOrBlank()) {
+        if (model.error.isNotBlank()) {
             Text(
                 model.error,
-                color = Color(0xFFEF5350),
+                color = ColorAlerta,
+                fontFamily = miTipografia,
                 fontSize = 14.sp,
-                fontWeight = FontWeight.Bold,
+                fontWeight = Bold,
                 modifier = Modifier
                     .padding(vertical = 10.dp, horizontal = 8.dp)
                     .align(Alignment.Start)
                     .testTag("errorLoginMensaje")
-            )
-        } else if (model.errorFirebase) {
-            Text(
-                "Credenciales incorrectas",
-                color = Color(0xFFEF5350),
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier
-                    .padding(vertical = 10.dp, horizontal = 8.dp)
-                    .align(Alignment.Start)
             )
         }
         BotonLogin(
@@ -145,10 +159,13 @@ fun TextoCentradoLogIn(texto: String) {
         Text(
             texto,
             modifier = Modifier.testTag("tituloInicioSesion"),
-            fontSize = 32.sp,
-            color = Color.White,
+            fontSize = 30.sp,
+            color = ColorPrimario,
+            fontFamily = miTipografia,
             fontWeight = FontWeight.ExtraBold,
-            letterSpacing = 2.sp
+            letterSpacing = 2.sp,
+            textAlign = TextAlign.Center,
+            lineHeight = 38.sp
         )
     }
 }
@@ -188,20 +205,29 @@ fun TextoConTextFieldLogin(
                 }
             }
         },
-        label = { Text(texto) },
+        label = { Text(texto, fontWeight = Bold, fontSize = 15.sp, fontFamily = miTipografia) },
         visualTransformation = if (esContra && !contraVisible) PasswordVisualTransformation() else VisualTransformation.None,
         shape = RoundedCornerShape(12.dp),
         colors = OutlinedTextFieldDefaults.colors(
             focusedTextColor = Color.White,
-            unfocusedTextColor = Color.LightGray,
-            focusedBorderColor = Color.White,
-            unfocusedBorderColor = Color.LightGray,
-            focusedLabelColor = Color.White,
+            unfocusedTextColor = Color.White,
+
+            focusedContainerColor = ColorTextFieldSeleccionado,
+            unfocusedContainerColor = ColorTextFieldNoSeleccionado,
+
+            focusedBorderColor = Color(0xFF011681),
+            unfocusedBorderColor = Color.Transparent,
+
+            focusedLabelColor = Color(0xFF011681),
             unfocusedLabelColor = Color.Gray,
-            focusedTrailingIconColor = Color.White,
-            unfocusedTrailingIconColor = Color.DarkGray,
+
             focusedLeadingIconColor = Color.White,
-            unfocusedLeadingIconColor = Color.DarkGray
+            unfocusedLeadingIconColor = Color.DarkGray,
+
+            focusedTrailingIconColor = Color.White,
+            unfocusedTrailingIconColor = Color.LightGray,
+
+            cursorColor = Color.White
         )
     )
 }
@@ -211,9 +237,8 @@ fun BotonLogin(texto: String, tag: String, onClick: () -> Unit, habilitado: Bool
     Button(
         onClick,
         colors = ButtonDefaults.buttonColors(
-            containerColor = Color.White,
-            contentColor = Color.Black,
-            disabledContainerColor = Color.DarkGray
+            containerColor = ColorAcento,
+            disabledContainerColor = ColorAcento.copy(alpha = 0.5f)
         ),
         modifier = Modifier
             .fillMaxWidth()
@@ -222,6 +247,6 @@ fun BotonLogin(texto: String, tag: String, onClick: () -> Unit, habilitado: Bool
             .testTag(tag),
         enabled = habilitado
     ) {
-        Text(texto, color = Color.Black)
+        Text(texto, color = Color.White, fontFamily = miTipografia, fontWeight = Bold, fontSize = 15.sp)
     }
 }

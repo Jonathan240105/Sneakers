@@ -1,7 +1,9 @@
 package com.example.snkrsapp.Views.Pantallas
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -55,6 +57,12 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavController
 import com.example.snkrsapp.Views.Controlador.NavigationUtils.BottomBarAdmin
 import com.example.snkrsapp.Views.ViewModels.PantallaEventosViewModel
+import com.example.snkrsapp.ui.theme.ColorAcento
+import com.example.snkrsapp.ui.theme.ColorBordeTextField
+import com.example.snkrsapp.ui.theme.ColorNeutroFondo
+import com.example.snkrsapp.ui.theme.ColorPrimario
+import com.example.snkrsapp.ui.theme.ColorTextoSecundario
+import com.example.snkrsapp.ui.theme.miTipografia
 import kotlinx.datetime.LocalDate
 import network.chaintech.kmp_date_time_picker.utils.now
 import java.time.ZoneId
@@ -106,7 +114,7 @@ fun PantallaEventosAdmin(
         Column(
             Modifier
                 .fillMaxSize()
-                .background(Color(0xFF121212))
+                .background(ColorNeutroFondo)
                 .padding(top = paddingValues.calculateTopPadding())
                 .padding(bottom = innerPadding.calculateBottomPadding())
                 .padding(horizontal = 20.dp)
@@ -115,7 +123,8 @@ fun PantallaEventosAdmin(
 
             Text(
                 "Listado de Eventos",
-                color = Color.White,
+                color = ColorPrimario,
+                fontFamily = miTipografia,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 16.dp),
@@ -139,8 +148,9 @@ fun PantallaEventosAdmin(
                         ) {
                             Text(
                                 "No hay eventos registrados",
-                                color = Color.Gray,
-                                fontSize = 15.sp
+                                color = ColorTextoSecundario,
+                                fontSize = 17.sp,
+                                fontFamily = miTipografia
                             )
                         }
                     }
@@ -165,11 +175,10 @@ fun PantallaEventosAdmin(
                                 }
                             ),
                         colors = CardDefaults.cardColors(
-                            containerColor = if (estaSeleccionado) Color(0xFF2A2A2A) else Color(
-                                0xFF1E1E1E
-                            )
+                            containerColor = if (estaSeleccionado) Color.DarkGray else Color.White
                         ),
-                        shape = RoundedCornerShape(12.dp)
+                        shape = RoundedCornerShape(12.dp),
+                        border = BorderStroke(1.dp, ColorBordeTextField)
                     ) {
                         Row(
                             Modifier.padding(16.dp),
@@ -179,15 +188,17 @@ fun PantallaEventosAdmin(
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
                                     evento.titulo,
-                                    color = Color.White,
-                                    fontSize = 16.sp,
+                                    color = ColorPrimario,
+                                    fontSize = 17.sp,
+                                    fontFamily = miTipografia,
                                     fontWeight = Bold
                                 )
                                 Spacer(Modifier.height(4.dp))
                                 Text(
                                     evento.descripcion,
-                                    color = Color.LightGray,
-                                    fontSize = 14.sp
+                                    color = ColorTextoSecundario,
+                                    fontSize = 16.sp,
+                                    fontFamily = miTipografia
                                 )
                                 Spacer(Modifier.height(6.dp))
                                 Row(
@@ -196,14 +207,14 @@ fun PantallaEventosAdmin(
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.DateRange,
-                                        contentDescription = null,
-                                        tint = Color.Gray,
+                                        "",
+                                        tint = ColorTextoSecundario,
                                         modifier = Modifier.size(14.dp)
                                     )
                                     Text(
                                         text = evento.fechaEvento.formatearFecha(),
-                                        color = Color.Gray,
-                                        fontSize = 12.sp
+                                        color = ColorTextoSecundario,
+                                        fontSize = 15.sp
                                     )
                                 }
                             }
@@ -265,7 +276,7 @@ fun DialogCrearEventoAdmin(
                 .padding(horizontal = 24.dp)
                 .wrapContentHeight(),
             shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFF121212))
+            colors = CardDefaults.cardColors(containerColor = ColorNeutroFondo)
         ) {
             Column(
                 modifier = Modifier
@@ -275,17 +286,28 @@ fun DialogCrearEventoAdmin(
             ) {
                 Text(
                     text = "Registrar Nuevo Evento",
-                    color = Color.White,
+                    color = ColorPrimario,
                     fontSize = 20.sp,
+                    fontFamily = miTipografia,
                     fontWeight = Bold
                 )
 
                 Column {
-                    Text("Título del Evento", color = Color.Gray, fontSize = 14.sp)
+                    Text(
+                        "Título del Evento",
+                        color = ColorTextoSecundario,
+                        fontSize = 16.sp,
+                        fontFamily = miTipografia,
+                        fontWeight = Bold
+                    )
                     Spacer(Modifier.height(8.dp))
                     OutlinedTextField(
                         value = tituloText,
-                        onValueChange = { tituloText = it },
+                        onValueChange = {
+                            if (it.length <= 30) {
+                                tituloText = it
+                            }
+                        },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
                         singleLine = true,
@@ -293,32 +315,56 @@ fun DialogCrearEventoAdmin(
                         placeholder = {
                             Text(
                                 "Ej. Lanzamiento Yeezy, Drop Nike...",
-                                color = Color.DarkGray
+                                color = Color.White.copy(0.9f),
+                                fontFamily = miTipografia
                             )
                         }
                     )
                 }
 
                 Column {
-                    Text("Descripción", color = Color.Gray, fontSize = 14.sp)
+                    Text(
+                        "Descripción",
+                        color = ColorTextoSecundario,
+                        fontSize = 16.sp,
+                        fontFamily = miTipografia,
+                        fontWeight = Bold
+                    )
                     Spacer(Modifier.height(8.dp))
                     OutlinedTextField(
                         value = descText,
-                        onValueChange = { descText = it },
+                        onValueChange = {
+                            if (it.length <= 100) {
+                                descText = it
+                            }
+                        },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
                         colors = outlinedCustomColors(),
-                        placeholder = { Text("Detalles del evento...", color = Color.DarkGray) }
+                        placeholder = {
+                            Text(
+                                "Detalles del evento...",
+                                color = Color.White.copy(0.9f),
+                                fontFamily = miTipografia
+                            )
+                        }
                     )
                 }
 
                 Column {
-                    Text("Fecha del Evento", color = Color.Gray, fontSize = 14.sp)
+                    Text(
+                        "Fecha del Evento",
+                        color = ColorTextoSecundario,
+                        fontSize = 16.sp,
+                        fontWeight = Bold,
+                        fontFamily = miTipografia
+                    )
                     Spacer(Modifier.height(8.dp))
                     OutlinedTextField(
                         value = fechaText,
                         onValueChange = {},
-                        placeholder = { Text("dd/mm/aaaa", color = Color.Gray) },
+                        placeholder = { Text("dd/mm/aaaa",
+                            fontFamily = miTipografia, color = Color.White.copy(0.8f)) },
                         colors = outlinedCustomColors(),
                         trailingIcon = {
                             Icon(
@@ -347,10 +393,12 @@ fun DialogCrearEventoAdmin(
                         modifier = Modifier
                             .weight(1f)
                             .height(50.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1E1E1E)),
-                        shape = RoundedCornerShape(12.dp)
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+                        shape = RoundedCornerShape(12.dp),
+                        border = BorderStroke(1.dp, ColorBordeTextField)
                     ) {
-                        Text("Cancelar", color = Color.LightGray, fontWeight = Bold)
+                        Text("Cancelar",
+                            fontFamily = miTipografia, color = Color.Black, fontWeight = Bold)
                     }
 
                     Button(
@@ -363,16 +411,18 @@ fun DialogCrearEventoAdmin(
                             .weight(1f)
                             .height(50.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = if (todoCompletado) Color.White else Color(0xFF2E2E2E),
-                            disabledContainerColor = Color(0xFF2E2E2E)
+                            containerColor = if (todoCompletado) ColorAcento else ColorAcento.copy(
+                                0.5f
+                            )
                         ),
                         shape = RoundedCornerShape(12.dp),
                         enabled = todoCompletado
                     ) {
                         Text(
                             text = "Guardar",
-                            color = if (todoCompletado) Color.Black else Color.Gray,
-                            fontWeight = Bold
+                            color = Color.White,
+                            fontWeight = Bold,
+                            fontFamily = miTipografia
                         )
                     }
                 }
@@ -396,11 +446,12 @@ fun BotonCrearEvento(onClick: () -> Unit) {
         modifier = Modifier
             .size(50.dp)
             .background(Color.White, RoundedCornerShape(12.dp))
+            .border(1.dp, ColorBordeTextField, RoundedCornerShape(12.dp))
     ) {
         Icon(
             imageVector = Icons.Default.Add,
             contentDescription = "Añadir Evento",
-            tint = Color.Black,
+            tint = ColorPrimario,
             modifier = Modifier.size(30.dp)
         )
     }

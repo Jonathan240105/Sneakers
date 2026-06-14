@@ -57,8 +57,15 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.snkrsapp.Views.ViewModels.ActualizarPerfilViewModel
 import com.example.snkrsapp.Views.ViewModels.PerfilViewModel
+import com.example.snkrsapp.ui.theme.ColorAcento
+import com.example.snkrsapp.ui.theme.ColorBordeTextField
+import com.example.snkrsapp.ui.theme.ColorNeutroFondo
+import com.example.snkrsapp.ui.theme.ColorPrimario
+import com.example.snkrsapp.ui.theme.ColorTextFieldNoSeleccionado
+import com.example.snkrsapp.ui.theme.ColorTextFieldSeleccionado
+import com.example.snkrsapp.ui.theme.ColorTextoSecundario
+import com.example.snkrsapp.ui.theme.miTipografia
 import kotlinx.datetime.LocalDate
-import org.jetbrains.annotations.Async
 
 @Composable
 fun PantallaActualizarPerfil(
@@ -84,7 +91,7 @@ fun PantallaActualizarPerfil(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF121212))
+            .background(ColorNeutroFondo)
             .statusBarsPadding()
             .navigationBarsPadding()
             .padding(horizontal = 20.dp)
@@ -104,7 +111,7 @@ fun PantallaActualizarPerfil(
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Volver",
+                    "",
                     tint = Color.White
                 )
             }
@@ -129,14 +136,16 @@ fun PantallaActualizarPerfil(
             Spacer(Modifier.height(15.dp))
             Text(
                 "@${model.usuarioActual.nombreUsuario}",
-                color = Color.White,
+                fontFamily = miTipografia,
+                color = ColorPrimario,
                 modifier = Modifier.testTag("NombreUsuario"),
                 fontSize = 24.sp,
                 fontWeight = Bold
             )
             Spacer(Modifier.height(5.dp))
             Text(
-                model.usuarioActual.email, color = Color.Gray, fontSize = 14.sp
+                model.usuarioActual.email,
+                fontFamily = miTipografia, color = Color.DarkGray, fontSize = 16.sp
             )
         }
         Spacer(modifier = Modifier.height(40.dp))
@@ -150,7 +159,8 @@ fun PantallaActualizarPerfil(
         ) {
             Text(
                 "Información Personal",
-                color = Color.White,
+                color = ColorTextoSecundario,
+                fontFamily = miTipografia,
                 fontSize = 18.sp,
                 fontWeight = Bold
             )
@@ -178,7 +188,7 @@ fun PantallaActualizarPerfil(
                         )
                     }
 
-                    Spacer(Modifier.width(10.dp))
+                    Spacer(Modifier.width(20.dp))
 
                     IconButton(
                         onClick = {
@@ -210,11 +220,12 @@ fun PantallaActualizarPerfil(
                             apellidosCambiado = model.usuarioActual.apellidos
                             fechaNacimientoCambiado = model.usuarioActual.fechaNacimiento.take(10)
                         },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF252525)),
+                        colors = ButtonDefaults.buttonColors(containerColor = ColorAcento),
                         shape = RoundedCornerShape(20.dp),
                         modifier = Modifier.height(36.dp)
                     ) {
-                        Text("Editar", fontSize = 14.sp, color = Color.White)
+                        Text("Editar",
+                            fontFamily = miTipografia, fontSize = 15.sp, fontWeight = Bold, color = Color.White)
                     }
                 }
             }
@@ -224,14 +235,19 @@ fun PantallaActualizarPerfil(
             Modifier
                 .fillMaxWidth()
                 .testTag("CardPerfil"),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E1E)),
-            shape = RoundedCornerShape(25.dp)
+            colors = CardDefaults.cardColors(containerColor = Color.White),
+            shape = RoundedCornerShape(25.dp),
+            border = BorderStroke(1.dp, ColorBordeTextField)
         ) {
             Column(Modifier.padding(20.dp)) {
                 if (camposHabilitados) {
                     TextFieldCampo(
                         Icons.Default.Person, "Nombre de usuario", nombreCambiado
-                    ) { nombreCambiado = it }
+                    ) {
+                        if (it.length <= 30) {
+                            nombreCambiado = it
+                        }
+                    }
                 } else {
                     ItemInfoPerfil(
                         Icons.Default.Person,
@@ -247,7 +263,11 @@ fun PantallaActualizarPerfil(
                     if (camposHabilitados) {
                         TextFieldCampo(
                             Icons.Default.Person, "Apellidos", apellidosCambiado
-                        ) { apellidosCambiado = it }
+                        ) {
+                            if (it.length <= 30) {
+                                apellidosCambiado = it
+                            }
+                        }
                     } else {
                         ItemInfoPerfil(
                             Icons.Default.Menu, "Apellidos", model.usuarioActual.apellidos
@@ -269,10 +289,11 @@ fun PantallaActualizarPerfil(
                         OutlinedTextField(
                             value = fechaNacimientoCambiado,
                             onValueChange = {},
-                            label = { Text("Fecha de Nacimiento", color = Color.Gray) },
+                            label = { Text("Fecha de Nacimiento",
+                                fontFamily = miTipografia, color = Color.Gray) },
                             singleLine = true,
-                            readOnly = true, // Evita que se despliegue el teclado nativo Android
-                            enabled = false, // Los colores los hereda mediante OutlinedTextFieldDefaults.colors para simular estar activo
+                            readOnly = true,
+                            enabled = false,
                             leadingIcon = {
                                 Icon(
                                     Icons.Default.DateRange,
@@ -283,10 +304,20 @@ fun PantallaActualizarPerfil(
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(14.dp),
                             colors = OutlinedTextFieldDefaults.colors(
-                                disabledTextColor = Color.White,
-                                disabledLabelColor = Color.Gray,
-                                disabledBorderColor = Color(0xFF333333),
-                                disabledLeadingIconColor = Color.LightGray
+                                focusedTextColor = Color.White,
+                                unfocusedTextColor = Color.White,
+
+                                unfocusedBorderColor = Color.Transparent,
+                                focusedBorderColor = ColorBordeTextField,
+
+                                cursorColor = Color.White,
+
+                                focusedLeadingIconColor = Color.White,
+                                unfocusedLeadingIconColor = Color.DarkGray,
+
+                                focusedContainerColor = ColorTextFieldSeleccionado,
+                                unfocusedContainerColor = ColorTextFieldNoSeleccionado,
+                                focusedLabelColor = ColorBordeTextField
                             )
                         )
                     }
@@ -327,6 +358,7 @@ fun PantallaActualizarPerfil(
             Text(
                 "Cerrar Sesión",
                 color = Color(0xFFE57373),
+                fontFamily = miTipografia,
                 fontWeight = Bold,
                 fontSize = 16.sp
             )
@@ -339,12 +371,14 @@ fun PantallaActualizarPerfil(
 fun ItemInfoPerfil(icono: ImageVector, titulo: String, valor: String) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Icon(
-            icono, "", tint = Color.LightGray, modifier = Modifier.size(20.dp)
+            icono, "", tint = ColorPrimario, modifier = Modifier.size(20.dp)
         )
         Spacer(Modifier.width(15.dp))
         Column {
-            Text(titulo, color = Color.Gray, fontSize = 12.sp)
-            Text(valor, color = Color.White, fontSize = 15.sp, fontWeight = Bold)
+            Text(titulo, color = Color.DarkGray,
+                fontFamily = miTipografia, fontSize = 12.sp)
+            Text(valor, color = ColorTextoSecundario,
+                fontFamily = miTipografia, fontSize = 15.sp, fontWeight = Bold)
         }
     }
 }
@@ -357,7 +391,7 @@ fun TextFieldCampo(
         OutlinedTextField(
             value = texto,
             onValueChange = cambiarTexto,
-            label = { Text(titulo, color = Color.Gray) },
+            label = { Text(titulo, color = Color.Gray, fontFamily = miTipografia) },
             singleLine = true,
             leadingIcon = { Icon(icono, "", tint = Color.LightGray) },
             modifier = Modifier.fillMaxWidth(),
@@ -365,11 +399,18 @@ fun TextFieldCampo(
             colors = OutlinedTextFieldDefaults.colors(
                 focusedTextColor = Color.White,
                 unfocusedTextColor = Color.White,
-                focusedBorderColor = Color.White,
-                unfocusedBorderColor = Color(0xFF333333),
+
+                unfocusedBorderColor = Color.Transparent,
+                focusedBorderColor = ColorBordeTextField,
+
                 cursorColor = Color.White,
-                focusedContainerColor = Color.Transparent,
-                unfocusedContainerColor = Color.Transparent
+
+                focusedLeadingIconColor = Color.White,
+                unfocusedLeadingIconColor = Color.DarkGray,
+
+                focusedContainerColor = ColorTextFieldSeleccionado,
+                unfocusedContainerColor = ColorTextFieldNoSeleccionado,
+                focusedLabelColor = ColorBordeTextField
             )
         )
     }

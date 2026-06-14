@@ -71,17 +71,31 @@ class UsuarioRepositoryImp @Inject constructor(
                                 } else {
                                     trySend(
                                         EstadoLogin.Error(
-                                            "Error en el servi: ${respuesta.message()}", false
+                                            "Error en el servidor. Inténtalo de nuevo más tarde", false
                                         )
                                     )
                                 }
                             } catch (e: Exception) {
-                                trySend(EstadoLogin.Error("Error en la red: ${e.message}", false))
+                                trySend(EstadoLogin.Error("No tienes conexión a internet", false))
                             }
                         }
                     }
                 }.addOnFailureListener { error ->
-                    trySend(EstadoLogin.Error("Error de firebase: ${error.message}", true))
+                    val mensaje = if (error is FirebaseAuthException) {
+                        when (error.errorCode) {
+                            "ERROR_INVALID_CREDENTIALS",
+                            "ERROR_WRONG_PASSWORD",
+                            "ERROR_USER_NOT_FOUND" -> "Credenciales incorrectas"
+                            "ERROR_INVALID_EMAIL" -> "El formato del correo electrónico no es válido."
+                            "ERROR_USER_DISABLED" -> "Esta cuenta ha sido deshabilitada."
+                            "ERROR_TOO_MANY_REQUESTS" -> "Demasiados intentos. Inténtalo más tarde."
+                            else -> "Error al iniciar sesión. Inténtalo de nuevo."
+                        }
+                    } else {
+                        "Ha ocurrido un error inesperado."
+                    }
+
+                    trySend(EstadoLogin.Error(mensaje, true))
                 }
             awaitClose {}
         }
@@ -106,38 +120,37 @@ class UsuarioRepositoryImp @Inject constructor(
 
             if (respuesta.isSuccessful) {
                 println("Todo bien ${respuesta.body()?.exito}")
-                emit(EstadoRegistro.Exito("Usuario añadido a la base de datos"))
+                emit(EstadoRegistro.Exito("Usuario creado correctamente"))
             } else {
                 println("Error en la base de datos")
                 firebaseUser?.delete()?.await()
 
                 emit(
                     EstadoRegistro.Error(
-                        "Error al añadir en la base de datos: ${respuesta.code()}", errorFirebase = false
+                        "Error, inténtelo de nuevo más tarde", errorFirebase = false
                     )
                 )
             }
         } catch (e: Exception) {
             if (e !is FirebaseAuthException && firebaseUser != null) {
-                try {
-                    firebaseUser.delete().await()
-                } catch (deleteException: Exception) {
-                    println("No se pudo limpiar el usuario de Firebase: ${deleteException.message}")
-                }
+                try { firebaseUser.delete().await() } catch (_: Exception) {}
             }
 
             val estadoError = when (e) {
                 is FirebaseAuthException -> {
-                    println("Error de Auth: ${e.errorCode}")
-                    EstadoRegistro.Error(
-                        "Error en Firebase: ${e.message}", errorFirebase = true
-                    )
+                    val mensajeAmigable = when (e.errorCode) {
+                        "ERROR_EMAIL_ALREADY_IN_USE" -> "Este correo electrónico ya está registrado."
+                        "ERROR_INVALID_EMAIL" -> "El formato del correo electrónico no es válido."
+                        "ERROR_WEAK_PASSWORD" -> "La contraseña debe tener al menos 8 caracteres."
+                        else -> "Error de autenticación: Revisa tus datos."
+                    }
+                    EstadoRegistro.Error(mensajeAmigable, errorFirebase = true)
                 }
                 is IOException -> {
-                    EstadoRegistro.Error("No hay internet o el servidor no responde", errorFirebase = false)
+                    EstadoRegistro.Error("No tienes conexión a Internet o el servidor está caído.", false)
                 }
                 else -> {
-                    EstadoRegistro.Error("Error inesperado: ${e.message}", errorFirebase = false)
+                    EstadoRegistro.Error("Ha ocurrido un error inesperado durante el registro.", false)
                 }
             }
             emit(estadoError)

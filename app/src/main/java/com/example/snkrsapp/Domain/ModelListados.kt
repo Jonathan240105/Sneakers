@@ -15,6 +15,7 @@ data class ModelListados(
 
     val cargandoPago: Boolean = false,
     val error: String? = null,
+    val mensajeExito: String? = null,
 
     val listaColeccion: List<ProductoColeccionItem> = emptyList(),
     val listaVentas: List<PublicacionPerfilItem> = emptyList(),
