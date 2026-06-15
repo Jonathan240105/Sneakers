@@ -248,32 +248,26 @@ fun CardMarca(marca: Marca, seleccionada: Boolean, elegirMarca: () -> Unit) {
         colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E1E)),
         border = if (seleccionada) BorderStroke(width = 1.5.dp, color = Color.White) else null
     ) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.CenterStart) {
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
             AsyncImage(
-                marca.logoUrl,
-                "",
-                modifier = Modifier
-                    .padding(start = 12.dp)
-                    .size(50.dp),
+                model = marca.logoUrl,
+                contentDescription = "Logo de ${marca.nombre}",
+                modifier = Modifier.size(35.dp),
                 contentScale = ContentScale.Fit
             )
 
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(
-                        Color(0xFF1E1E1E)
-                    )
-            )
             Text(
                 text = marca.nombre ?: "",
                 color = Color.White,
                 fontWeight = Bold,
                 fontFamily = miTipografia,
-                fontSize = 14.sp,
-                modifier = Modifier
-                    .align(Alignment.CenterEnd)
-                    .padding(end = 14.dp)
+                fontSize = 14.sp
             )
         }
     }
