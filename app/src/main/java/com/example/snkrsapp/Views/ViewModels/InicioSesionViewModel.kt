@@ -6,6 +6,7 @@ import com.example.snkrsapp.Data.RemoteData.AutorizacionDao.Usuario
 import com.example.snkrsapp.Data.Repository.UsuarioRepository.UsuarioRepository
 import com.example.snkrsapp.Domain.EstadoLogin
 import com.example.snkrsapp.Domain.ModelInicioSesion
+import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -62,6 +63,62 @@ class InicioSesionViewModel @Inject constructor(
         _model.update { it.copy(contra = contra) }
     }
 
+    fun recuperarContrasena(email: String) {
+        val emailRecuperacion = email.trim()
+
+        if (emailRecuperacion.isBlank()) {
+            _model.update {
+                it.copy(
+                    cargandoRecuperacion = false,
+                    mensajeRecuperacion = "",
+                    errorRecuperacion = "Introduce el email asociado a tu cuenta"
+                )
+            }
+            return
+        }
+
+        _model.update {
+            it.copy(
+                cargandoRecuperacion = true,
+                mensajeRecuperacion = "",
+                errorRecuperacion = ""
+            )
+        }
+
+        FirebaseAuth.getInstance()
+            .sendPasswordResetEmail(emailRecuperacion)
+            .addOnCompleteListener { tarea ->
+                if (tarea.isSuccessful) {
+                    _model.update {
+                        it.copy(
+                            cargandoRecuperacion = false,
+                            mensajeRecuperacion = "Revisa tu correo para restablecer la contraseña",
+                            errorRecuperacion = ""
+                        )
+                    }
+                } else {
+                    _model.update {
+                        it.copy(
+                            cargandoRecuperacion = false,
+                            mensajeRecuperacion = "",
+                            errorRecuperacion = tarea.exception?.message
+                                ?: "No se pudo enviar el correo de recuperación"
+                        )
+                    }
+                }
+            }
+    }
+
+    fun limpiarEstadoRecuperacion() {
+        _model.update {
+            it.copy(
+                cargandoRecuperacion = false,
+                mensajeRecuperacion = "",
+                errorRecuperacion = ""
+            )
+        }
+    }
+
     fun resetearEstadoPantalla() {
         _model.update {
             it.copy(
@@ -71,7 +128,10 @@ class InicioSesionViewModel @Inject constructor(
                 cargando = false,
                 email = "",
                 contra = "",
-                usuario = Usuario()
+                usuario = Usuario(),
+                cargandoRecuperacion = false,
+                mensajeRecuperacion = "",
+                errorRecuperacion = ""
             )
         }
     }

@@ -13,16 +13,20 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -64,6 +68,8 @@ fun PantallaInicioSesion(
 ) {
 
     val model by myViewModel.model.collectAsState()
+    var mostrarDialogRecuperacion by remember { mutableStateOf(false) }
+    var emailRecuperacion by remember { mutableStateOf("") }
 
     LaunchedEffect(model.exito) {
         if (model.exito) {
@@ -75,6 +81,26 @@ fun PantallaInicioSesion(
             myViewModel.resetearEstadoPantalla()
         }
     }
+
+    if (mostrarDialogRecuperacion) {
+        DialogRecuperarContrasena(
+            email = emailRecuperacion,
+            cambiarEmail = {
+                if (it.length <= 50) {
+                    emailRecuperacion = it
+                }
+            },
+            cargando = model.cargandoRecuperacion,
+            mensaje = model.mensajeRecuperacion,
+            error = model.errorRecuperacion,
+            cerrar = {
+                mostrarDialogRecuperacion = false
+                myViewModel.limpiarEstadoRecuperacion()
+            },
+            enviar = { myViewModel.recuperarContrasena(emailRecuperacion) }
+        )
+    }
+
     Column(
         Modifier
             .fillMaxSize()
@@ -114,12 +140,26 @@ fun PantallaInicioSesion(
         Row(
             Modifier
                 .fillMaxWidth()
-                .padding(8.dp)
+                .padding(8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = "Crear cuenta",
                 fontFamily = miTipografia,
                 modifier = Modifier.clickable { cambiarARegistro() },
+                color = ColorTextoSecundario,
+                fontWeight = Bold,
+                fontSize = 18.sp
+            )
+            Text(
+                text = "Olvidé mi contraseña",
+                fontFamily = miTipografia,
+                modifier = Modifier.clickable {
+                    emailRecuperacion = model.email
+                    mostrarDialogRecuperacion = true
+                    myViewModel.limpiarEstadoRecuperacion()
+                },
                 color = ColorTextoSecundario,
                 fontWeight = Bold,
                 fontSize = 18.sp
@@ -147,6 +187,104 @@ fun PantallaInicioSesion(
         )
     }
 
+}
+
+@Composable
+fun DialogRecuperarContrasena(
+    email: String,
+    cambiarEmail: (String) -> Unit,
+    cargando: Boolean,
+    mensaje: String,
+    error: String,
+    cerrar: () -> Unit,
+    enviar: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = cerrar,
+        containerColor = ColorNeutroFondo,
+        title = {
+            Text(
+                "Restablecer contraseña",
+                color = ColorPrimario,
+                fontFamily = miTipografia,
+                fontWeight = Bold
+            )
+        },
+        text = {
+            Column {
+                Text(
+                    "Introduce el email asociado a tu cuenta.",
+                    color = ColorTextoSecundario,
+                    fontFamily = miTipografia,
+                    fontSize = 15.sp
+                )
+                Spacer(Modifier.height(12.dp))
+                TextoConTextFieldLogin(
+                    "Email",
+                    "textFieldEmailRecuperacion",
+                    email,
+                    cambiarEmail,
+                    { Icon(Icons.Default.Email, "") },
+                    false
+                )
+                if (mensaje.isNotBlank()) {
+                    Spacer(Modifier.height(10.dp))
+                    Text(
+                        mensaje,
+                        color = ColorAcento,
+                        fontFamily = miTipografia,
+                        fontWeight = Bold,
+                        fontSize = 14.sp
+                    )
+                }
+                if (error.isNotBlank()) {
+                    Spacer(Modifier.height(10.dp))
+                    Text(
+                        error,
+                        color = ColorAlerta,
+                        fontFamily = miTipografia,
+                        fontWeight = Bold,
+                        fontSize = 14.sp
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                enviar,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = ColorAcento,
+                    disabledContainerColor = ColorAcento.copy(alpha = 0.5f)
+                ),
+                enabled = !cargando
+            ) {
+                if (cargando) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(22.dp),
+                        color = Color.White,
+                        strokeWidth = 2.dp
+                    )
+                } else {
+                    Text(
+                        "Enviar correo",
+                        color = Color.White,
+                        fontFamily = miTipografia,
+                        fontWeight = Bold
+                    )
+                }
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = cerrar) {
+                Text(
+                    "Cancelar",
+                    color = ColorTextoSecundario,
+                    fontFamily = miTipografia,
+                    fontWeight = Bold
+                )
+            }
+        }
+    )
 }
 
 @Composable

@@ -9,5 +9,8 @@ data class ModelInicioSesion(
     val error: String = "",
     val email : String = "",
     val contra : String = "",
-    val usuario : Usuario = Usuario()
+    val usuario : Usuario = Usuario(),
+    val cargandoRecuperacion: Boolean = false,
+    val mensajeRecuperacion: String = "",
+    val errorRecuperacion: String = ""
 )
