@@ -1,5 +1,7 @@
 package com.example.snkrsapp.Data.Repository
 
+import com.example.snkrsapp.Data.Repository.ChatRepository.ChatRepository
+import com.example.snkrsapp.Data.Repository.ChatRepository.ChatRepositoryImp
 import com.example.snkrsapp.Data.Repository.EventoRepository.EventoRepository
 import com.example.snkrsapp.Data.Repository.EventoRepository.EventoRepositoryImp
 import com.example.snkrsapp.Data.Repository.ProductoRepository.ProductoRepository
@@ -33,4 +35,10 @@ abstract class ModuloRepository {
     abstract fun bindEventoRepository(
         eventoRepositoryImp: EventoRepositoryImp
     ): EventoRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindChatRepository(
+        chatRepositoryImp: ChatRepositoryImp
+    ): ChatRepository
 }
