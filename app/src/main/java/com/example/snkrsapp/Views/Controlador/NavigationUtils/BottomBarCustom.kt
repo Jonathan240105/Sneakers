@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Menu
@@ -164,6 +165,35 @@ fun BottomBar(navController: NavController) {
                             Icons.Default.Favorite,
                             "",
                             tint = if (currentRoute?.startsWith("Listados") == true) ColorTextoSecundario else Color.White,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                },
+                alwaysShowLabel = false,
+                colors = NavigationBarItemDefaults.colors(
+                    indicatorColor = Color.Transparent
+                )
+            )
+            NavigationBarItem(
+                selected = currentRoute == "Conversaciones",
+                onClick = {
+                    navController.navigate("Conversaciones")
+                },
+                icon = {
+                    Box(
+                        modifier = Modifier
+                            .size(width = 52.dp, height = 34.dp)
+                            .clip(RoundedCornerShape(20.dp))
+                            .background(
+                                if (currentRoute == "Conversaciones") Color.LightGray
+                                else Color.Transparent
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            Icons.Default.Email,
+                            "",
+                            tint = if (currentRoute == "Conversaciones") ColorTextoSecundario else Color.White,
                             modifier = Modifier.size(24.dp)
                         )
                     }

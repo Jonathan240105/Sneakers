@@ -56,6 +56,7 @@ import coil.compose.AsyncImage
 import com.example.snkrsapp.Domain.Marca
 import com.example.snkrsapp.Domain.Publicacion
 import com.example.snkrsapp.Views.ViewModels.ProductoDetalladoViewModel
+import com.example.snkrsapp.ui.theme.ColorAcento
 import com.example.snkrsapp.ui.theme.ColorNeutroFondo
 import com.example.snkrsapp.ui.theme.ColorPrimario
 import com.example.snkrsapp.ui.theme.ColorTextoSecundario
@@ -68,7 +69,8 @@ fun PantallaProductoDetallado(
     volverAPrincipal: () -> Unit,
     myViewModel: ProductoDetalladoViewModel,
     paddingValues: PaddingValues,
-    navegarAPerfil: (String) -> Unit
+    navegarAPerfil: (String) -> Unit,
+    contactarVendedor: (String, Int?, String, String) -> Unit
 ) {
     var pestañaSeleccionada by remember { mutableStateOf(0) }
     val model by myViewModel.model.collectAsState()
@@ -182,7 +184,16 @@ fun PantallaProductoDetallado(
                         marca = model.marcaSeleccionada,
                         nombreVendedor = model.publicacionSeleccionada.nombreUsuario
                             ?: "Usuario SNKRS",
-                        onVerPerfilClick = { navegarAPerfil(model.publicacionSeleccionada.uidUsuario) })
+                        onVerPerfilClick = { navegarAPerfil(model.publicacionSeleccionada.uidUsuario) },
+                        onContactarClick = {
+                            contactarVendedor(
+                                model.publicacionSeleccionada.uidUsuario,
+                                model.productoSeleccionado.idProducto,
+                                model.publicacionSeleccionada.nombreUsuario ?: "Usuario",
+                                model.productoSeleccionado.modelo
+                            )
+                        }
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(100.dp))
@@ -365,7 +376,10 @@ fun ContenidoDetalles(
 
 @Composable
 fun ContenidoInformacionCompleta(
-    marca: Marca, nombreVendedor: String, onVerPerfilClick: () -> Unit
+    marca: Marca,
+    nombreVendedor: String,
+    onVerPerfilClick: () -> Unit,
+    onContactarClick: () -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Text(
@@ -449,16 +463,30 @@ fun ContenidoInformacionCompleta(
                         fontSize = 17.sp
                     )
                 }
-                Text(
-                    text = "Ver perfil",
-                    color = Color.DarkGray,
-                    fontSize = 14.sp,
-                    fontFamily = miTipografia,
-                    fontWeight = Bold,
-                    textDecoration = TextDecoration.Underline,
-                    modifier = Modifier
-                        .clickable { onVerPerfilClick() }
-                        .padding(8.dp))
+                Column(horizontalAlignment = Alignment.End) {
+                    Text(
+                        text = "Contactar",
+                        color = ColorAcento,
+                        fontSize = 14.sp,
+                        fontFamily = miTipografia,
+                        fontWeight = Bold,
+                        textDecoration = TextDecoration.Underline,
+                        modifier = Modifier
+                            .clickable { onContactarClick() }
+                            .padding(8.dp)
+                    )
+                    Text(
+                        text = "Ver perfil",
+                        color = Color.DarkGray,
+                        fontSize = 14.sp,
+                        fontFamily = miTipografia,
+                        fontWeight = Bold,
+                        textDecoration = TextDecoration.Underline,
+                        modifier = Modifier
+                            .clickable { onVerPerfilClick() }
+                            .padding(8.dp)
+                    )
+                }
             }
         }
     }

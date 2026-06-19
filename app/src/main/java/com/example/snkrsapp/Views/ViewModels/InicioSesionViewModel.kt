@@ -128,7 +128,6 @@ class InicioSesionViewModel @Inject constructor(
                 cargando = false,
                 email = "",
                 contra = "",
-                usuario = Usuario(),
                 cargandoRecuperacion = false,
                 mensajeRecuperacion = "",
                 errorRecuperacion = ""
