@@ -1,11 +1,15 @@
 package com.example.snkrsapp.Views.Controlador
 
+import android.widget.Toast
 import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -15,9 +19,12 @@ import com.example.snkrsapp.Views.Controlador.NavigationUtils.BotonCrearEvento
 import com.example.snkrsapp.Views.Controlador.NavigationUtils.BottomBar
 import com.example.snkrsapp.Views.Pantallas.PantallaActualizarPerfil
 import com.example.snkrsapp.Views.Pantallas.PantallaAgregarProducto
+import com.example.snkrsapp.Views.Pantallas.PantallaChat
+import com.example.snkrsapp.Views.Pantallas.PantallaConversaciones
 import com.example.snkrsapp.Views.Pantallas.PantallaEventos
 import com.example.snkrsapp.Views.Pantallas.PantallaEventosAdmin
 import com.example.snkrsapp.Views.Pantallas.PantallaInicioSesion
+import com.example.snkrsapp.Views.Pantallas.PantallaIncidenciasAdmin
 import com.example.snkrsapp.Views.Pantallas.PantallaListados
 import com.example.snkrsapp.Views.Pantallas.PantallaMarcasAdmin
 import com.example.snkrsapp.Views.Pantallas.PantallaPerfil
@@ -27,8 +34,10 @@ import com.example.snkrsapp.Views.Pantallas.PantallaProductoDetallado
 import com.example.snkrsapp.Views.Pantallas.PantallaRegistro
 import com.example.snkrsapp.Views.Pantallas.PantallaUsuariosAdmin
 import com.example.snkrsapp.Views.ViewModels.ActualizarPerfilViewModel
+import com.example.snkrsapp.Views.ViewModels.ChatViewModel
 import com.example.snkrsapp.Views.ViewModels.EventosViewModel
 import com.example.snkrsapp.Views.ViewModels.InicioSesionViewModel
+import com.example.snkrsapp.Views.ViewModels.IncidenciasAdminViewModel
 import com.example.snkrsapp.Views.ViewModels.ListadoViewModel
 import com.example.snkrsapp.Views.ViewModels.MarcasAdminViewModel
 import com.example.snkrsapp.Views.ViewModels.PantallaEventosViewModel
@@ -38,11 +47,13 @@ import com.example.snkrsapp.Views.ViewModels.ProductoDetalladoViewModel
 import com.example.snkrsapp.Views.ViewModels.RegistroViewModel
 import com.example.snkrsapp.Views.ViewModels.UsuariosAdminViewModel
 import com.example.snkrsapp.Views.ViewModels.ViewmodelAgregarProducto
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun Controlador() {
 
     val navController = rememberNavController()
+    val contexto = LocalContext.current
 
     val iniSesViewModel: InicioSesionViewModel = hiltViewModel()
     val registroViewModel: RegistroViewModel = hiltViewModel()
@@ -56,6 +67,9 @@ fun Controlador() {
     val usuariosAdminViewModel: UsuariosAdminViewModel = hiltViewModel()
     val marcasAdminViewModel: MarcasAdminViewModel = hiltViewModel()
     val eventosAdminViewModel: PantallaEventosViewModel = hiltViewModel()
+    val incidenciasAdminViewModel: IncidenciasAdminViewModel = hiltViewModel()
+    val chatViewModel: ChatViewModel = hiltViewModel()
+    val modelInicioSesion by iniSesViewModel.model.collectAsState()
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -67,12 +81,23 @@ fun Controlador() {
             "ProductoDetallado/{id}/{marca}",
             "Perfil/{uid}",
             "Listados/{id}/{uid}",
+            "Chat/{idChat}",
             "UsuariosAdmin",
             "MarcasAdmin",
             "EventosAdmin",
+            "IncidenciasAdmin",
             "PerfilAdmin"
         )
     var mostrarSheet by remember { mutableStateOf(false) }
+
+    LaunchedEffect(currentRoute) {
+        if (currentRoute !in listOf("InicioSesion", "Registro", null)) {
+            chatViewModel.prepararUsuarioActual(
+                nombreUsuario = modelInicioSesion.usuario.nombreUsuario,
+                fotoUsuario = modelInicioSesion.usuario.urlFoto
+            )
+        }
+    }
 
     Scaffold(
         bottomBar = {
@@ -125,6 +150,9 @@ fun Controlador() {
             composable("EventosAdmin") {
                 PantallaEventosAdmin(eventosAdminViewModel, paddingValues, navController)
             }
+            composable("IncidenciasAdmin") {
+                PantallaIncidenciasAdmin(incidenciasAdminViewModel, paddingValues, navController)
+            }
             composable("PerfilAdmin") {
                 PantallaPerfilAdmin(
                     {},
@@ -154,7 +182,56 @@ fun Controlador() {
                     { navController.navigate("Principal") },
                     productoDetalladoViewModel,
                     paddingValues,
-                    { navController.navigate("Perfil/${it}") }
+                    { navController.navigate("Perfil/${it}") },
+                    { uidVendedor, idProducto, nombreVendedor, modeloProducto ->
+                        val uidActual = FirebaseAuth.getInstance().currentUser?.uid
+                        if (uidVendedor.isBlank()) {
+                            Toast.makeText(
+                                contexto,
+                                "No se puede contactar con este vendedor",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        } else if (uidVendedor == uidActual) {
+                            Toast.makeText(
+                                contexto,
+                                "No puedes contactar contigo mismo",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        } else {
+                            chatViewModel.crearORecuperarChat(
+                                uidOtroUsuario = uidVendedor,
+                                idProducto = idProducto,
+                                nombreUsuarioActual = modelInicioSesion.usuario.nombreUsuario,
+                                fotoUsuarioActual = modelInicioSesion.usuario.urlFoto,
+                                nombreOtroUsuario = nombreVendedor,
+                                modeloProducto = modeloProducto,
+                                chatCreado = { idChat ->
+                                    navController.navigate("Chat/$idChat")
+                                },
+                                errorChat = { mensaje ->
+                                    Toast.makeText(contexto, mensaje, Toast.LENGTH_SHORT).show()
+                                }
+                            )
+                        }
+                    }
+                )
+            }
+
+            composable("Chat/{idChat}") {
+                val idChat = it.arguments?.getString("idChat") ?: ""
+                PantallaChat(
+                    idChat = idChat,
+                    chatViewModel = chatViewModel,
+                    paddingValues = paddingValues,
+                    volver = { navController.popBackStack() }
+                )
+            }
+
+            composable("Conversaciones") {
+                PantallaConversaciones(
+                    chatViewModel = chatViewModel,
+                    paddingValues = paddingValues,
+                    navegarAChat = { idChat -> navController.navigate("Chat/$idChat") }
                 )
             }
 

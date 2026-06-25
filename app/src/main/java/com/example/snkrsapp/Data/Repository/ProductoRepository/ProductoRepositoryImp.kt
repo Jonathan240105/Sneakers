@@ -25,9 +25,12 @@ import com.example.snkrsapp.Data.RemoteData.ProductoDao.CompletarMarcaSolicitud
 import com.example.snkrsapp.Data.RemoteData.ProductoDao.CrearMarcaSolicitud
 import com.example.snkrsapp.Data.RemoteData.ProductoDao.EliminarMarcasSolicitud
 import com.example.snkrsapp.Data.RemoteData.ProductoDao.ProductosDao
+import com.example.snkrsapp.Data.RemoteData.PublicacionDao.AgregarCarritoSolicitud
 import com.example.snkrsapp.Data.RemoteData.PublicacionDao.AgregarPublicacionesSolicitud
 import com.example.snkrsapp.Data.RemoteData.PublicacionDao.PublicacionDao
 import com.example.snkrsapp.Data.RemoteData.PublicacionDao.toEntity
+import com.example.snkrsapp.Data.RemoteData.PublicacionDao.toDomain
+import com.example.snkrsapp.Domain.ColorPublicacion
 import com.example.snkrsapp.Domain.EstadoCrearMarca
 import com.example.snkrsapp.Domain.EstadoEliminarMarcas
 import com.example.snkrsapp.Domain.EstadoProductoNuevo
@@ -397,24 +400,12 @@ class ProductoRepositoryImp @Inject constructor(
         idProducto: Int
     ): Flow<List<Publicacion>> = flow {
 
-        val publicacionesLocales = publicacionLocalDao.getPublicaciones(idProducto)
-        if (publicacionesLocales.isNotEmpty()) {
-            emit(publicacionesLocales.map { EntityToPublicacion(it) })
-        }
-
         try {
             val respuesta = publicacionDao.getPublicacionesPorProducto(idProducto, "Bearer $token")
 
             if (respuesta.isSuccessful && respuesta.body() != null) {
                 val listadoRespuesta = respuesta.body()!!
-
-                val entidadesRoom = listadoRespuesta.map {
-                    it.toEntity()
-                }
-                publicacionLocalDao.agregarPublicaciones(entidadesRoom)
-
-                val localesActualizados = publicacionLocalDao.getPublicaciones(idProducto)
-                emit(localesActualizados.map { EntityToPublicacion(it) })
+                emit(listadoRespuesta.map { it.toDomain() })
             } else {
                 emit(emptyList())
             }
@@ -424,19 +415,37 @@ class ProductoRepositoryImp @Inject constructor(
         }
     }
 
-    override suspend fun agregarAlCarrito(token: String, idPublicacion: Int): Flow<Boolean> = flow {
+    override suspend fun traerColores(token: String): Flow<List<ColorPublicacion>> = flow {
         try {
-            val respuesta = publicacionDao.agregarAlCarrito("Bearer $token", idPublicacion)
+            val respuesta = publicacionDao.obtenerColores("Bearer $token")
+            if (respuesta.isSuccessful && respuesta.body() != null) {
+                emit(respuesta.body()!!.map { ColorPublicacion(it.idColor, it.nombre, it.hex) })
+            } else {
+                emit(emptyList())
+            }
+        } catch (e: Exception) {
+            println("Error al traer colores: ${e.message}")
+            emit(emptyList())
+        }
+    }
+
+    override suspend fun agregarAlCarrito(
+        token: String,
+        idVariante: Int,
+        cantidad: Int
+    ): Flow<Boolean> = flow {
+        try {
+            val respuesta = publicacionDao.agregarAlCarrito(
+                "Bearer $token",
+                AgregarCarritoSolicitud(idVariante, cantidad)
+            )
             if (respuesta.isSuccessful && respuesta.body()?.ok == true) {
-                println("Producto agregado")
                 emit(true)
             } else {
-                println("Error al agregar al carrito 1")
                 emit(false)
 
             }
         } catch (e: Exception) {
-            println("Error al agregar al carrito 2: ${e.message}")
             emit(false)
         }
     }

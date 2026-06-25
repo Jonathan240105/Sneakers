@@ -1,4 +1,4 @@
-package com.example.snkrsapp.Views.Pantallas
+﻿package com.example.snkrsapp.Views.Pantallas
 
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
@@ -17,6 +17,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -26,11 +28,15 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -38,6 +44,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -55,7 +62,9 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.snkrsapp.Domain.Marca
 import com.example.snkrsapp.Domain.Publicacion
+import com.example.snkrsapp.Domain.VariantePublicacion
 import com.example.snkrsapp.Views.ViewModels.ProductoDetalladoViewModel
+import com.example.snkrsapp.ui.theme.ColorAcento
 import com.example.snkrsapp.ui.theme.ColorNeutroFondo
 import com.example.snkrsapp.ui.theme.ColorPrimario
 import com.example.snkrsapp.ui.theme.ColorTextoSecundario
@@ -68,22 +77,46 @@ fun PantallaProductoDetallado(
     volverAPrincipal: () -> Unit,
     myViewModel: ProductoDetalladoViewModel,
     paddingValues: PaddingValues,
-    navegarAPerfil: (String) -> Unit
+    navegarAPerfil: (String) -> Unit,
+    contactarVendedor: (String, Int?, String, String) -> Unit
 ) {
-    var pestañaSeleccionada by remember { mutableStateOf(0) }
+    var pestanaSeleccionada by remember { mutableStateOf(0) }
     val model by myViewModel.model.collectAsState()
     val estadoScroll = rememberScrollState()
     val contexto = LocalContext.current
+    var mostrarDialogoCarrito by remember { mutableStateOf(false) }
+    var cantidadesSeleccionadas by remember { mutableStateOf<Map<Int, Int>>(emptyMap()) }
+    var idColorImagenSeleccionada by remember { mutableStateOf<Int?>(null) }
+    val variantesDisponibles by remember(model.publicacionSeleccionada.variantes) {
+        derivedStateOf {
+            model.publicacionSeleccionada.variantes.filter { it.cantidadDisponible > 0 }
+        }
+    }
+    val varianteImagenSeleccionada by remember(variantesDisponibles, idColorImagenSeleccionada) {
+        derivedStateOf {
+            variantesDisponibles.firstOrNull { it.idColor == idColorImagenSeleccionada }
+                ?: variantesDisponibles.firstOrNull()
+        }
+    }
 
     LaunchedEffect(idZapatilla, idMarca) {
         myViewModel.cargarProducto(idZapatilla)
         myViewModel.cargarMarca(idMarca)
         myViewModel.cargarPublicacionesDelProducto(idZapatilla)
     }
+    LaunchedEffect(model.publicacionSeleccionada.idPublicacion) {
+        idColorImagenSeleccionada =
+            model.publicacionSeleccionada.variantes.firstOrNull { it.cantidadDisponible > 0 }?.idColor
+    }
     LaunchedEffect(model.mensaje) {
         if (!model.mensaje.isNullOrBlank()) {
             Toast.makeText(contexto, model.mensaje, Toast.LENGTH_SHORT).show()
             myViewModel.limpiarMensaje()
+        }
+    }
+    LaunchedEffect(mostrarDialogoCarrito) {
+        if (mostrarDialogoCarrito) {
+            cantidadesSeleccionadas = emptyMap()
         }
     }
     Box(
@@ -105,14 +138,14 @@ fun PantallaProductoDetallado(
                     .background(
                         brush = Brush.verticalGradient(
                             colors = listOf(
-                                ColorPrimario, // Un gris oscuro más suave arriba
-                                ColorNeutroFondo   // Se difumina perfectamente con el fondo de abajo
+                                ColorPrimario,
+                                ColorNeutroFondo
                             )
                         )
                     ), contentAlignment = Alignment.Center
             ) {
                 AsyncImage(
-                    model = model.publicacionSeleccionada.urlFoto,
+                    model = varianteImagenSeleccionada?.urlFoto ?: model.publicacionSeleccionada.urlFoto,
                     "",
                     modifier = Modifier
                         .fillMaxSize()
@@ -154,20 +187,20 @@ fun PantallaProductoDetallado(
                 ) {
                     BotonTab(
                         texto = "Detalles",
-                        activo = pestañaSeleccionada == 0,
+                        activo = pestanaSeleccionada == 0,
                         modifier = Modifier.weight(1f)
-                    ) { pestañaSeleccionada = 0 }
+                    ) { pestanaSeleccionada = 0 }
 
                     BotonTab(
                         texto = "Información",
-                        activo = pestañaSeleccionada == 1,
+                        activo = pestanaSeleccionada == 1,
                         modifier = Modifier.weight(1f)
-                    ) { pestañaSeleccionada = 1 }
+                    ) { pestanaSeleccionada = 1 }
                 }
 
                 Spacer(modifier = Modifier.height(20.dp))
 
-                if (pestañaSeleccionada == 0) {
+                if (pestanaSeleccionada == 0) {
                     ContenidoDetalles(
                         listaPublicaciones = model.listaPublicaciones,
                         cargandoPublicaciones = model.cargandoPublicaciones,
@@ -175,14 +208,26 @@ fun PantallaProductoDetallado(
                             myViewModel.seleccionarPublicacion(it)
                         },
                         talla = model.publicacionSeleccionada.talla,
-                        idPublicacionSeleccionada = model.publicacionSeleccionada.idPublicacion
+                        idPublicacionSeleccionada = model.publicacionSeleccionada.idPublicacion,
+                        variantesSeleccionadas = model.publicacionSeleccionada.variantes,
+                        idColorSeleccionado = varianteImagenSeleccionada?.idColor,
+                        onColorSeleccionado = { idColorImagenSeleccionada = it }
                     )
                 } else {
                     ContenidoInformacionCompleta(
                         marca = model.marcaSeleccionada,
                         nombreVendedor = model.publicacionSeleccionada.nombreUsuario
                             ?: "Usuario SNKRS",
-                        onVerPerfilClick = { navegarAPerfil(model.publicacionSeleccionada.uidUsuario) })
+                        onVerPerfilClick = { navegarAPerfil(model.publicacionSeleccionada.uidUsuario) },
+                        onContactarClick = {
+                            contactarVendedor(
+                                model.publicacionSeleccionada.uidUsuario,
+                                model.productoSeleccionado.idProducto,
+                                model.publicacionSeleccionada.nombreUsuario ?: "Usuario",
+                                model.productoSeleccionado.modelo
+                            )
+                        }
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(100.dp))
@@ -223,7 +268,7 @@ fun PantallaProductoDetallado(
                 )
                 .clickable {
                     if (model.publicacionSeleccionada.estado == "disponible") {
-                        myViewModel.agregarACarrito()
+                        mostrarDialogoCarrito = true
                     } else {
                         Toast.makeText(
                             contexto,
@@ -237,9 +282,173 @@ fun PantallaProductoDetallado(
                 Icons.Default.ShoppingCart, "", tint = Color.White, modifier = Modifier.size(25.dp)
             )
         }
+
+        if (mostrarDialogoCarrito) {
+            DialogoAgregarCarrito(
+                variantes = model.publicacionSeleccionada.variantes,
+                cantidadesSeleccionadas = cantidadesSeleccionadas,
+                onCantidadMenos = { variante ->
+                    val cantidadActual = cantidadesSeleccionadas[variante.idVariante] ?: 0
+                    val nuevaCantidad = (cantidadActual - 1).coerceAtLeast(0)
+
+                    cantidadesSeleccionadas = if (nuevaCantidad == 0) {
+                        cantidadesSeleccionadas - variante.idVariante
+                    } else {
+                        cantidadesSeleccionadas + (variante.idVariante to nuevaCantidad)
+                    }
+                },
+                onCantidadMas = { variante ->
+                    val cantidadActual = cantidadesSeleccionadas[variante.idVariante] ?: 0
+                    val nuevaCantidad =
+                        (cantidadActual + 1).coerceAtMost(variante.cantidadDisponible.coerceAtLeast(0))
+
+                    cantidadesSeleccionadas =
+                        cantidadesSeleccionadas + (variante.idVariante to nuevaCantidad)
+                },
+                onDismiss = { mostrarDialogoCarrito = false },
+                onConfirmar = {
+                    val variantesParaAgregar = cantidadesSeleccionadas
+                        .filterValues { it > 0 }
+                        .map { it.key to it.value }
+
+                    if (variantesParaAgregar.isEmpty()) {
+                        Toast.makeText(contexto, "Selecciona al menos una variante", Toast.LENGTH_SHORT).show()
+                    } else {
+                        myViewModel.agregarVariantesACarrito(variantesParaAgregar)
+                        mostrarDialogoCarrito = false
+                    }
+                }
+            )
+        }
     }
 }
 
+@Composable
+fun DialogoAgregarCarrito(
+    variantes: List<VariantePublicacion>,
+    cantidadesSeleccionadas: Map<Int, Int>,
+    onCantidadMenos: (VariantePublicacion) -> Unit,
+    onCantidadMas: (VariantePublicacion) -> Unit,
+    onDismiss: () -> Unit,
+    onConfirmar: () -> Unit
+) {
+    val totalSeleccionado = cantidadesSeleccionadas.values.sum()
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        containerColor = ColorNeutroFondo,
+        title = {
+            Text(
+                "Añadir al carrito",
+                fontFamily = miTipografia,
+                color = ColorPrimario,
+                fontWeight = Bold
+            )
+        },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                Text(
+                    "Elige cantidades",
+                    fontFamily = miTipografia,
+                    color = ColorTextoSecundario,
+                    fontWeight = Bold
+                )
+                if (variantes.isEmpty()) {
+                    Text(
+                        "No hay variantes disponibles para esta publicación.",
+                        fontFamily = miTipografia,
+                        color = ColorTextoSecundario
+                    )
+                } else {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        variantes.forEach { variante ->
+                            val cantidadVariante = cantidadesSeleccionadas[variante.idVariante] ?: 0
+                            val seleccionado = cantidadVariante > 0
+
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .background(if (seleccionado) ColorPrimario else Color.White)
+                                    .padding(10.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(10.dp)
+                            ) {
+                                Column(
+                                    modifier = Modifier.weight(1f),
+                                    verticalArrangement = Arrangement.spacedBy(3.dp)
+                                ) {
+                                    Text(
+                                        "${variante.color} · Talla ${variante.talla}",
+                                        fontFamily = miTipografia,
+                                        color = if (seleccionado) Color.White else ColorTextoSecundario,
+                                        fontWeight = Bold
+                                    )
+                                    Text(
+                                        "Stock: ${variante.cantidadDisponible}",
+                                        fontFamily = miTipografia,
+                                        color = if (seleccionado) Color.White.copy(alpha = 0.85f) else Color.Gray,
+                                        fontSize = 12.sp
+                                    )
+                                }
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                ) {
+                                    OutlinedButton(
+                                        onClick = { onCantidadMenos(variante) },
+                                        enabled = cantidadVariante > 0,
+                                        shape = RoundedCornerShape(10.dp),
+                                        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 0.dp)
+                                    ) {
+                                        Text("-", fontSize = 18.sp, fontWeight = Bold)
+                                    }
+                                    Text(
+                                        cantidadVariante.toString(),
+                                        fontFamily = miTipografia,
+                                        color = if (seleccionado) Color.White else ColorPrimario,
+                                        fontSize = 18.sp,
+                                        fontWeight = Bold
+                                    )
+                                    OutlinedButton(
+                                        onClick = { onCantidadMas(variante) },
+                                        enabled = cantidadVariante < variante.cantidadDisponible,
+                                        shape = RoundedCornerShape(10.dp),
+                                        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 0.dp)
+                                    ) {
+                                        Text("+", fontSize = 18.sp, fontWeight = Bold)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Text(
+                    "Total seleccionado: $totalSeleccionado",
+                    fontFamily = miTipografia,
+                    color = ColorTextoSecundario,
+                    fontWeight = Bold
+                )
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = onConfirmar,
+                enabled = totalSeleccionado > 0,
+                colors = ButtonDefaults.buttonColors(containerColor = ColorPrimario),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Text("Añadir", fontFamily = miTipografia, color = Color.White, fontWeight = Bold)
+            }
+        },
+        dismissButton = {
+            OutlinedButton(onClick = onDismiss, shape = RoundedCornerShape(12.dp)) {
+                Text("Cancelar", fontFamily = miTipografia, color = ColorTextoSecundario)
+            }
+        }
+    )
+}
 @Composable
 fun BotonTab(texto: String, activo: Boolean, modifier: Modifier, onClick: () -> Unit) {
     Box(
@@ -264,17 +473,26 @@ fun ContenidoDetalles(
     cargandoPublicaciones: Boolean,
     navegarAPublicacion: (Publicacion) -> Unit,
     talla: Double?,
-    idPublicacionSeleccionada: Int
+    idPublicacionSeleccionada: Int,
+    variantesSeleccionadas: List<VariantePublicacion>,
+    idColorSeleccionado: Int?,
+    onColorSeleccionado: (Int) -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         if (listaPublicaciones.isNotEmpty()) {
             Row {
-                InfoPequeña(
+                InfoPequena(
                     titulo = "Talla de publicación seleccionada:", valor = "$talla"
                 )
                 Spacer(modifier = Modifier.width(20.dp))
             }
         }
+
+        ResumenVariantesPublicacion(
+            variantes = variantesSeleccionadas,
+            idColorSeleccionado = idColorSeleccionado,
+            onColorSeleccionado = onColorSeleccionado
+        )
 
         Text(
             "Publicaciones Disponibles",
@@ -364,8 +582,134 @@ fun ContenidoDetalles(
 }
 
 @Composable
+fun ResumenVariantesPublicacion(
+    variantes: List<VariantePublicacion>,
+    idColorSeleccionado: Int?,
+    onColorSeleccionado: (Int) -> Unit
+) {
+    if (variantes.isEmpty()) return
+
+    val tallasDisponibles = variantes
+        .filter { it.cantidadDisponible > 0 }
+        .map { it.talla }
+        .distinct()
+        .sorted()
+
+    val coloresDisponibles = variantes
+        .filter { it.cantidadDisponible > 0 }
+        .distinctBy { it.idColor }
+
+    val stockTotal = variantes.sumOf { it.cantidadDisponible.coerceAtLeast(0) }
+
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Text(
+            text = "Disponibilidad de esta publicación",
+            color = ColorTextoSecundario,
+            fontSize = 16.sp,
+            fontFamily = miTipografia,
+            fontWeight = Bold
+        )
+
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = Color.White),
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Column(
+                modifier = Modifier.padding(14.dp),
+                verticalArrangement = Arrangement.spacedBy(14.dp)
+            ) {
+                Text(
+                    text = "Stock total: $stockTotal",
+                    color = ColorPrimario,
+                    fontFamily = miTipografia,
+                    fontWeight = Bold,
+                    fontSize = 15.sp
+                )
+
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(
+                        text = "Tallas disponibles",
+                        color = ColorTextoSecundario,
+                        fontFamily = miTipografia,
+                        fontWeight = Bold,
+                        fontSize = 14.sp
+                    )
+                    LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        items(tallasDisponibles) { talla ->
+                            Box(
+                                modifier = Modifier
+                                    .background(ColorPrimario, RoundedCornerShape(9.dp))
+                                    .padding(horizontal = 12.dp, vertical = 7.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = talla.toString(),
+                                    color = Color.White,
+                                    fontFamily = miTipografia,
+                                    fontWeight = Bold,
+                                    fontSize = 13.sp
+                                )
+                            }
+                        }
+                    }
+                }
+
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(
+                        text = "Colores disponibles",
+                        color = ColorTextoSecundario,
+                        fontFamily = miTipografia,
+                        fontWeight = Bold,
+                        fontSize = 14.sp
+                    )
+                    LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        items(coloresDisponibles) { variante ->
+                            val seleccionado = variante.idColor == idColorSeleccionado
+                            val colorVisual = colorDesdeHex(variante.hexColor)
+
+                            Box(
+                                modifier = Modifier
+                                    .size(46.dp)
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .background(if (seleccionado) ColorPrimario else ColorNeutroFondo)
+                                    .clickable { onColorSeleccionado(variante.idColor) }
+                                    .padding(5.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .clip(RoundedCornerShape(9.dp))
+                                        .background(colorVisual)
+                                        .then(
+                                            if (seleccionado) {
+                                                Modifier
+                                            } else {
+                                                Modifier
+                                            }
+                                        )
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+fun colorDesdeHex(hex: String?): Color =
+    runCatching {
+        Color(android.graphics.Color.parseColor(hex ?: "#BDBDBD"))
+    }.getOrDefault(Color(0xFFBDBDBD))
+
+@Composable
 fun ContenidoInformacionCompleta(
-    marca: Marca, nombreVendedor: String, onVerPerfilClick: () -> Unit
+    marca: Marca,
+    nombreVendedor: String,
+    onVerPerfilClick: () -> Unit,
+    onContactarClick: () -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Text(
@@ -449,23 +793,37 @@ fun ContenidoInformacionCompleta(
                         fontSize = 17.sp
                     )
                 }
-                Text(
-                    text = "Ver perfil",
-                    color = Color.DarkGray,
-                    fontSize = 14.sp,
-                    fontFamily = miTipografia,
-                    fontWeight = Bold,
-                    textDecoration = TextDecoration.Underline,
-                    modifier = Modifier
-                        .clickable { onVerPerfilClick() }
-                        .padding(8.dp))
+                Column(horizontalAlignment = Alignment.End) {
+                    Text(
+                        text = "Contactar",
+                        color = ColorAcento,
+                        fontSize = 14.sp,
+                        fontFamily = miTipografia,
+                        fontWeight = Bold,
+                        textDecoration = TextDecoration.Underline,
+                        modifier = Modifier
+                            .clickable { onContactarClick() }
+                            .padding(8.dp)
+                    )
+                    Text(
+                        text = "Ver perfil",
+                        color = Color.DarkGray,
+                        fontSize = 14.sp,
+                        fontFamily = miTipografia,
+                        fontWeight = Bold,
+                        textDecoration = TextDecoration.Underline,
+                        modifier = Modifier
+                            .clickable { onVerPerfilClick() }
+                            .padding(8.dp)
+                    )
+                }
             }
         }
     }
 }
 
 @Composable
-fun InfoPequeña(titulo: String, valor: String) {
+fun InfoPequena(titulo: String, valor: String) {
     Column {
         Text(
             titulo,
@@ -480,3 +838,5 @@ fun InfoPequeña(titulo: String, valor: String) {
         )
     }
 }
+
+

@@ -1,7 +1,13 @@
 package com.example.snkrsapp.Views.Pantallas
 
+import android.Manifest
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -13,9 +19,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -25,9 +36,12 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -37,7 +51,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
@@ -46,8 +63,12 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.FileProvider
+import coil.compose.AsyncImage
+import com.example.snkrsapp.Domain.ColorPublicacion
 import com.example.snkrsapp.Domain.Marca
 import com.example.snkrsapp.Domain.ProductoItem
+import com.example.snkrsapp.Domain.VarianteNuevaPublicacion
 import com.example.snkrsapp.Views.ViewModels.PrincipalViewModel
 import com.example.snkrsapp.Views.ViewModels.ViewmodelAgregarProducto
 import com.example.snkrsapp.ui.theme.ColorAcento
@@ -57,6 +78,7 @@ import com.example.snkrsapp.ui.theme.ColorTextFieldNoSeleccionado
 import com.example.snkrsapp.ui.theme.ColorTextFieldSeleccionado
 import com.example.snkrsapp.ui.theme.ColorTextoSecundario
 import com.example.snkrsapp.ui.theme.miTipografia
+import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -70,6 +92,10 @@ fun PantallaAgregarProducto(
     val model by agregarProductoViewModel.model.collectAsState()
 
     val creandoMarca = model.marcaSeleccionada.lowercase() == "otro"
+
+    LaunchedEffect(Unit) {
+        agregarProductoViewModel.cargarColores()
+    }
 
     LaunchedEffect(model.exito) {
         if (model.exito) {
@@ -213,7 +239,7 @@ fun PantallaAgregarProducto(
                     Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(15.dp)
                 ) {
-                    Box(Modifier.weight(1f)) {
+                    Box(Modifier.weight(if (model.esColeccion) 1f else 2f)) {
                         TextoConTextField(
                             label = if (model.esColeccion) "Precio Valor (€)" else "Precio Venta (€)",
                             valor = if (model.precioNuevaPublicacion == 0.0) "" else model.precioNuevaPublicacion.toString(),
@@ -223,21 +249,23 @@ fun PantallaAgregarProducto(
                             agregarProductoViewModel.cambiarPrecio(valorPrecio)
                         }
                     }
-                    Box(Modifier.weight(1f)) {
-                        TextoConTextField(
-                            label = "Talla",
-                            valor = if (model.tallaNuevaPublicacion == 0.0) "" else model.tallaNuevaPublicacion.toString(),
-                            isNumeric = true
-                        ) {
-                            val valorTalla = it.toDoubleOrNull() ?: 0.0
-                            agregarProductoViewModel.cambiarTalla(valorTalla)
+                    if (model.esColeccion) {
+                        Box(Modifier.weight(1f)) {
+                            TextoConTextField(
+                                label = "Talla",
+                                valor = if (model.tallaNuevaPublicacion == 0.0) "" else model.tallaNuevaPublicacion.toString(),
+                                isNumeric = true
+                            ) {
+                                val valorTalla = it.toDoubleOrNull() ?: 0.0
+                                agregarProductoViewModel.cambiarTalla(valorTalla)
+                            }
                         }
                     }
                 }
 
                 Spacer(Modifier.height(15.dp))
 
-                AnimatedVisibility(visible = !model.esColeccion) {
+                AnimatedVisibility(visible = model.esColeccion) {
                     Column {
                         SelectorImagen(
                             agregarProductoViewModel,
@@ -245,6 +273,19 @@ fun PantallaAgregarProducto(
                         )
                         Spacer(Modifier.height(15.dp))
                     }
+                }
+
+                AnimatedVisibility(visible = !model.esColeccion) {
+                    VariantesPublicacion(
+                        variantes = model.variantes,
+                        colores = model.coloresDisponibles,
+                        cambiarColor = agregarProductoViewModel::cambiarColorVariante,
+                        cambiarTalla = agregarProductoViewModel::cambiarTallaVariante,
+                        cambiarStock = agregarProductoViewModel::cambiarStockVariante,
+                        subirFoto = agregarProductoViewModel::subirFotoVariante,
+                        agregarVariante = agregarProductoViewModel::agregarVariante,
+                        eliminarVariante = agregarProductoViewModel::eliminarVariante
+                    )
                 }
 
                 if (model.mensajeError != null) {
@@ -270,6 +311,348 @@ fun PantallaAgregarProducto(
             volverAtras = {
                 agregarProductoViewModel.resetearEstadoNuevaPublicacion(); navegarAtras()
             })
+    }
+}
+
+@Composable
+fun VariantesPublicacion(
+    variantes: List<VarianteNuevaPublicacion>,
+    colores: List<ColorPublicacion>,
+    cambiarColor: (Int, ColorPublicacion) -> Unit,
+    cambiarTalla: (Int, Double) -> Unit,
+    cambiarStock: (Int, Int) -> Unit,
+    subirFoto: (Int, Uri) -> Unit,
+    agregarVariante: () -> Unit,
+    eliminarVariante: (Int) -> Unit
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Variantes disponibles",
+                color = ColorTextoSecundario,
+                fontFamily = miTipografia,
+                fontSize = 17.sp,
+                fontWeight = Bold
+            )
+            IconButton(onClick = agregarVariante) {
+                Icon(Icons.Default.Add, contentDescription = "Añadir variante", tint = ColorPrimario)
+            }
+        }
+
+        variantes.forEachIndexed { index, variante ->
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Variante ${index + 1}",
+                            color = ColorPrimario,
+                            fontFamily = miTipografia,
+                            fontWeight = Bold,
+                            fontSize = 16.sp
+                        )
+                        if (variantes.size > 1) {
+                            IconButton(onClick = { eliminarVariante(index) }) {
+                                Icon(
+                                    Icons.Default.Delete,
+                                    contentDescription = "Eliminar variante",
+                                    tint = Color.Red
+                                )
+                            }
+                        }
+                    }
+
+                    SelectorColorVariante(
+                        variante = variante,
+                        colores = colores,
+                        cambiarColor = { cambiarColor(index, it) }
+                    )
+
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Box(Modifier.weight(1f)) {
+                            TextoConTextField(
+                                label = "Talla",
+                                valor = if (variante.talla == 0.0) "" else variante.talla.toString(),
+                                isNumeric = true
+                            ) { texto ->
+                                cambiarTalla(index, texto.toDoubleOrNull() ?: 0.0)
+                            }
+                        }
+                        Box(Modifier.weight(1f)) {
+                            TextoConTextField(
+                                label = "Stock",
+                                valor = variante.cantidadDisponible.toString(),
+                                isNumeric = true
+                            ) { texto ->
+                                cambiarStock(index, texto.toIntOrNull() ?: 1)
+                            }
+                        }
+                    }
+
+                    SelectorImagenVariante(
+                        variante = variante,
+                        subirFoto = { uri -> subirFoto(index, uri) }
+                    )
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SelectorColorVariante(
+    variante: VarianteNuevaPublicacion,
+    colores: List<ColorPublicacion>,
+    cambiarColor: (ColorPublicacion) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Column {
+        Text(
+            "Color",
+            color = ColorTextoSecundario,
+            fontFamily = miTipografia,
+            fontSize = 17.sp,
+            fontWeight = Bold
+        )
+        Spacer(Modifier.height(8.dp))
+        ExposedDropdownMenuBox(
+            expanded = expanded,
+            onExpandedChange = { expanded = !expanded }
+        ) {
+            OutlinedTextField(
+                value = variante.nombreColor.ifBlank { "Selecciona un color" },
+                onValueChange = {},
+                readOnly = true,
+                leadingIcon = {
+                    ColorMuestra(hex = variante.hexColor)
+                },
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .menuAnchor(),
+                colors = outlinedTextFieldCustomColors(),
+                shape = RoundedCornerShape(12.dp)
+            )
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+                modifier = Modifier.background(Color(0xFF1E1E1E))
+            ) {
+                colores.forEach { color ->
+                    DropdownMenuItem(
+                        text = {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(10.dp)
+                            ) {
+                                ColorMuestra(hex = color.hex)
+                                Text(
+                                    text = color.nombre,
+                                    color = Color.White,
+                                    fontFamily = miTipografia
+                                )
+                            }
+                        },
+                        onClick = {
+                            cambiarColor(color)
+                            expanded = false
+                        }
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun ColorMuestra(hex: String?) {
+    val color = remember(hex) {
+        runCatching {
+            Color(android.graphics.Color.parseColor(hex ?: "#BDBDBD"))
+        }.getOrDefault(Color(0xFFBDBDBD))
+    }
+
+    Box(
+        modifier = Modifier
+            .size(22.dp)
+            .clip(RoundedCornerShape(6.dp))
+            .background(color)
+            .border(1.dp, Color(0xFF333333), RoundedCornerShape(6.dp))
+    )
+}
+
+@Composable
+fun SelectorImagenVariante(
+    variante: VarianteNuevaPublicacion,
+    subirFoto: (Uri) -> Unit
+) {
+    val context = LocalContext.current
+    var mostrarOpciones by remember { mutableStateOf(false) }
+    var uriCamaraTemporal by remember { mutableStateOf<Uri?>(null) }
+
+    val launcherGaleria = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        uri?.let(subirFoto)
+    }
+
+    val launcherCamara = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture()
+    ) { exito ->
+        if (exito) {
+            uriCamaraTemporal?.let(subirFoto)
+        }
+    }
+
+    val launcherPermisoCamara = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { concedido ->
+        if (concedido) {
+            val archivo = File.createTempFile("snkrs_variante_", ".jpg", context.cacheDir)
+            val uriSegura = FileProvider.getUriForFile(
+                context,
+                "${context.packageName}.fileprovider",
+                archivo
+            )
+
+            uriCamaraTemporal = uriSegura
+            launcherCamara.launch(uriSegura)
+        }
+    }
+
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            text = "Foto de este color",
+            color = ColorTextoSecundario,
+            fontFamily = miTipografia,
+            fontSize = 17.sp,
+            fontWeight = Bold
+        )
+        Spacer(Modifier.height(8.dp))
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(145.dp)
+                .background(Color(0xFF1E1E1E), RoundedCornerShape(12.dp))
+                .border(
+                    width = 1.dp,
+                    color = if (!variante.errorImagen.isNullOrBlank()) Color.Red else Color(0xFF333333),
+                    shape = RoundedCornerShape(12.dp)
+                )
+                .clickable(enabled = !variante.cargandoImagen) { mostrarOpciones = true },
+            contentAlignment = Alignment.Center
+        ) {
+            when {
+                variante.cargandoImagen -> {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        CircularProgressIndicator(color = Color.White)
+                        Spacer(Modifier.height(8.dp))
+                        Text(
+                            "Subiendo imagen...",
+                            fontFamily = miTipografia,
+                            color = Color.Gray,
+                            fontSize = 12.sp
+                        )
+                    }
+                }
+
+                variante.urlFoto.isNotBlank() -> {
+                    AsyncImage(
+                        model = variante.urlFoto,
+                        contentDescription = "Foto de variante",
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clip(RoundedCornerShape(12.dp)),
+                        contentScale = ContentScale.Crop
+                    )
+                }
+
+                else -> {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            "+ Añadir foto del color",
+                            fontFamily = miTipografia,
+                            color = Color.White,
+                            fontWeight = Bold,
+                            fontSize = 15.sp
+                        )
+                        Spacer(Modifier.height(4.dp))
+                        Text(
+                            "Cámara o galería",
+                            fontFamily = miTipografia,
+                            color = Color.Gray,
+                            fontSize = 12.sp
+                        )
+                    }
+                }
+            }
+        }
+
+        if (!variante.errorImagen.isNullOrBlank()) {
+            Spacer(Modifier.height(6.dp))
+            Text(
+                text = variante.errorImagen,
+                fontFamily = miTipografia,
+                color = Color.Red,
+                fontSize = 12.sp,
+                modifier = Modifier.padding(horizontal = 4.dp)
+            )
+        }
+    }
+
+    if (mostrarOpciones) {
+        AlertDialog(
+            onDismissRequest = { mostrarOpciones = false },
+            containerColor = Color(0xFF1E1E1E),
+            title = {
+                Text("Añadir imagen", color = Color.White, fontWeight = Bold)
+            },
+            text = {
+                Text(
+                    "Elige la foto correspondiente a este color.",
+                    color = Color.Gray,
+                    fontFamily = miTipografia
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    mostrarOpciones = false
+                    launcherPermisoCamara.launch(Manifest.permission.CAMERA)
+                }) {
+                    Text("Cámara", fontFamily = miTipografia, color = Color.White, fontWeight = Bold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    mostrarOpciones = false
+                    launcherGaleria.launch(
+                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                    )
+                }) {
+                    Text("Galería", fontFamily = miTipografia, color = Color.Gray)
+                }
+            }
+        )
     }
 }
 

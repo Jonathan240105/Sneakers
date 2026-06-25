@@ -16,6 +16,7 @@ data class PublicacionEntity(
     val estado: String,
     val urlFoto: String,
     val fechaPublicacion: String,
+    val stock: Int = 1
 )
 
 fun EntityToPublicacion(publicacion: PublicacionEntity): Publicacion {
@@ -29,6 +30,7 @@ fun EntityToPublicacion(publicacion: PublicacionEntity): Publicacion {
         estado = publicacion.estado,
         urlFoto = publicacion.urlFoto,
         fechaPublicacion = publicacion.fechaPublicacion,
+        stock = publicacion.stock,
     )
 }
 
@@ -42,5 +44,6 @@ fun PublicacionToEntity(publicacion: PublicacionesRespuesta): PublicacionEntity 
         estado = publicacion.estado,
         urlFoto = publicacion.urlFoto,
         fechaPublicacion = publicacion.fechaPublicacion,
+        stock = publicacion.stock,
     )
 }

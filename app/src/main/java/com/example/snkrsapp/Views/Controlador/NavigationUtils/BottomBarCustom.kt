@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Menu
@@ -174,6 +175,35 @@ fun BottomBar(navController: NavController) {
                 )
             )
             NavigationBarItem(
+                selected = currentRoute == "Conversaciones",
+                onClick = {
+                    navController.navigate("Conversaciones")
+                },
+                icon = {
+                    Box(
+                        modifier = Modifier
+                            .size(width = 52.dp, height = 34.dp)
+                            .clip(RoundedCornerShape(20.dp))
+                            .background(
+                                if (currentRoute == "Conversaciones") Color.LightGray
+                                else Color.Transparent
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            Icons.Default.Email,
+                            "",
+                            tint = if (currentRoute == "Conversaciones") ColorTextoSecundario else Color.White,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                },
+                alwaysShowLabel = false,
+                colors = NavigationBarItemDefaults.colors(
+                    indicatorColor = Color.Transparent
+                )
+            )
+            NavigationBarItem(
                 selected = currentRoute == "Perfil",
                 onClick = {
                     navController.navigate("Perfil")
@@ -293,6 +323,29 @@ fun BottomBarAdmin(navController: NavController) {
                             Icons.Default.Menu,
                             "",
                             tint = if (currentRoute == "EventosAdmin") ColorTextoSecundario else Color.White,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                }
+            )
+            NavigationBarItem(
+                selected = currentRoute == "IncidenciasAdmin",
+                onClick = { navController.navigate("IncidenciasAdmin") },
+                icon = {
+                    Box(
+                        modifier = Modifier
+                            .size(width = 52.dp, height = 34.dp)
+                            .clip(RoundedCornerShape(20.dp))
+                            .background(
+                                if (currentRoute == "IncidenciasAdmin") Color.LightGray
+                                else Color.Transparent
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            Icons.Default.Email,
+                            "",
+                            tint = if (currentRoute == "IncidenciasAdmin") ColorTextoSecundario else Color.White,
                             modifier = Modifier.size(24.dp)
                         )
                     }

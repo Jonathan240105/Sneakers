@@ -15,11 +15,20 @@ import com.example.snkrsapp.Data.RemoteData.AutorizacionDao.AutorizacionDao
 import com.example.snkrsapp.Data.RemoteData.AutorizacionDao.EliminarUsuariosSolicitud
 import com.example.snkrsapp.Data.RemoteData.AutorizacionDao.Usuario
 import com.example.snkrsapp.Data.RemoteData.AutorizacionDao.UsuarioSolicitud
+import com.example.snkrsapp.Data.RemoteData.PublicacionDao.ComprarCarritoSolicitud
+import com.example.snkrsapp.Data.RemoteData.PublicacionDao.ConfirmarPedidoSolicitud
+import com.example.snkrsapp.Data.RemoteData.PublicacionDao.PedirCarritoSolicitud
 import com.example.snkrsapp.Data.RemoteData.PublicacionDao.PublicacionDao
+import com.example.snkrsapp.Data.RemoteData.PublicacionDao.ReportarPedidoSolicitud
+import com.example.snkrsapp.Data.RemoteData.PublicacionDao.ResponderIncidenciaSolicitud
+import com.example.snkrsapp.Data.RemoteData.PublicacionDao.ResponderPedidoSolicitud
+import com.example.snkrsapp.Data.RemoteData.PublicacionDao.toDomain
 import com.example.snkrsapp.Domain.EstadoCompra
 import com.example.snkrsapp.Domain.EstadoEliminarUsuarios
 import com.example.snkrsapp.Domain.EstadoLogin
 import com.example.snkrsapp.Domain.EstadoRegistro
+import com.example.snkrsapp.Domain.Incidencia
+import com.example.snkrsapp.Domain.PedidoRecibido
 import com.example.snkrsapp.Domain.ProductoColeccionItem
 import com.example.snkrsapp.Domain.PublicacionPerfilItem
 import com.google.firebase.auth.FirebaseAuth
@@ -231,18 +240,12 @@ class UsuarioRepositoryImp @Inject constructor(
         uidUsuario: String
     ): Flow<List<PublicacionPerfilItem>> = flow {
         try {
-            val carritoLocal = publicacionLocalDao.obtenerCarritoLocal(uidUsuario).first()
-            if (carritoLocal.isNotEmpty()) {
-                emit(carritoLocal.map { it.toDomain() })
-            }
-        } catch (e: Exception) {
-            println("Error al traer carrito local: ${e.message}")
-        }
-
-        try {
             val respuesta = publicacionDao.obtenerCarritoUsuario("Bearer $token")
             if (respuesta.isSuccessful && respuesta.body() != null) {
-                val listaRemota = respuesta.body()!!
+                val listaRemota = respuesta.body()!!.filter {
+                    val estado = (it.estadoPedido ?: it.estadoCarrito ?: "").lowercase()
+                    estado == "carrito" || estado == "disponible"
+                }
 
                 publicacionLocalDao.vaciarCarritoLocal(uidUsuario)
                 val entidadesALocal = listaRemota.map { it.toCarritoEntity(uidUsuario) }
@@ -319,13 +322,19 @@ class UsuarioRepositoryImp @Inject constructor(
         }
     }
 
-    override suspend fun procesarPagoCarrito(token: String): Flow<EstadoCompra> = flow {
+    override suspend fun procesarPagoCarrito(
+        token: String,
+        publicacion: PublicacionPerfilItem
+    ): Flow<EstadoCompra> = flow {
         emit(EstadoCompra.Cargando)
 
         try {
-            val respuesta = publicacionDao.comprarCarrito("Bearer $token")
+            val respuesta = publicacionDao.comprarCarrito(
+                "Bearer $token",
+                ComprarCarritoSolicitud(publicacion.idPublicacion)
+            )
             if (respuesta.isSuccessful && respuesta.body()?.ok == true) {
-                emit(EstadoCompra.Exito("Compra realizada con éxito"))
+                emit(EstadoCompra.Exito(respuesta.body()?.mensaje ?: "Compra realizada con éxito"))
             } else {
                 val mensaje =
                     respuesta.errorBody()?.string() ?: "Error inesperado en el servidor"
@@ -333,6 +342,223 @@ class UsuarioRepositoryImp @Inject constructor(
             }
         } catch (e: Exception) {
             print("Error : ${e.message}")
+            emit(EstadoCompra.Error("Error en la red"))
+        }
+    }
+
+    override suspend fun pedirCarrito(
+        token: String,
+        publicacion: PublicacionPerfilItem
+    ): Flow<EstadoCompra> = flow {
+        emit(EstadoCompra.Cargando)
+
+        try {
+            val respuesta = publicacionDao.pedirCarrito(
+                "Bearer $token",
+                PedirCarritoSolicitud(
+                    idPublicacion = publicacion.idPublicacion,
+                    idColor = publicacion.idColor,
+                    cantidad = publicacion.cantidad
+                )
+            )
+            if (respuesta.isSuccessful && respuesta.body()?.ok == true) {
+                emit(EstadoCompra.Exito(respuesta.body()?.message ?: "Pedido enviado"))
+            } else {
+                val mensaje = respuesta.errorBody()?.string() ?: "No se pudo enviar el pedido"
+                emit(EstadoCompra.Error(mensaje))
+            }
+        } catch (e: Exception) {
+            emit(EstadoCompra.Error("Error en la red"))
+        }
+    }
+
+    override suspend fun traerPedidosPendientesVendedor(token: String): Flow<List<PedidoRecibido>> =
+        flow {
+            try {
+                val respuesta = publicacionDao.obtenerPedidosPendientesVendedor("Bearer $token")
+                if (respuesta.isSuccessful && respuesta.body() != null) {
+                    emit(respuesta.body()!!.pedidos.orEmpty().map { it.toDomain() })
+                } else {
+                    println("Error pedidos pendientes: ${respuesta.errorBody()?.string()}")
+                    emit(emptyList())
+                }
+            } catch (e: Exception) {
+                println("Error al traer pedidos pendientes: ${e.message}")
+                emit(emptyList())
+            }
+        }
+
+    override suspend fun traerPedidosComprador(token: String): Flow<List<PedidoRecibido>> = flow {
+        try {
+            val respuesta = publicacionDao.obtenerPedidosComprador("Bearer $token")
+            if (respuesta.isSuccessful && respuesta.body() != null) {
+                emit(respuesta.body()!!.pedidos.orEmpty().map { it.toDomain() })
+            } else {
+                emit(emptyList())
+            }
+        } catch (e: Exception) {
+            println("Error al traer pedidos del comprador: ${e.message}")
+            emit(emptyList())
+        }
+    }
+
+    override suspend fun responderPedidoVendedor(
+        token: String,
+        pedido: PedidoRecibido,
+        aceptar: Boolean
+    ): Flow<EstadoCompra> = flow {
+        emit(EstadoCompra.Cargando)
+
+        try {
+            val accion = if (aceptar) "enviar" else "denegar"
+            val respuesta = publicacionDao.responderPedidoVendedor(
+                "Bearer $token",
+                ResponderPedidoSolicitud(
+                    uidComprador = pedido.uidComprador,
+                    idPublicacion = pedido.idPublicacion,
+                    accion = accion
+                )
+            )
+            if (respuesta.isSuccessful && respuesta.body()?.ok == true) {
+                emit(EstadoCompra.Exito(respuesta.body()?.message ?: "Pedido actualizado"))
+            } else {
+                val mensaje = respuesta.errorBody()?.string() ?: "No se pudo responder el pedido"
+                emit(EstadoCompra.Error(mensaje))
+            }
+        } catch (e: Exception) {
+            emit(EstadoCompra.Error("Error en la red"))
+        }
+    }
+
+    override suspend fun confirmarPedidoRecibido(
+        token: String,
+        pedido: PedidoRecibido
+    ): Flow<EstadoCompra> = flow {
+        emit(EstadoCompra.Cargando)
+
+        try {
+            val respuesta = publicacionDao.confirmarPedidoRecibido(
+                "Bearer $token",
+                ConfirmarPedidoSolicitud(pedido.idVariante)
+            )
+            if (respuesta.isSuccessful && respuesta.body()?.ok == true) {
+                emit(EstadoCompra.Exito(respuesta.body()?.message ?: "Pedido confirmado"))
+            } else {
+                emit(EstadoCompra.Error(respuesta.errorBody()?.string() ?: "No se pudo confirmar el pedido"))
+            }
+        } catch (e: Exception) {
+            emit(EstadoCompra.Error("Error en la red"))
+        }
+    }
+
+    override suspend fun reportarPedido(
+        token: String,
+        pedido: PedidoRecibido,
+        tipo: String,
+        descripcion: String?,
+        urlImagen: String?
+    ): Flow<EstadoCompra> = flow {
+        emit(EstadoCompra.Cargando)
+
+        try {
+            val respuesta = publicacionDao.reportarPedido(
+                "Bearer $token",
+                ReportarPedidoSolicitud(
+                    idPublicacion = pedido.idPublicacion,
+                    tipo = tipo,
+                    descripcion = descripcion,
+                    urlImagen = urlImagen
+                )
+            )
+            if (respuesta.isSuccessful && respuesta.body()?.ok == true) {
+                emit(EstadoCompra.Exito(respuesta.body()?.message ?: "Incidencia creada"))
+            } else {
+                emit(EstadoCompra.Error(respuesta.errorBody()?.string() ?: "No se pudo crear la incidencia"))
+            }
+        } catch (e: Exception) {
+            emit(EstadoCompra.Error("Error en la red"))
+        }
+    }
+
+    override suspend fun traerIncidenciasAdmin(token: String): Flow<List<Incidencia>> = flow {
+        try {
+            val respuesta = publicacionDao.obtenerIncidenciasAdmin("Bearer $token")
+            if (respuesta.isSuccessful && respuesta.body()?.ok == true) {
+                emit(respuesta.body()?.incidencias.orEmpty().map {
+                    Incidencia(
+                        idIncidencia = it.idIncidencia,
+                        idPublicacion = it.idPublicacion ?: 0,
+                        idVariante = it.idVariante ?: 0,
+                        uidComprador = it.uidComprador.orEmpty(),
+                        nombreComprador = it.nombreComprador ?: "Comprador",
+                        nombreVendedor = it.nombreVendedor ?: "Vendedor",
+                        modelo = it.modelo ?: "Publicación",
+                        color = it.color ?: "Sin color",
+                        talla = it.talla ?: "Sin talla",
+                        cantidad = it.cantidad ?: "1",
+                        tipo = it.tipo ?: "otro",
+                        descripcion = it.descripcion.orEmpty(),
+                        urlImagen = it.urlImagen.orEmpty(),
+                        estado = it.estado ?: "pendiente",
+                        fechaCreacion = it.fechaCreacion.orEmpty()
+                    )
+                })
+            } else {
+                emit(emptyList())
+            }
+        } catch (e: Exception) {
+            emit(emptyList())
+        }
+    }
+
+    override suspend fun traerIncidenciasUsuario(token: String): Flow<List<Incidencia>> = flow {
+        try {
+            val respuesta = publicacionDao.obtenerIncidenciasUsuario("Bearer $token")
+            if (respuesta.isSuccessful && respuesta.body()?.ok == true) {
+                emit(respuesta.body()?.incidencias.orEmpty().map {
+                    Incidencia(
+                        idIncidencia = it.idIncidencia,
+                        idPublicacion = it.idPublicacion ?: 0,
+                        idVariante = it.idVariante ?: 0,
+                        uidComprador = it.uidComprador.orEmpty(),
+                        nombreComprador = it.nombreComprador ?: "Comprador",
+                        nombreVendedor = it.nombreVendedor ?: "Vendedor",
+                        modelo = it.modelo ?: "Publicación",
+                        color = it.color ?: "Sin color",
+                        talla = it.talla ?: "Sin talla",
+                        cantidad = it.cantidad ?: "1",
+                        tipo = it.tipo ?: "otro",
+                        descripcion = it.descripcion.orEmpty(),
+                        urlImagen = it.urlImagen.orEmpty(),
+                        estado = it.estado ?: "pendiente",
+                        fechaCreacion = it.fechaCreacion.orEmpty()
+                    )
+                })
+            } else {
+                emit(emptyList())
+            }
+        } catch (e: Exception) {
+            emit(emptyList())
+        }
+    }
+
+    override suspend fun responderIncidenciaAdmin(
+        token: String,
+        incidencia: Incidencia,
+        aceptar: Boolean
+    ): Flow<EstadoCompra> = flow {
+        emit(EstadoCompra.Cargando)
+        try {
+            val respuesta = publicacionDao.responderIncidenciaAdmin(
+                "Bearer $token",
+                ResponderIncidenciaSolicitud(incidencia.idIncidencia, aceptar)
+            )
+            if (respuesta.isSuccessful && respuesta.body()?.ok == true) {
+                emit(EstadoCompra.Exito(respuesta.body()?.message ?: "Incidencia actualizada"))
+            } else {
+                emit(EstadoCompra.Error(respuesta.errorBody()?.string() ?: "No se pudo responder la incidencia"))
+            }
+        } catch (e: Exception) {
             emit(EstadoCompra.Error("Error en la red"))
         }
     }

@@ -6,6 +6,8 @@ import com.example.snkrsapp.Domain.EstadoCompra
 import com.example.snkrsapp.Domain.EstadoEliminarUsuarios
 import com.example.snkrsapp.Domain.EstadoLogin
 import com.example.snkrsapp.Domain.EstadoRegistro
+import com.example.snkrsapp.Domain.Incidencia
+import com.example.snkrsapp.Domain.PedidoRecibido
 import com.example.snkrsapp.Domain.ProductoColeccionItem
 import com.example.snkrsapp.Domain.PublicacionPerfilItem
 import kotlinx.coroutines.flow.Flow
@@ -43,7 +45,39 @@ interface UsuarioRepository {
         uidObjetivo: String
     ): Flow<List<PublicacionPerfilItem>>
 
-    suspend fun procesarPagoCarrito(token: String): Flow<EstadoCompra>
+    suspend fun pedirCarrito(
+        token: String,
+        publicacion: PublicacionPerfilItem
+    ): Flow<EstadoCompra>
+
+    suspend fun traerPedidosPendientesVendedor(token: String): Flow<List<PedidoRecibido>>
+    suspend fun traerPedidosComprador(token: String): Flow<List<PedidoRecibido>>
+    suspend fun responderPedidoVendedor(
+        token: String,
+        pedido: PedidoRecibido,
+        aceptar: Boolean
+    ): Flow<EstadoCompra>
+    suspend fun confirmarPedidoRecibido(token: String, pedido: PedidoRecibido): Flow<EstadoCompra>
+    suspend fun reportarPedido(
+        token: String,
+        pedido: PedidoRecibido,
+        tipo: String,
+        descripcion: String?,
+        urlImagen: String? = null
+    ): Flow<EstadoCompra>
+
+    suspend fun traerIncidenciasAdmin(token: String): Flow<List<Incidencia>>
+    suspend fun traerIncidenciasUsuario(token: String): Flow<List<Incidencia>>
+    suspend fun responderIncidenciaAdmin(
+        token: String,
+        incidencia: Incidencia,
+        aceptar: Boolean
+    ): Flow<EstadoCompra>
+
+    suspend fun procesarPagoCarrito(
+        token: String,
+        publicacion: PublicacionPerfilItem
+    ): Flow<EstadoCompra>
     suspend fun getUsuarios(token: String): Flow<List<Usuario>>
 
     suspend fun eliminarUsuarios(token: String, uids: List<String>): Flow<EstadoEliminarUsuarios>
