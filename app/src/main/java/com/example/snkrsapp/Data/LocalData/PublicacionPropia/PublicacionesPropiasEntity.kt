@@ -6,10 +6,12 @@ import com.example.snkrsapp.Data.RemoteData.PublicacionDao.PublicacionPropiaList
 import com.example.snkrsapp.Domain.ProductoColeccionItem
 import com.example.snkrsapp.Domain.PublicacionPerfilItem
 
-@Entity(tableName = "Carrito", primaryKeys = ["uidUsuario", "idPublicacion"])
+@Entity(tableName = "Carrito", primaryKeys = ["uidUsuario", "idVariante"])
 data class CarritoEntity(
     val uidUsuario: String,
+    val idCarrito: Int?,
     val idPublicacion: Int,
+    val idVariante: Int,
     val idProducto: Int,
     val idMarca: Int,
     val modelo: String,
@@ -17,7 +19,11 @@ data class CarritoEntity(
     val precio: Double,
     val talla: Double,
     val urlFoto: String,
-    val estado: String?
+    val estado: String?,
+    val idColor: Int,
+    val nombreColor: String,
+    val cantidad: Int,
+    val estadoPedido: String
 )
 
 @Entity(tableName = "Coleccion", primaryKeys = ["uidUsuario", "idProducto"])
@@ -48,7 +54,9 @@ data class VentasEntity(
 fun PublicacionPropiaListado.toCarritoEntity(uidUsuario: String): CarritoEntity {
     return CarritoEntity(
         uidUsuario = uidUsuario,
+        idCarrito = this.idCarrito,
         idPublicacion = this.idPublicacion,
+        idVariante = this.idVariante ?: 0,
         idProducto = this.idProducto,
         idMarca = this.idMarca,
         modelo = this.modelo,
@@ -56,7 +64,11 @@ fun PublicacionPropiaListado.toCarritoEntity(uidUsuario: String): CarritoEntity 
         precio = this.precio,
         talla = this.talla,
         urlFoto = this.urlFoto,
-        estado = this.estado
+        estado = this.estado,
+        idColor = this.idColor ?: 0,
+        nombreColor = this.nombreColor ?: this.color ?: "",
+        cantidad = this.cantidad ?: 1,
+        estadoPedido = this.estadoPedido ?: this.estadoCarrito ?: "carrito"
     )
 }
 
@@ -90,7 +102,9 @@ fun PublicacionCarritoRespuesta.toColeccionEntity(uidUsuario: String): Coleccion
 
 fun CarritoEntity.toDomain(): PublicacionPerfilItem {
     return PublicacionPerfilItem(
+        idCarrito = this.idCarrito,
         idPublicacion = this.idPublicacion,
+        idVariante = this.idVariante,
         idProducto = this.idProducto,
         idMarca = this.idMarca,
         modelo = this.modelo,
@@ -98,7 +112,11 @@ fun CarritoEntity.toDomain(): PublicacionPerfilItem {
         precio = this.precio,
         talla = this.talla,
         urlFoto = this.urlFoto,
-        estado = this.estado
+        estado = this.estado,
+        idColor = this.idColor,
+        nombreColor = this.nombreColor,
+        cantidad = this.cantidad,
+        estadoPedido = this.estadoPedido
     )
 }
 

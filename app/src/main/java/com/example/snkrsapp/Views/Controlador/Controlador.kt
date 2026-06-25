@@ -24,6 +24,7 @@ import com.example.snkrsapp.Views.Pantallas.PantallaConversaciones
 import com.example.snkrsapp.Views.Pantallas.PantallaEventos
 import com.example.snkrsapp.Views.Pantallas.PantallaEventosAdmin
 import com.example.snkrsapp.Views.Pantallas.PantallaInicioSesion
+import com.example.snkrsapp.Views.Pantallas.PantallaIncidenciasAdmin
 import com.example.snkrsapp.Views.Pantallas.PantallaListados
 import com.example.snkrsapp.Views.Pantallas.PantallaMarcasAdmin
 import com.example.snkrsapp.Views.Pantallas.PantallaPerfil
@@ -36,6 +37,7 @@ import com.example.snkrsapp.Views.ViewModels.ActualizarPerfilViewModel
 import com.example.snkrsapp.Views.ViewModels.ChatViewModel
 import com.example.snkrsapp.Views.ViewModels.EventosViewModel
 import com.example.snkrsapp.Views.ViewModels.InicioSesionViewModel
+import com.example.snkrsapp.Views.ViewModels.IncidenciasAdminViewModel
 import com.example.snkrsapp.Views.ViewModels.ListadoViewModel
 import com.example.snkrsapp.Views.ViewModels.MarcasAdminViewModel
 import com.example.snkrsapp.Views.ViewModels.PantallaEventosViewModel
@@ -65,6 +67,7 @@ fun Controlador() {
     val usuariosAdminViewModel: UsuariosAdminViewModel = hiltViewModel()
     val marcasAdminViewModel: MarcasAdminViewModel = hiltViewModel()
     val eventosAdminViewModel: PantallaEventosViewModel = hiltViewModel()
+    val incidenciasAdminViewModel: IncidenciasAdminViewModel = hiltViewModel()
     val chatViewModel: ChatViewModel = hiltViewModel()
     val modelInicioSesion by iniSesViewModel.model.collectAsState()
 
@@ -82,6 +85,7 @@ fun Controlador() {
             "UsuariosAdmin",
             "MarcasAdmin",
             "EventosAdmin",
+            "IncidenciasAdmin",
             "PerfilAdmin"
         )
     var mostrarSheet by remember { mutableStateOf(false) }
@@ -145,6 +149,9 @@ fun Controlador() {
             }
             composable("EventosAdmin") {
                 PantallaEventosAdmin(eventosAdminViewModel, paddingValues, navController)
+            }
+            composable("IncidenciasAdmin") {
+                PantallaIncidenciasAdmin(incidenciasAdminViewModel, paddingValues, navController)
             }
             composable("PerfilAdmin") {
                 PantallaPerfilAdmin(

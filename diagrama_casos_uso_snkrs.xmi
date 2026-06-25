@@ -1,0 +1,366 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<XMI xmi.version="1.2" timestamp="2026-06-23T00:00:00" verified="false" xmlns:UML="http://schema.omg.org/spec/UML/1.4">
+  <XMI.header>
+    <XMI.documentation>
+      <XMI.exporter>Umbrello</XMI.exporter>
+      <XMI.exporterVersion>2.0</XMI.exporterVersion>
+    </XMI.documentation>
+  </XMI.header>
+  <XMI.content>
+    <UML:Model xmi.id="model_1" name="SnkrsApp">
+      <UML:Namespace.ownedElement>
+        <UML:Actor xmi.id="actor_usuario" name="Usuario"/>
+        <UML:Actor xmi.id="actor_comprador" name="Comprador"/>
+        <UML:Actor xmi.id="actor_vendedor" name="Vendedor"/>
+        <UML:Actor xmi.id="actor_admin" name="Administrador"/>
+        <UML:Actor xmi.id="actor_firebase_auth" name="Firebase Auth"/>
+        <UML:Actor xmi.id="actor_firestore" name="Firebase Firestore"/>
+        <UML:Actor xmi.id="actor_api" name="API / Servidor"/>
+        <UML:Actor xmi.id="actor_cloudinary" name="Cloudinary"/>
+
+        <UML:UseCase xmi.id="uc_registrarse" name="Registrarse"/>
+        <UML:UseCase xmi.id="uc_iniciar_sesion" name="Iniciar sesion"/>
+        <UML:UseCase xmi.id="uc_recuperar_contrasena" name="Recuperar contrasena"/>
+        <UML:UseCase xmi.id="uc_cerrar_sesion" name="Cerrar sesion"/>
+        <UML:UseCase xmi.id="uc_consultar_catalogo" name="Consultar catalogo"/>
+        <UML:UseCase xmi.id="uc_filtrar_productos" name="Buscar y filtrar productos"/>
+        <UML:UseCase xmi.id="uc_ver_detalle" name="Ver detalle de producto"/>
+        <UML:UseCase xmi.id="uc_ver_perfil" name="Ver perfil de usuario"/>
+
+        <UML:UseCase xmi.id="uc_crear_publicacion" name="Crear publicacion"/>
+        <UML:UseCase xmi.id="uc_gestionar_variantes" name="Gestionar variantes y stock"/>
+        <UML:UseCase xmi.id="uc_subir_imagen" name="Subir imagen"/>
+        <UML:UseCase xmi.id="uc_ver_listados" name="Ver coleccion, ventas y carrito"/>
+
+        <UML:UseCase xmi.id="uc_anadir_carrito" name="Anadir variantes al carrito"/>
+        <UML:UseCase xmi.id="uc_pedir_vendedor" name="Pedir al vendedor"/>
+        <UML:UseCase xmi.id="uc_ver_pedidos" name="Consultar mis pedidos"/>
+        <UML:UseCase xmi.id="uc_confirmar_recepcion" name="Confirmar recepcion"/>
+        <UML:UseCase xmi.id="uc_crear_incidencia" name="Crear incidencia"/>
+        <UML:UseCase xmi.id="uc_ver_incidencias" name="Ver incidencias resueltas"/>
+
+        <UML:UseCase xmi.id="uc_contactar_vendedor" name="Contactar vendedor"/>
+        <UML:UseCase xmi.id="uc_listar_chats" name="Ver conversaciones"/>
+        <UML:UseCase xmi.id="uc_enviar_mensaje" name="Enviar mensaje cifrado"/>
+
+        <UML:UseCase xmi.id="uc_ver_pedidos_recibidos" name="Ver pedidos recibidos"/>
+        <UML:UseCase xmi.id="uc_responder_pedido" name="Aceptar o rechazar pedido"/>
+        <UML:UseCase xmi.id="uc_enviar_pedido" name="Enviar pedido"/>
+
+        <UML:UseCase xmi.id="uc_gestionar_usuarios" name="Gestionar usuarios"/>
+        <UML:UseCase xmi.id="uc_gestionar_marcas" name="Gestionar marcas"/>
+        <UML:UseCase xmi.id="uc_gestionar_eventos" name="Gestionar eventos"/>
+        <UML:UseCase xmi.id="uc_resolver_incidencias" name="Resolver incidencias"/>
+
+        <UML:Association xmi.id="a_usuario_registrarse">
+          <UML:Association.connection>
+            <UML:AssociationEnd xmi.id="ae_usuario_registrarse_1" type="actor_usuario"/>
+            <UML:AssociationEnd xmi.id="ae_usuario_registrarse_2" type="uc_registrarse"/>
+          </UML:Association.connection>
+        </UML:Association>
+        <UML:Association xmi.id="a_usuario_iniciar_sesion">
+          <UML:Association.connection>
+            <UML:AssociationEnd xmi.id="ae_usuario_iniciar_sesion_1" type="actor_usuario"/>
+            <UML:AssociationEnd xmi.id="ae_usuario_iniciar_sesion_2" type="uc_iniciar_sesion"/>
+          </UML:Association.connection>
+        </UML:Association>
+        <UML:Association xmi.id="a_usuario_recuperar_contrasena">
+          <UML:Association.connection>
+            <UML:AssociationEnd xmi.id="ae_usuario_recuperar_contrasena_1" type="actor_usuario"/>
+            <UML:AssociationEnd xmi.id="ae_usuario_recuperar_contrasena_2" type="uc_recuperar_contrasena"/>
+          </UML:Association.connection>
+        </UML:Association>
+        <UML:Association xmi.id="a_usuario_cerrar_sesion">
+          <UML:Association.connection>
+            <UML:AssociationEnd xmi.id="ae_usuario_cerrar_sesion_1" type="actor_usuario"/>
+            <UML:AssociationEnd xmi.id="ae_usuario_cerrar_sesion_2" type="uc_cerrar_sesion"/>
+          </UML:Association.connection>
+        </UML:Association>
+        <UML:Association xmi.id="a_usuario_catalogo">
+          <UML:Association.connection>
+            <UML:AssociationEnd xmi.id="ae_usuario_catalogo_1" type="actor_usuario"/>
+            <UML:AssociationEnd xmi.id="ae_usuario_catalogo_2" type="uc_consultar_catalogo"/>
+          </UML:Association.connection>
+        </UML:Association>
+        <UML:Association xmi.id="a_usuario_filtrar">
+          <UML:Association.connection>
+            <UML:AssociationEnd xmi.id="ae_usuario_filtrar_1" type="actor_usuario"/>
+            <UML:AssociationEnd xmi.id="ae_usuario_filtrar_2" type="uc_filtrar_productos"/>
+          </UML:Association.connection>
+        </UML:Association>
+        <UML:Association xmi.id="a_usuario_detalle">
+          <UML:Association.connection>
+            <UML:AssociationEnd xmi.id="ae_usuario_detalle_1" type="actor_usuario"/>
+            <UML:AssociationEnd xmi.id="ae_usuario_detalle_2" type="uc_ver_detalle"/>
+          </UML:Association.connection>
+        </UML:Association>
+        <UML:Association xmi.id="a_usuario_perfil">
+          <UML:Association.connection>
+            <UML:AssociationEnd xmi.id="ae_usuario_perfil_1" type="actor_usuario"/>
+            <UML:AssociationEnd xmi.id="ae_usuario_perfil_2" type="uc_ver_perfil"/>
+          </UML:Association.connection>
+        </UML:Association>
+
+        <UML:Association xmi.id="a_vendedor_publicacion">
+          <UML:Association.connection>
+            <UML:AssociationEnd xmi.id="ae_vendedor_publicacion_1" type="actor_vendedor"/>
+            <UML:AssociationEnd xmi.id="ae_vendedor_publicacion_2" type="uc_crear_publicacion"/>
+          </UML:Association.connection>
+        </UML:Association>
+        <UML:Association xmi.id="a_vendedor_variantes">
+          <UML:Association.connection>
+            <UML:AssociationEnd xmi.id="ae_vendedor_variantes_1" type="actor_vendedor"/>
+            <UML:AssociationEnd xmi.id="ae_vendedor_variantes_2" type="uc_gestionar_variantes"/>
+          </UML:Association.connection>
+        </UML:Association>
+        <UML:Association xmi.id="a_usuario_imagen">
+          <UML:Association.connection>
+            <UML:AssociationEnd xmi.id="ae_usuario_imagen_1" type="actor_usuario"/>
+            <UML:AssociationEnd xmi.id="ae_usuario_imagen_2" type="uc_subir_imagen"/>
+          </UML:Association.connection>
+        </UML:Association>
+        <UML:Association xmi.id="a_usuario_listados">
+          <UML:Association.connection>
+            <UML:AssociationEnd xmi.id="ae_usuario_listados_1" type="actor_usuario"/>
+            <UML:AssociationEnd xmi.id="ae_usuario_listados_2" type="uc_ver_listados"/>
+          </UML:Association.connection>
+        </UML:Association>
+
+        <UML:Association xmi.id="a_comprador_carrito">
+          <UML:Association.connection>
+            <UML:AssociationEnd xmi.id="ae_comprador_carrito_1" type="actor_comprador"/>
+            <UML:AssociationEnd xmi.id="ae_comprador_carrito_2" type="uc_anadir_carrito"/>
+          </UML:Association.connection>
+        </UML:Association>
+        <UML:Association xmi.id="a_comprador_pedir">
+          <UML:Association.connection>
+            <UML:AssociationEnd xmi.id="ae_comprador_pedir_1" type="actor_comprador"/>
+            <UML:AssociationEnd xmi.id="ae_comprador_pedir_2" type="uc_pedir_vendedor"/>
+          </UML:Association.connection>
+        </UML:Association>
+        <UML:Association xmi.id="a_comprador_pedidos">
+          <UML:Association.connection>
+            <UML:AssociationEnd xmi.id="ae_comprador_pedidos_1" type="actor_comprador"/>
+            <UML:AssociationEnd xmi.id="ae_comprador_pedidos_2" type="uc_ver_pedidos"/>
+          </UML:Association.connection>
+        </UML:Association>
+        <UML:Association xmi.id="a_comprador_confirmar">
+          <UML:Association.connection>
+            <UML:AssociationEnd xmi.id="ae_comprador_confirmar_1" type="actor_comprador"/>
+            <UML:AssociationEnd xmi.id="ae_comprador_confirmar_2" type="uc_confirmar_recepcion"/>
+          </UML:Association.connection>
+        </UML:Association>
+        <UML:Association xmi.id="a_comprador_incidencia">
+          <UML:Association.connection>
+            <UML:AssociationEnd xmi.id="ae_comprador_incidencia_1" type="actor_comprador"/>
+            <UML:AssociationEnd xmi.id="ae_comprador_incidencia_2" type="uc_crear_incidencia"/>
+          </UML:Association.connection>
+        </UML:Association>
+        <UML:Association xmi.id="a_usuario_ver_incidencias">
+          <UML:Association.connection>
+            <UML:AssociationEnd xmi.id="ae_usuario_ver_incidencias_1" type="actor_usuario"/>
+            <UML:AssociationEnd xmi.id="ae_usuario_ver_incidencias_2" type="uc_ver_incidencias"/>
+          </UML:Association.connection>
+        </UML:Association>
+
+        <UML:Association xmi.id="a_comprador_contactar">
+          <UML:Association.connection>
+            <UML:AssociationEnd xmi.id="ae_comprador_contactar_1" type="actor_comprador"/>
+            <UML:AssociationEnd xmi.id="ae_comprador_contactar_2" type="uc_contactar_vendedor"/>
+          </UML:Association.connection>
+        </UML:Association>
+        <UML:Association xmi.id="a_usuario_chats">
+          <UML:Association.connection>
+            <UML:AssociationEnd xmi.id="ae_usuario_chats_1" type="actor_usuario"/>
+            <UML:AssociationEnd xmi.id="ae_usuario_chats_2" type="uc_listar_chats"/>
+          </UML:Association.connection>
+        </UML:Association>
+        <UML:Association xmi.id="a_usuario_mensaje">
+          <UML:Association.connection>
+            <UML:AssociationEnd xmi.id="ae_usuario_mensaje_1" type="actor_usuario"/>
+            <UML:AssociationEnd xmi.id="ae_usuario_mensaje_2" type="uc_enviar_mensaje"/>
+          </UML:Association.connection>
+        </UML:Association>
+
+        <UML:Association xmi.id="a_vendedor_pedidos">
+          <UML:Association.connection>
+            <UML:AssociationEnd xmi.id="ae_vendedor_pedidos_1" type="actor_vendedor"/>
+            <UML:AssociationEnd xmi.id="ae_vendedor_pedidos_2" type="uc_ver_pedidos_recibidos"/>
+          </UML:Association.connection>
+        </UML:Association>
+        <UML:Association xmi.id="a_vendedor_responder">
+          <UML:Association.connection>
+            <UML:AssociationEnd xmi.id="ae_vendedor_responder_1" type="actor_vendedor"/>
+            <UML:AssociationEnd xmi.id="ae_vendedor_responder_2" type="uc_responder_pedido"/>
+          </UML:Association.connection>
+        </UML:Association>
+        <UML:Association xmi.id="a_vendedor_enviar">
+          <UML:Association.connection>
+            <UML:AssociationEnd xmi.id="ae_vendedor_enviar_1" type="actor_vendedor"/>
+            <UML:AssociationEnd xmi.id="ae_vendedor_enviar_2" type="uc_enviar_pedido"/>
+          </UML:Association.connection>
+        </UML:Association>
+
+        <UML:Association xmi.id="a_admin_usuarios">
+          <UML:Association.connection>
+            <UML:AssociationEnd xmi.id="ae_admin_usuarios_1" type="actor_admin"/>
+            <UML:AssociationEnd xmi.id="ae_admin_usuarios_2" type="uc_gestionar_usuarios"/>
+          </UML:Association.connection>
+        </UML:Association>
+        <UML:Association xmi.id="a_admin_marcas">
+          <UML:Association.connection>
+            <UML:AssociationEnd xmi.id="ae_admin_marcas_1" type="actor_admin"/>
+            <UML:AssociationEnd xmi.id="ae_admin_marcas_2" type="uc_gestionar_marcas"/>
+          </UML:Association.connection>
+        </UML:Association>
+        <UML:Association xmi.id="a_admin_eventos">
+          <UML:Association.connection>
+            <UML:AssociationEnd xmi.id="ae_admin_eventos_1" type="actor_admin"/>
+            <UML:AssociationEnd xmi.id="ae_admin_eventos_2" type="uc_gestionar_eventos"/>
+          </UML:Association.connection>
+        </UML:Association>
+        <UML:Association xmi.id="a_admin_incidencias">
+          <UML:Association.connection>
+            <UML:AssociationEnd xmi.id="ae_admin_incidencias_1" type="actor_admin"/>
+            <UML:AssociationEnd xmi.id="ae_admin_incidencias_2" type="uc_resolver_incidencias"/>
+          </UML:Association.connection>
+        </UML:Association>
+
+        <UML:Association xmi.id="a_firebase_auth_login">
+          <UML:Association.connection>
+            <UML:AssociationEnd xmi.id="ae_firebase_auth_login_1" type="actor_firebase_auth"/>
+            <UML:AssociationEnd xmi.id="ae_firebase_auth_login_2" type="uc_iniciar_sesion"/>
+          </UML:Association.connection>
+        </UML:Association>
+        <UML:Association xmi.id="a_firebase_auth_register">
+          <UML:Association.connection>
+            <UML:AssociationEnd xmi.id="ae_firebase_auth_register_1" type="actor_firebase_auth"/>
+            <UML:AssociationEnd xmi.id="ae_firebase_auth_register_2" type="uc_registrarse"/>
+          </UML:Association.connection>
+        </UML:Association>
+        <UML:Association xmi.id="a_firebase_auth_password">
+          <UML:Association.connection>
+            <UML:AssociationEnd xmi.id="ae_firebase_auth_password_1" type="actor_firebase_auth"/>
+            <UML:AssociationEnd xmi.id="ae_firebase_auth_password_2" type="uc_recuperar_contrasena"/>
+          </UML:Association.connection>
+        </UML:Association>
+        <UML:Association xmi.id="a_firestore_chat">
+          <UML:Association.connection>
+            <UML:AssociationEnd xmi.id="ae_firestore_chat_1" type="actor_firestore"/>
+            <UML:AssociationEnd xmi.id="ae_firestore_chat_2" type="uc_enviar_mensaje"/>
+          </UML:Association.connection>
+        </UML:Association>
+        <UML:Association xmi.id="a_cloudinary_imagen">
+          <UML:Association.connection>
+            <UML:AssociationEnd xmi.id="ae_cloudinary_imagen_1" type="actor_cloudinary"/>
+            <UML:AssociationEnd xmi.id="ae_cloudinary_imagen_2" type="uc_subir_imagen"/>
+          </UML:Association.connection>
+        </UML:Association>
+        <UML:Association xmi.id="a_api_pedidos">
+          <UML:Association.connection>
+            <UML:AssociationEnd xmi.id="ae_api_pedidos_1" type="actor_api"/>
+            <UML:AssociationEnd xmi.id="ae_api_pedidos_2" type="uc_pedir_vendedor"/>
+          </UML:Association.connection>
+        </UML:Association>
+        <UML:Association xmi.id="a_api_incidencias">
+          <UML:Association.connection>
+            <UML:AssociationEnd xmi.id="ae_api_incidencias_1" type="actor_api"/>
+            <UML:AssociationEnd xmi.id="ae_api_incidencias_2" type="uc_resolver_incidencias"/>
+          </UML:Association.connection>
+        </UML:Association>
+      </UML:Namespace.ownedElement>
+    </UML:Model>
+  </XMI.content>
+  <XMI.extensions xmi.extender="umbrello">
+    <docsettings viewid="diagram_casos_uso" documentation="" uniqueid="2000"/>
+    <listview>
+      <listitem id="model_1" type="800" open="1">
+        <listitem id="diagram_casos_uso" type="802" label="Casos de uso SnkrsApp"/>
+      </listitem>
+    </listview>
+    <diagrams>
+      <diagram xmi.id="diagram_casos_uso" name="Casos de uso SnkrsApp" type="2" documentation="" showopsig="1" showattsig="1" showpackage="1" showstereotype="1" showpubliconly="0" showattribassocs="1" showatts="1" showops="1" showrolea="1" showroleb="1" linewidth="0" snapgrid="1" showgrid="0" usefillcolor="1" fillcolor="#ffffc0" zoom="100" canvasheight="1250" canvaswidth="1800" localid="1">
+        <widgets>
+          <actorwidget xmi.id="w_actor_usuario" actor="actor_usuario" x="60" y="80" width="90" height="80"/>
+          <actorwidget xmi.id="w_actor_comprador" actor="actor_comprador" x="60" y="360" width="100" height="80"/>
+          <actorwidget xmi.id="w_actor_vendedor" actor="actor_vendedor" x="60" y="680" width="100" height="80"/>
+          <actorwidget xmi.id="w_actor_admin" actor="actor_admin" x="60" y="980" width="120" height="80"/>
+          <actorwidget xmi.id="w_actor_firebase_auth" actor="actor_firebase_auth" x="1510" y="80" width="130" height="80"/>
+          <actorwidget xmi.id="w_actor_firestore" actor="actor_firestore" x="1510" y="420" width="150" height="80"/>
+          <actorwidget xmi.id="w_actor_api" actor="actor_api" x="1510" y="720" width="120" height="80"/>
+          <actorwidget xmi.id="w_actor_cloudinary" actor="actor_cloudinary" x="1510" y="990" width="120" height="80"/>
+
+          <usecasewidget xmi.id="w_uc_registrarse" usecase="uc_registrarse" x="290" y="40" width="150" height="60"/>
+          <usecasewidget xmi.id="w_uc_iniciar_sesion" usecase="uc_iniciar_sesion" x="290" y="115" width="150" height="60"/>
+          <usecasewidget xmi.id="w_uc_recuperar_contrasena" usecase="uc_recuperar_contrasena" x="290" y="190" width="180" height="60"/>
+          <usecasewidget xmi.id="w_uc_cerrar_sesion" usecase="uc_cerrar_sesion" x="290" y="265" width="150" height="60"/>
+          <usecasewidget xmi.id="w_uc_consultar_catalogo" usecase="uc_consultar_catalogo" x="540" y="60" width="170" height="60"/>
+          <usecasewidget xmi.id="w_uc_filtrar_productos" usecase="uc_filtrar_productos" x="540" y="135" width="190" height="60"/>
+          <usecasewidget xmi.id="w_uc_ver_detalle" usecase="uc_ver_detalle" x="540" y="210" width="180" height="60"/>
+          <usecasewidget xmi.id="w_uc_ver_perfil" usecase="uc_ver_perfil" x="540" y="285" width="170" height="60"/>
+
+          <usecasewidget xmi.id="w_uc_anadir_carrito" usecase="uc_anadir_carrito" x="290" y="365" width="220" height="60"/>
+          <usecasewidget xmi.id="w_uc_pedir_vendedor" usecase="uc_pedir_vendedor" x="290" y="440" width="170" height="60"/>
+          <usecasewidget xmi.id="w_uc_ver_pedidos" usecase="uc_ver_pedidos" x="290" y="515" width="180" height="60"/>
+          <usecasewidget xmi.id="w_uc_confirmar_recepcion" usecase="uc_confirmar_recepcion" x="540" y="365" width="180" height="60"/>
+          <usecasewidget xmi.id="w_uc_crear_incidencia" usecase="uc_crear_incidencia" x="540" y="440" width="170" height="60"/>
+          <usecasewidget xmi.id="w_uc_ver_incidencias" usecase="uc_ver_incidencias" x="540" y="515" width="200" height="60"/>
+
+          <usecasewidget xmi.id="w_uc_crear_publicacion" usecase="uc_crear_publicacion" x="290" y="660" width="170" height="60"/>
+          <usecasewidget xmi.id="w_uc_gestionar_variantes" usecase="uc_gestionar_variantes" x="290" y="735" width="220" height="60"/>
+          <usecasewidget xmi.id="w_uc_subir_imagen" usecase="uc_subir_imagen" x="540" y="660" width="150" height="60"/>
+          <usecasewidget xmi.id="w_uc_ver_listados" usecase="uc_ver_listados" x="540" y="735" width="220" height="60"/>
+          <usecasewidget xmi.id="w_uc_ver_pedidos_recibidos" usecase="uc_ver_pedidos_recibidos" x="820" y="660" width="190" height="60"/>
+          <usecasewidget xmi.id="w_uc_responder_pedido" usecase="uc_responder_pedido" x="820" y="735" width="200" height="60"/>
+          <usecasewidget xmi.id="w_uc_enviar_pedido" usecase="uc_enviar_pedido" x="820" y="810" width="150" height="60"/>
+
+          <usecasewidget xmi.id="w_uc_contactar_vendedor" usecase="uc_contactar_vendedor" x="1010" y="340" width="180" height="60"/>
+          <usecasewidget xmi.id="w_uc_listar_chats" usecase="uc_listar_chats" x="1010" y="415" width="170" height="60"/>
+          <usecasewidget xmi.id="w_uc_enviar_mensaje" usecase="uc_enviar_mensaje" x="1010" y="490" width="190" height="60"/>
+
+          <usecasewidget xmi.id="w_uc_gestionar_usuarios" usecase="uc_gestionar_usuarios" x="290" y="940" width="170" height="60"/>
+          <usecasewidget xmi.id="w_uc_gestionar_marcas" usecase="uc_gestionar_marcas" x="290" y="1015" width="170" height="60"/>
+          <usecasewidget xmi.id="w_uc_gestionar_eventos" usecase="uc_gestionar_eventos" x="540" y="940" width="170" height="60"/>
+          <usecasewidget xmi.id="w_uc_resolver_incidencias" usecase="uc_resolver_incidencias" x="540" y="1015" width="180" height="60"/>
+        </widgets>
+        <associations>
+          <assocwidget xmi.id="aw_a_usuario_registrarse" association="a_usuario_registrarse" widgetaid="w_actor_usuario" widgetbid="w_uc_registrarse"/>
+          <assocwidget xmi.id="aw_a_usuario_iniciar_sesion" association="a_usuario_iniciar_sesion" widgetaid="w_actor_usuario" widgetbid="w_uc_iniciar_sesion"/>
+          <assocwidget xmi.id="aw_a_usuario_recuperar_contrasena" association="a_usuario_recuperar_contrasena" widgetaid="w_actor_usuario" widgetbid="w_uc_recuperar_contrasena"/>
+          <assocwidget xmi.id="aw_a_usuario_cerrar_sesion" association="a_usuario_cerrar_sesion" widgetaid="w_actor_usuario" widgetbid="w_uc_cerrar_sesion"/>
+          <assocwidget xmi.id="aw_a_usuario_catalogo" association="a_usuario_catalogo" widgetaid="w_actor_usuario" widgetbid="w_uc_consultar_catalogo"/>
+          <assocwidget xmi.id="aw_a_usuario_filtrar" association="a_usuario_filtrar" widgetaid="w_actor_usuario" widgetbid="w_uc_filtrar_productos"/>
+          <assocwidget xmi.id="aw_a_usuario_detalle" association="a_usuario_detalle" widgetaid="w_actor_usuario" widgetbid="w_uc_ver_detalle"/>
+          <assocwidget xmi.id="aw_a_usuario_perfil" association="a_usuario_perfil" widgetaid="w_actor_usuario" widgetbid="w_uc_ver_perfil"/>
+          <assocwidget xmi.id="aw_a_comprador_carrito" association="a_comprador_carrito" widgetaid="w_actor_comprador" widgetbid="w_uc_anadir_carrito"/>
+          <assocwidget xmi.id="aw_a_comprador_pedir" association="a_comprador_pedir" widgetaid="w_actor_comprador" widgetbid="w_uc_pedir_vendedor"/>
+          <assocwidget xmi.id="aw_a_comprador_pedidos" association="a_comprador_pedidos" widgetaid="w_actor_comprador" widgetbid="w_uc_ver_pedidos"/>
+          <assocwidget xmi.id="aw_a_comprador_confirmar" association="a_comprador_confirmar" widgetaid="w_actor_comprador" widgetbid="w_uc_confirmar_recepcion"/>
+          <assocwidget xmi.id="aw_a_comprador_incidencia" association="a_comprador_incidencia" widgetaid="w_actor_comprador" widgetbid="w_uc_crear_incidencia"/>
+          <assocwidget xmi.id="aw_a_usuario_ver_incidencias" association="a_usuario_ver_incidencias" widgetaid="w_actor_usuario" widgetbid="w_uc_ver_incidencias"/>
+          <assocwidget xmi.id="aw_a_vendedor_publicacion" association="a_vendedor_publicacion" widgetaid="w_actor_vendedor" widgetbid="w_uc_crear_publicacion"/>
+          <assocwidget xmi.id="aw_a_vendedor_variantes" association="a_vendedor_variantes" widgetaid="w_actor_vendedor" widgetbid="w_uc_gestionar_variantes"/>
+          <assocwidget xmi.id="aw_a_usuario_imagen" association="a_usuario_imagen" widgetaid="w_actor_usuario" widgetbid="w_uc_subir_imagen"/>
+          <assocwidget xmi.id="aw_a_usuario_listados" association="a_usuario_listados" widgetaid="w_actor_usuario" widgetbid="w_uc_ver_listados"/>
+          <assocwidget xmi.id="aw_a_vendedor_pedidos" association="a_vendedor_pedidos" widgetaid="w_actor_vendedor" widgetbid="w_uc_ver_pedidos_recibidos"/>
+          <assocwidget xmi.id="aw_a_vendedor_responder" association="a_vendedor_responder" widgetaid="w_actor_vendedor" widgetbid="w_uc_responder_pedido"/>
+          <assocwidget xmi.id="aw_a_vendedor_enviar" association="a_vendedor_enviar" widgetaid="w_actor_vendedor" widgetbid="w_uc_enviar_pedido"/>
+          <assocwidget xmi.id="aw_a_comprador_contactar" association="a_comprador_contactar" widgetaid="w_actor_comprador" widgetbid="w_uc_contactar_vendedor"/>
+          <assocwidget xmi.id="aw_a_usuario_chats" association="a_usuario_chats" widgetaid="w_actor_usuario" widgetbid="w_uc_listar_chats"/>
+          <assocwidget xmi.id="aw_a_usuario_mensaje" association="a_usuario_mensaje" widgetaid="w_actor_usuario" widgetbid="w_uc_enviar_mensaje"/>
+          <assocwidget xmi.id="aw_a_admin_usuarios" association="a_admin_usuarios" widgetaid="w_actor_admin" widgetbid="w_uc_gestionar_usuarios"/>
+          <assocwidget xmi.id="aw_a_admin_marcas" association="a_admin_marcas" widgetaid="w_actor_admin" widgetbid="w_uc_gestionar_marcas"/>
+          <assocwidget xmi.id="aw_a_admin_eventos" association="a_admin_eventos" widgetaid="w_actor_admin" widgetbid="w_uc_gestionar_eventos"/>
+          <assocwidget xmi.id="aw_a_admin_incidencias" association="a_admin_incidencias" widgetaid="w_actor_admin" widgetbid="w_uc_resolver_incidencias"/>
+          <assocwidget xmi.id="aw_a_firebase_auth_login" association="a_firebase_auth_login" widgetaid="w_actor_firebase_auth" widgetbid="w_uc_iniciar_sesion"/>
+          <assocwidget xmi.id="aw_a_firebase_auth_register" association="a_firebase_auth_register" widgetaid="w_actor_firebase_auth" widgetbid="w_uc_registrarse"/>
+          <assocwidget xmi.id="aw_a_firebase_auth_password" association="a_firebase_auth_password" widgetaid="w_actor_firebase_auth" widgetbid="w_uc_recuperar_contrasena"/>
+          <assocwidget xmi.id="aw_a_firestore_chat" association="a_firestore_chat" widgetaid="w_actor_firestore" widgetbid="w_uc_enviar_mensaje"/>
+          <assocwidget xmi.id="aw_a_cloudinary_imagen" association="a_cloudinary_imagen" widgetaid="w_actor_cloudinary" widgetbid="w_uc_subir_imagen"/>
+          <assocwidget xmi.id="aw_a_api_pedidos" association="a_api_pedidos" widgetaid="w_actor_api" widgetbid="w_uc_pedir_vendedor"/>
+          <assocwidget xmi.id="aw_a_api_incidencias" association="a_api_incidencias" widgetaid="w_actor_api" widgetbid="w_uc_resolver_incidencias"/>
+        </associations>
+      </diagram>
+    </diagrams>
+  </XMI.extensions>
+</XMI>

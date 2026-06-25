@@ -54,7 +54,35 @@ class ProductoDetalladoViewModel @Inject constructor(
         }
     }
 
-    fun agregarACarrito() {
+    fun cargarColoresPublicacion() {
+        FirebaseAuth.getInstance().currentUser?.getIdToken(true)?.addOnCompleteListener {
+            if (it.isSuccessful) {
+                val token = it.result.token
+                if (token != null) {
+                    viewModelScope.launch {
+                        _model.update { estado -> estado.copy(cargandoColores = true) }
+                        productoRepository.traerColores(token).collect { colores ->
+                            _model.update { estado ->
+                                estado.copy(
+                                    coloresPublicacion = colores,
+                                    cargandoColores = false
+                                )
+                            }
+                        }
+                    }
+                }
+            } else {
+                _model.update { estado ->
+                    estado.copy(
+                        cargandoColores = false,
+                        mensaje = "No se pudieron cargar los colores"
+                    )
+                }
+            }
+        }
+    }
+
+    fun agregarACarrito(idVariante: Int, cantidad: Int) {
         FirebaseAuth.getInstance().currentUser?.getIdToken(true)?.addOnCompleteListener {
             if (it.isSuccessful) {
                 val token = it.result.token
@@ -62,7 +90,8 @@ class ProductoDetalladoViewModel @Inject constructor(
                     viewModelScope.launch {
                         productoRepository.agregarAlCarrito(
                             token,
-                            _model.value.publicacionSeleccionada.idPublicacion
+                            idVariante,
+                            cantidad
                         ).collect {
                             if (it) {
                                 _model.update {
@@ -73,6 +102,44 @@ class ProductoDetalladoViewModel @Inject constructor(
                                     it.copy(mensaje = "Error al agregar al carrito")
                                 }
                             }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    fun agregarVariantesACarrito(variantes: List<Pair<Int, Int>>) {
+        if (variantes.isEmpty()) {
+            _model.update { it.copy(mensaje = "Selecciona al menos una variante") }
+            return
+        }
+
+        FirebaseAuth.getInstance().currentUser?.getIdToken(true)?.addOnCompleteListener { tarea ->
+            if (tarea.isSuccessful) {
+                val token = tarea.result.token
+                if (token != null) {
+                    viewModelScope.launch {
+                        var todoCorrecto = true
+
+                        variantes.forEach { (idVariante, cantidad) ->
+                            productoRepository.agregarAlCarrito(
+                                token,
+                                idVariante,
+                                cantidad
+                            ).collect { agregado ->
+                                if (!agregado) todoCorrecto = false
+                            }
+                        }
+
+                        _model.update {
+                            it.copy(
+                                mensaje = if (todoCorrecto) {
+                                    "Agregado al carrito"
+                                } else {
+                                    "No se pudieron agregar todas las variantes"
+                                }
+                            )
                         }
                     }
                 }

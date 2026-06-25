@@ -329,6 +329,29 @@ fun BottomBarAdmin(navController: NavController) {
                 }
             )
             NavigationBarItem(
+                selected = currentRoute == "IncidenciasAdmin",
+                onClick = { navController.navigate("IncidenciasAdmin") },
+                icon = {
+                    Box(
+                        modifier = Modifier
+                            .size(width = 52.dp, height = 34.dp)
+                            .clip(RoundedCornerShape(20.dp))
+                            .background(
+                                if (currentRoute == "IncidenciasAdmin") Color.LightGray
+                                else Color.Transparent
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            Icons.Default.Email,
+                            "",
+                            tint = if (currentRoute == "IncidenciasAdmin") ColorTextoSecundario else Color.White,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                }
+            )
+            NavigationBarItem(
                 selected = currentRoute == "PerfilAdmin",
                 onClick = { navController.navigate("PerfilAdmin") },
                 icon = {

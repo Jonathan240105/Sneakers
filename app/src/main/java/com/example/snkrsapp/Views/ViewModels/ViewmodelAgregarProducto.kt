@@ -4,8 +4,11 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.snkrsapp.Data.RemoteData.PublicacionDao.AgregarPublicacionesSolicitud
+import com.example.snkrsapp.Data.RemoteData.PublicacionDao.VariantePublicacionSolicitud
 import com.example.snkrsapp.Data.Repository.ProductoRepository.ProductoRepository
+import com.example.snkrsapp.Domain.ColorPublicacion
 import com.example.snkrsapp.Domain.ModelAgregarProducto
+import com.example.snkrsapp.Domain.VarianteNuevaPublicacion
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -43,12 +46,155 @@ class ViewmodelAgregarProducto @Inject constructor(
         _model.update { it.copy(tallaNuevaPublicacion = talla) }
     }
 
+    fun cargarColores() {
+        val usuario = FirebaseAuth.getInstance().currentUser ?: return
+
+        usuario.getIdToken(true).addOnCompleteListener { tarea ->
+            if (tarea.isSuccessful) {
+                val token = tarea.result.token ?: return@addOnCompleteListener
+
+                viewModelScope.launch {
+                    productoRepository.traerColores(token).collect { colores ->
+                        _model.update { it.copy(coloresDisponibles = colores) }
+                    }
+                }
+            }
+        }
+    }
+
 
     fun cambiarModoColeccion(esColeccion: Boolean) {
         _model.update { it.copy(esColeccion = esColeccion) }
     }
 
+    fun agregarVariante() {
+        _model.update { it.copy(variantes = it.variantes + VarianteNuevaPublicacion()) }
+    }
+
+    fun eliminarVariante(indice: Int) {
+        _model.update { estado ->
+            if (estado.variantes.size <= 1) {
+                estado
+            } else {
+                estado.copy(variantes = estado.variantes.filterIndexed { index, _ -> index != indice })
+            }
+        }
+    }
+
+    fun cambiarColorVariante(indice: Int, color: ColorPublicacion) {
+        _model.update { estado ->
+            val fotoExistenteColor = estado.variantes
+                .firstOrNull { it.idColor == color.idColor && it.urlFoto.isNotBlank() }
+                ?.urlFoto
+
+            estado.copy(
+                variantes = estado.variantes.mapIndexed { index, variante ->
+                    if (index == indice) {
+                        variante.copy(
+                            idColor = color.idColor,
+                            nombreColor = color.nombre,
+                            hexColor = color.hex,
+                            urlFoto = fotoExistenteColor ?: variante.urlFoto
+                        )
+                    } else {
+                        variante
+                    }
+                }
+            )
+        }
+    }
+
+    fun cambiarTallaVariante(indice: Int, talla: Double) {
+        actualizarVariante(indice) { it.copy(talla = talla) }
+    }
+
+    fun cambiarStockVariante(indice: Int, cantidad: Int) {
+        actualizarVariante(indice) { it.copy(cantidadDisponible = cantidad.coerceAtLeast(1)) }
+    }
+
+    fun subirFotoVariante(indice: Int, uri: Uri) {
+        viewModelScope.launch {
+            actualizarVariante(indice) { it.copy(cargandoImagen = true, errorImagen = null) }
+
+            val urlCloudinary = productoRepository.subirImagenACloudinary(uri)
+
+            if (urlCloudinary != null) {
+                _model.update { estado ->
+                    val colorVariante = estado.variantes.getOrNull(indice)?.idColor ?: 0
+
+                    estado.copy(
+                        variantes = estado.variantes.mapIndexed { index, variante ->
+                            val debeCompartirFoto = colorVariante != 0 && variante.idColor == colorVariante
+
+                            if (index == indice || debeCompartirFoto) {
+                                variante.copy(
+                                    urlFoto = urlCloudinary,
+                                    cargandoImagen = false,
+                                    errorImagen = null
+                                )
+                            } else {
+                                variante
+                            }
+                        }
+                    )
+                }
+            } else {
+                actualizarVariante(indice) {
+                    it.copy(cargandoImagen = false, errorImagen = "Error al subir la imagen")
+                }
+            }
+        }
+    }
+
     fun agregarPublicacion() {
+        val estadoActual = _model.value
+
+        val variantesSolicitud = if (estadoActual.esColeccion) {
+            emptyList()
+        } else {
+            val variantesValidas = estadoActual.variantes.filter {
+                it.idColor != 0 &&
+                    it.talla > 0.0 &&
+                    it.cantidadDisponible > 0 &&
+                    it.urlFoto.isNotBlank()
+            }
+
+            if (variantesValidas.size != estadoActual.variantes.size) {
+                _model.update {
+                    it.copy(mensajeError = "Completa color, talla, stock e imagen en todas las variantes")
+                }
+                return
+            }
+
+            if (variantesValidas.any { it.talla !in 16.0..60.0 }) {
+                _model.update {
+                    it.copy(mensajeError = "La talla debe estar entre 16 y 60")
+                }
+                return
+            }
+
+            variantesValidas.map {
+                VariantePublicacionSolicitud(
+                    idColor = it.idColor,
+                    talla = it.talla,
+                    cantidadDisponible = it.cantidadDisponible,
+                    urlFoto = it.urlFoto
+                )
+            }
+        }
+
+        val fotoPrincipal = if (estadoActual.esColeccion) {
+            estadoActual.urlImagenNuevaPublicacion
+        } else {
+            variantesSolicitud.firstOrNull()?.urlFoto.orEmpty()
+        }
+
+        val tallaPrincipal = if (estadoActual.esColeccion) {
+            estadoActual.tallaNuevaPublicacion
+        } else {
+            variantesSolicitud.firstOrNull()?.talla ?: 0.0
+        }
+
         _model.update { it.copy(cargando = true, mensajeError = null) }
 
         val esMarcaNueva = _model.value.marcaSeleccionada.lowercase() == "otro"
@@ -64,10 +210,11 @@ class ViewmodelAgregarProducto @Inject constructor(
             nombreProductoNuevo = if (esProductoNuevo) _model.value.nombreNuevoProductoText else null,
 
             precio = _model.value.precioNuevaPublicacion,
-            talla = _model.value.tallaNuevaPublicacion,
+            talla = tallaPrincipal,
             estado = "disponible",
-            urlFoto = _model.value.urlImagenNuevaPublicacion,
+            urlFoto = fotoPrincipal,
             fecha_publicacion = LocalDateTime.now().toString(),
+            variantes = variantesSolicitud,
             esParaColeccion = _model.value.esColeccion
         )
 
@@ -177,6 +324,19 @@ class ViewmodelAgregarProducto @Inject constructor(
     fun resetearEstadoNuevaPublicacion() {
         _model.update {
             ModelAgregarProducto()
+        }
+    }
+
+    private fun actualizarVariante(
+        indice: Int,
+        transformacion: (VarianteNuevaPublicacion) -> VarianteNuevaPublicacion
+    ) {
+        _model.update { estado ->
+            estado.copy(
+                variantes = estado.variantes.mapIndexed { index, variante ->
+                    if (index == indice) transformacion(variante) else variante
+                }
+            )
         }
     }
 }

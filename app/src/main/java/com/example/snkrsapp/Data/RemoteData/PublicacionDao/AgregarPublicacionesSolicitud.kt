@@ -12,7 +12,15 @@ data class AgregarPublicacionesSolicitud(
     val estado: String,
     val urlFoto: String,
     val fecha_publicacion: String,
+    val variantes: List<VariantePublicacionSolicitud>,
     val esParaColeccion: Boolean
+)
+
+data class VariantePublicacionSolicitud(
+    val idColor: Int,
+    val talla: Double,
+    val cantidadDisponible: Int,
+    val urlFoto: String
 )
 
 data class AgregarPublicacionRespuesta(

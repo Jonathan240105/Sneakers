@@ -1,0 +1,491 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xmi:XMI xmi:version="2.1" xmlns:xmi="http://schema.omg.org/spec/XMI/2.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:uml="http://schema.omg.org/spec/UML/2.1">
+  <xmi:Documentation exporter="umbrello uml modeller 26.04.0-e0f7329 http://umbrello.kde.org" exporterVersion="2.0.4"/>
+  <uml:Model xmi:id="m1" name="SnkrsApp">
+    <packagedElement xmi:type="uml:Stereotype" xmi:id="folder" name="folder"/>
+    <packagedElement xmi:type="uml:Stereotype" xmi:id="dataType" name="dataType"/>
+    <packagedElement xmi:type="uml:Model" xmi:id="Logical_View" name="Logical View" stereotype="folder">
+      <uml:Package xmi:id="Datatypes" name="Datatypes" stereotype="folder">
+        <packagedElement xmi:type="uml:DataType" xmi:id="uCPSCVqD4ExXD" name="String" stereotype="dataType"/>
+        <packagedElement xmi:type="uml:DataType" xmi:id="u2EsHWYhLTh9G" name="Boolean" stereotype="dataType"/>
+        <packagedElement xmi:type="uml:DataType" xmi:id="u61L4eaOcoROI" name="UnlimitedNatural" stereotype="dataType"/>
+        <packagedElement xmi:type="uml:DataType" xmi:id="uITaZEN5DfZyu" name="Integer" stereotype="dataType"/>
+        <packagedElement xmi:type="uml:DataType" xmi:id="uOYgZz2Oe6NNu" name="Real" stereotype="dataType"/>
+      </uml:Package>
+      <packagedElement xmi:type="uml:Association" xmi:id="as_usuario_registro" name="">
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="as_usuario_registro_a" name="" type="actor_usuario" aggregation="none" isNavigable="true" changeability="changeable"/>
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="as_usuario_registro_b" name="" type="uc_registro" aggregation="none" isNavigable="true" changeability="changeable"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Association" xmi:id="as_usuario_login" name="">
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="as_usuario_login_a" name="" type="actor_usuario" aggregation="none" isNavigable="true" changeability="changeable"/>
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="as_usuario_login_b" name="" type="uc_login" aggregation="none" isNavigable="true" changeability="changeable"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Association" xmi:id="as_usuario_recuperar" name="">
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="as_usuario_recuperar_a" name="" type="actor_usuario" aggregation="none" isNavigable="true" changeability="changeable"/>
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="as_usuario_recuperar_b" name="" type="uc_recuperar" aggregation="none" isNavigable="true" changeability="changeable"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Association" xmi:id="as_usuario_catalogo" name="">
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="as_usuario_catalogo_a" name="" type="actor_usuario" aggregation="none" isNavigable="true" changeability="changeable"/>
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="as_usuario_catalogo_b" name="" type="uc_catalogo" aggregation="none" isNavigable="true" changeability="changeable"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Association" xmi:id="as_usuario_detalle" name="">
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="as_usuario_detalle_a" name="" type="actor_usuario" aggregation="none" isNavigable="true" changeability="changeable"/>
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="as_usuario_detalle_b" name="" type="uc_detalle" aggregation="none" isNavigable="true" changeability="changeable"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Association" xmi:id="as_usuario_perfil" name="">
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="as_usuario_perfil_a" name="" type="actor_usuario" aggregation="none" isNavigable="true" changeability="changeable"/>
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="as_usuario_perfil_b" name="" type="uc_perfil" aggregation="none" isNavigable="true" changeability="changeable"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Association" xmi:id="as_usuario_chat" name="">
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="as_usuario_chat_a" name="" type="actor_usuario" aggregation="none" isNavigable="true" changeability="changeable"/>
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="as_usuario_chat_b" name="" type="uc_chat" aggregation="none" isNavigable="true" changeability="changeable"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Association" xmi:id="as_comprador_carrito" name="">
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="as_comprador_carrito_a" name="" type="actor_comprador" aggregation="none" isNavigable="true" changeability="changeable"/>
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="as_comprador_carrito_b" name="" type="uc_carrito" aggregation="none" isNavigable="true" changeability="changeable"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Association" xmi:id="as_comprador_pedir" name="">
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="as_comprador_pedir_a" name="" type="actor_comprador" aggregation="none" isNavigable="true" changeability="changeable"/>
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="as_comprador_pedir_b" name="" type="uc_pedir" aggregation="none" isNavigable="true" changeability="changeable"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Association" xmi:id="as_comprador_mis_pedidos" name="">
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="as_comprador_mis_pedidos_a" name="" type="actor_comprador" aggregation="none" isNavigable="true" changeability="changeable"/>
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="as_comprador_mis_pedidos_b" name="" type="uc_mis_pedidos" aggregation="none" isNavigable="true" changeability="changeable"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Association" xmi:id="as_comprador_confirmar" name="">
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="as_comprador_confirmar_a" name="" type="actor_comprador" aggregation="none" isNavigable="true" changeability="changeable"/>
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="as_comprador_confirmar_b" name="" type="uc_confirmar" aggregation="none" isNavigable="true" changeability="changeable"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Association" xmi:id="as_comprador_reportar" name="">
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="as_comprador_reportar_a" name="" type="actor_comprador" aggregation="none" isNavigable="true" changeability="changeable"/>
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="as_comprador_reportar_b" name="" type="uc_reportar" aggregation="none" isNavigable="true" changeability="changeable"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Association" xmi:id="as_comprador_incidencias" name="">
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="as_comprador_incidencias_a" name="" type="actor_comprador" aggregation="none" isNavigable="true" changeability="changeable"/>
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="as_comprador_incidencias_b" name="" type="uc_incidencias_usuario" aggregation="none" isNavigable="true" changeability="changeable"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Association" xmi:id="as_vendedor_publicar" name="">
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="as_vendedor_publicar_a" name="" type="actor_vendedor" aggregation="none" isNavigable="true" changeability="changeable"/>
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="as_vendedor_publicar_b" name="" type="uc_publicar" aggregation="none" isNavigable="true" changeability="changeable"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Association" xmi:id="as_vendedor_variantes" name="">
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="as_vendedor_variantes_a" name="" type="actor_vendedor" aggregation="none" isNavigable="true" changeability="changeable"/>
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="as_vendedor_variantes_b" name="" type="uc_variantes" aggregation="none" isNavigable="true" changeability="changeable"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Association" xmi:id="as_vendedor_pedidos" name="">
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="as_vendedor_pedidos_a" name="" type="actor_vendedor" aggregation="none" isNavigable="true" changeability="changeable"/>
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="as_vendedor_pedidos_b" name="" type="uc_pedidos_recibidos" aggregation="none" isNavigable="true" changeability="changeable"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Association" xmi:id="as_vendedor_responder" name="">
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="as_vendedor_responder_a" name="" type="actor_vendedor" aggregation="none" isNavigable="true" changeability="changeable"/>
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="as_vendedor_responder_b" name="" type="uc_responder_pedido" aggregation="none" isNavigable="true" changeability="changeable"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Association" xmi:id="as_admin_usuarios" name="">
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="as_admin_usuarios_a" name="" type="actor_admin" aggregation="none" isNavigable="true" changeability="changeable"/>
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="as_admin_usuarios_b" name="" type="uc_admin_usuarios" aggregation="none" isNavigable="true" changeability="changeable"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Association" xmi:id="as_admin_marcas" name="">
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="as_admin_marcas_a" name="" type="actor_admin" aggregation="none" isNavigable="true" changeability="changeable"/>
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="as_admin_marcas_b" name="" type="uc_admin_marcas" aggregation="none" isNavigable="true" changeability="changeable"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Association" xmi:id="as_admin_eventos" name="">
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="as_admin_eventos_a" name="" type="actor_admin" aggregation="none" isNavigable="true" changeability="changeable"/>
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="as_admin_eventos_b" name="" type="uc_admin_eventos" aggregation="none" isNavigable="true" changeability="changeable"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Association" xmi:id="as_admin_incidencias" name="">
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="as_admin_incidencias_a" name="" type="actor_admin" aggregation="none" isNavigable="true" changeability="changeable"/>
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="as_admin_incidencias_b" name="" type="uc_admin_incidencias" aggregation="none" isNavigable="true" changeability="changeable"/>
+      </packagedElement>
+      <xmi:Extension extender="umbrello">
+        <diagrams>
+          <diagram xmi.id="usMTXoG70jJio" name="class diagram" type="1" documentation="" backgroundcolor="#2d2d2d" usebackgroundcolor="1" fillcolor="#f9f6ff" font="Segoe UI,9,-1,5,400,0,0,0,0,0,0,0,0,0,0,1" griddotcolor="#ffffff" linecolor="#990000" linewidth="0" textcolor="#000000" usefillcolor="1" usealignmentguides="1" showattribassocs="1" showatts="1" showattsig="1" showops="1" showopsig="1" showpackage="1" showpubliconly="0" showscope="1" showstereotype="2" localid="-1" showgrid="0" snapgrid="0" snapcsgrid="0" snapx="25" snapy="25" zoom="100" canvasheight="800" canvaswidth="1100" isopen="0">
+            <widgets/>
+            <messages/>
+            <associations/>
+          </diagram>
+        </diagrams>
+      </xmi:Extension>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Model" xmi:id="Use_Case_View" name="Use Case View" stereotype="folder">
+      <packagedElement xmi:type="uml:Actor" xmi:id="actor_usuario" name="Usuario"/>
+      <packagedElement xmi:type="uml:Actor" xmi:id="actor_comprador" name="Comprador"/>
+      <packagedElement xmi:type="uml:Actor" xmi:id="actor_vendedor" name="Vendedor"/>
+      <packagedElement xmi:type="uml:Actor" xmi:id="actor_admin" name="Administrador"/>
+      <packagedElement xmi:type="uml:UseCase" xmi:id="uc_registro" name="Registrarse"/>
+      <packagedElement xmi:type="uml:UseCase" xmi:id="uc_login" name="Iniciar sesion"/>
+      <packagedElement xmi:type="uml:UseCase" xmi:id="uc_recuperar" name="Recuperar contrasena"/>
+      <packagedElement xmi:type="uml:UseCase" xmi:id="uc_catalogo" name="Consultar catalogo"/>
+      <packagedElement xmi:type="uml:UseCase" xmi:id="uc_detalle" name="Ver detalle de producto"/>
+      <packagedElement xmi:type="uml:UseCase" xmi:id="uc_perfil" name="Consultar perfil"/>
+      <packagedElement xmi:type="uml:UseCase" xmi:id="uc_chat" name="Usar chat"/>
+      <packagedElement xmi:type="uml:UseCase" xmi:id="uc_carrito" name="Anadir al carrito"/>
+      <packagedElement xmi:type="uml:UseCase" xmi:id="uc_pedir" name="Pedir al vendedor"/>
+      <packagedElement xmi:type="uml:UseCase" xmi:id="uc_mis_pedidos" name="Consultar mis pedidos"/>
+      <packagedElement xmi:type="uml:UseCase" xmi:id="uc_confirmar" name="Confirmar recepcion"/>
+      <packagedElement xmi:type="uml:UseCase" xmi:id="uc_reportar" name="Crear incidencia"/>
+      <packagedElement xmi:type="uml:UseCase" xmi:id="uc_incidencias_usuario" name="Ver incidencias resueltas"/>
+      <packagedElement xmi:type="uml:UseCase" xmi:id="uc_publicar" name="Crear publicacion"/>
+      <packagedElement xmi:type="uml:UseCase" xmi:id="uc_variantes" name="Gestionar variantes y stock"/>
+      <packagedElement xmi:type="uml:UseCase" xmi:id="uc_pedidos_recibidos" name="Ver pedidos recibidos"/>
+      <packagedElement xmi:type="uml:UseCase" xmi:id="uc_responder_pedido" name="Aceptar o rechazar pedido"/>
+      <packagedElement xmi:type="uml:UseCase" xmi:id="uc_admin_usuarios" name="Gestionar usuarios"/>
+      <packagedElement xmi:type="uml:UseCase" xmi:id="uc_admin_marcas" name="Gestionar marcas"/>
+      <packagedElement xmi:type="uml:UseCase" xmi:id="uc_admin_eventos" name="Gestionar eventos"/>
+      <packagedElement xmi:type="uml:UseCase" xmi:id="uc_admin_incidencias" name="Resolver incidencias"/>
+      <packagedElement xmi:type="uml:UseCase" xmi:id="uIqDzi9IBu1bf" name="dfesfwe"/>
+      <packagedElement xmi:type="uml:Association" xmi:id="uRoyXQdR1vRav" name="">
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="ugTMV6ko8V3Lh" name="" type="actor_usuario" aggregation="none" isNavigable="true" changeability="changeable"/>
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="uwpLatj9zUOiM" name="" type="uc_registro" aggregation="none" isNavigable="true" changeability="changeable"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Association" xmi:id="uyT2SxKF7QBxC" name="">
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="u5RjQYzD3WWkt" name="" type="uc_registro" aggregation="none" isNavigable="true" changeability="changeable"/>
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="uCYrQJhQhu42T" name="" type="uc_login" aggregation="none" isNavigable="true" changeability="changeable"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Association" xmi:id="uM33i0u5slM73" name="">
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="uTomezOlUPy52" name="" type="uc_login" aggregation="none" isNavigable="true" changeability="changeable"/>
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="uLASXax9lWEnK" name="" type="uc_recuperar" aggregation="none" isNavigable="true" changeability="changeable"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Association" xmi:id="urabQNcOKvdli" name="">
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="u5St2xD0MKYr3" name="" type="uc_recuperar" aggregation="none" isNavigable="true" changeability="changeable"/>
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="uCZ1aoltYCwwZ" name="" type="uc_catalogo" aggregation="none" isNavigable="true" changeability="changeable"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Association" xmi:id="urHA9SOtOTad6" name="">
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="u7TAyEICvh8h1" name="" type="uc_catalogo" aggregation="none" isNavigable="true" changeability="changeable"/>
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="urCg5ijPe9e4T" name="" type="uc_detalle" aggregation="none" isNavigable="true" changeability="changeable"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Association" xmi:id="uEDDoUI6Ehc32" name="">
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="uh4S9489QzOaR" name="" type="uc_detalle" aggregation="none" isNavigable="true" changeability="changeable"/>
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="uafUim0RH4cW8" name="" type="uc_perfil" aggregation="none" isNavigable="true" changeability="changeable"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Association" xmi:id="ub4rLm1vcO0VS" name="">
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="uYn6MIJ3abDLK" name="" type="uc_perfil" aggregation="none" isNavigable="true" changeability="changeable"/>
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="uXO44RTYfFiCf" name="" type="uc_chat" aggregation="none" isNavigable="true" changeability="changeable"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Association" xmi:id="u6U8MAXoP3FgV" name="">
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="u4aawobsChmM1" name="" type="actor_comprador" aggregation="none" isNavigable="true" changeability="changeable"/>
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="uueLPHlERvOrf" name="" type="uc_carrito" aggregation="none" isNavigable="true" changeability="changeable"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Association" xmi:id="uegWoxrsAs7kq" name="">
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="uy1rK1vV9WHFm" name="" type="uc_carrito" aggregation="none" isNavigable="true" changeability="changeable"/>
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="uKl4TAZKKT7QJ" name="" type="uc_pedir" aggregation="none" isNavigable="true" changeability="changeable"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Association" xmi:id="uM6Lq840g52JL" name="">
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="uD2gGEsHhwJ2z" name="" type="uc_pedir" aggregation="none" isNavigable="true" changeability="changeable"/>
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="uPfuNCXZU7qsv" name="" type="uc_mis_pedidos" aggregation="none" isNavigable="true" changeability="changeable"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Association" xmi:id="uLRURYJ4OVyoG" name="">
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="uGfxFz8p5fBZL" name="" type="uc_mis_pedidos" aggregation="none" isNavigable="true" changeability="changeable"/>
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="uAgLWRvMfsY8o" name="" type="uc_confirmar" aggregation="none" isNavigable="true" changeability="changeable"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Association" xmi:id="ue9mWqjjw2NiT" name="">
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="unwss3vW6HKSA" name="" type="uc_reportar" aggregation="none" isNavigable="true" changeability="changeable"/>
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="u6f2Q47GmQ36I" name="" type="uc_incidencias_usuario" aggregation="none" isNavigable="true" changeability="changeable"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Association" xmi:id="ueVbpk5bQGHyZ" name="">
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="uWnZ8GVRYU2Bd" name="" type="actor_vendedor" aggregation="none" isNavigable="true" changeability="changeable"/>
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="u2qJUIBE7HLm9" name="" type="uc_publicar" aggregation="none" isNavigable="true" changeability="changeable"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Association" xmi:id="uKWBymRFYum6g" name="">
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="uRWF5SsKxF23k" name="" type="uc_publicar" aggregation="none" isNavigable="true" changeability="changeable"/>
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="ub8bGP004x4Qw" name="" type="uc_variantes" aggregation="none" isNavigable="true" changeability="changeable"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Association" xmi:id="uaRro82HIUE5h" name="">
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="uYhqDjRhYP5ci" name="" type="uc_variantes" aggregation="none" isNavigable="true" changeability="changeable"/>
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="uaTu4jMYwS5eH" name="" type="uc_pedidos_recibidos" aggregation="none" isNavigable="true" changeability="changeable"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Association" xmi:id="uDx8DWG0vmxFv" name="">
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="ujonFZSrcDltj" name="" type="uc_pedidos_recibidos" aggregation="none" isNavigable="true" changeability="changeable"/>
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="uVHbwekY4oBea" name="" type="uc_responder_pedido" aggregation="none" isNavigable="true" changeability="changeable"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Association" xmi:id="ud4MiEXnrKI94" name="">
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="ueEbj4tnmLgNC" name="" type="actor_admin" aggregation="none" isNavigable="true" changeability="changeable"/>
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="ucrAAEK9u7afd" name="" type="uc_admin_usuarios" aggregation="none" isNavigable="true" changeability="changeable"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Association" xmi:id="umBrsVedPs2lu" name="">
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="uLUXjDKIIwL07" name="" type="uc_admin_usuarios" aggregation="none" isNavigable="true" changeability="changeable"/>
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="ugwZpkNYt0wkf" name="" type="uc_admin_marcas" aggregation="none" isNavigable="true" changeability="changeable"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Association" xmi:id="uWsUsEbulClP7" name="">
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="uKIGyQ4S0et8J" name="" type="uc_admin_marcas" aggregation="none" isNavigable="true" changeability="changeable"/>
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="u8CkxokXgCrrs" name="" type="uc_admin_eventos" aggregation="none" isNavigable="true" changeability="changeable"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Association" xmi:id="uV4QTTOA4mLRR" name="">
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="uYvPHJbiUlbkM" name="" type="uc_admin_eventos" aggregation="none" isNavigable="true" changeability="changeable"/>
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="uF3pA9YUrOcgK" name="" type="uc_admin_incidencias" aggregation="none" isNavigable="true" changeability="changeable"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:UseCase" xmi:id="u3opye2cyly00" name="Consultar eventos"/>
+      <packagedElement xmi:type="uml:UseCase" xmi:id="u2VPVSttDLNRQ" name="Crear evento propio"/>
+      <packagedElement xmi:type="uml:Association" xmi:id="uV07zvZ6cWPN0" name="">
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="uGC37JLgb7Z8A" name="" type="uc_recuperar" aggregation="none" isNavigable="true" changeability="changeable"/>
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="uCj7ZVbUejAcL" name="" type="u3opye2cyly00" aggregation="none" isNavigable="true" changeability="changeable"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Association" xmi:id="uj4nOheiBhoj3" name="">
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="uu5v1TnFJsbHl" name="" type="u3opye2cyly00" aggregation="none" isNavigable="true" changeability="changeable"/>
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="uRBI3XCTmZwb9" name="" type="u2VPVSttDLNRQ" aggregation="none" isNavigable="true" changeability="changeable"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Association" xmi:id="uMgbU1oiS5l4w" name="">
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="uOTlHiorBrIFt" name="" type="uc_mis_pedidos" aggregation="none" isNavigable="true" changeability="changeable"/>
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="u6BQifDDsPiE8" name="" type="uc_reportar" aggregation="none" isNavigable="true" changeability="changeable"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:UseCase" xmi:id="ugjXf2t6rGlAU" name="Ver las publicaciones creadas"/>
+      <packagedElement xmi:type="uml:UseCase" xmi:id="uB2DTxo9JuD5l" name="Ver perfil"/>
+      <packagedElement xmi:type="uml:Association" xmi:id="uRPNU19Vd2FPG" name="">
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="uWcqIgJlUVUB5" name="" type="uc_variantes" aggregation="none" isNavigable="true" changeability="changeable"/>
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="u0aSqBvOJuJM6" name="" type="uB2DTxo9JuD5l" aggregation="none" isNavigable="true" changeability="changeable"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Association" xmi:id="u66wlbpZ7kIgz" name="">
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="uxQkQ7g1f3DgL" name="" type="uB2DTxo9JuD5l" aggregation="none" isNavigable="true" changeability="changeable"/>
+        <ownedEnd xmi:type="uml:AssociationEnd" xmi:id="uuQFrzVtrRUV8" name="" type="ugjXf2t6rGlAU" aggregation="none" isNavigable="true" changeability="changeable"/>
+      </packagedElement>
+      <xmi:Extension extender="umbrello">
+        <diagrams>
+          <diagram xmi.id="u1J1KPhwpg9Nc" name="use case diagram" type="2" documentation="" backgroundcolor="#2d2d2d" usebackgroundcolor="1" fillcolor="#f9f6ff" font="Segoe UI,9,-1,5,400,0,0,0,0,0,0,0,0,0,0,1" griddotcolor="#ffffff" linecolor="#990000" linewidth="0" textcolor="#000000" usefillcolor="1" usealignmentguides="1" showattribassocs="1" showatts="1" showattsig="1" showops="1" showopsig="1" showpackage="1" showpubliconly="0" showscope="1" showstereotype="2" localid="-1" showgrid="0" snapgrid="0" snapcsgrid="0" snapx="25" snapy="25" zoom="141.514" canvasheight="800" canvaswidth="1100" isopen="1">
+            <widgets>
+              <actorwidget xmi.id="actor_usuario" localid="uIvuZYhKVXTVN" textcolor="#000000" linecolor="#990000" linewidth="0" usefillcolor="1" usesdiagramfillcolor="0" usesdiagramusefillcolor="0" fillcolor="#ffffc0" font="Segoe UI,9,-1,5,400,0,0,0,0,0,0,0,0,0,0,1" autoresize="0" x="121.97" y="270.455" width="72.3711" height="72.3711" isinstance="0" showstereotype="2"/>
+              <usecasewidget xmi.id="uc_recuperar" localid="uvYOoO41MyZWE" textcolor="#000000" linecolor="#990000" linewidth="0" usefillcolor="1" usesdiagramfillcolor="0" usesdiagramusefillcolor="0" fillcolor="#ffffc0" font="Segoe UI,9,-1,5,400,0,0,0,0,0,0,0,0,0,0,1" autoresize="0" x="422.697" y="262.106" width="75.9394" height="69.9394" isinstance="0" showstereotype="2"/>
+              <usecasewidget xmi.id="uc_reportar" localid="u0lnQYKO0U0xc" textcolor="#000000" linecolor="#990000" linewidth="0" usefillcolor="1" usesdiagramfillcolor="0" usesdiagramusefillcolor="0" fillcolor="#ffffc0" font="Segoe UI,9,-1,5,400,0,0,0,0,0,0,0,0,0,0,1" autoresize="0" x="640.045" y="387.471" width="84.5213" height="51" isinstance="0" showstereotype="2"/>
+              <actorwidget xmi.id="actor_vendedor" localid="uXYLlJhu6XDin" textcolor="#000000" linecolor="#990000" linewidth="0" usefillcolor="1" usesdiagramfillcolor="0" usesdiagramusefillcolor="0" fillcolor="#ffffc0" font="Segoe UI,9,-1,5,400,0,0,0,0,0,0,0,0,0,0,1" autoresize="1" x="192.47" y="560.098" width="65" height="65" isinstance="0" showstereotype="2"/>
+              <usecasewidget xmi.id="uc_detalle" localid="uML1Sn3q8TBXu" textcolor="#000000" linecolor="#990000" linewidth="0" usefillcolor="1" usesdiagramfillcolor="0" usesdiagramusefillcolor="0" fillcolor="#ffffc0" font="Segoe UI,9,-1,5,400,0,0,0,0,0,0,0,0,0,0,1" autoresize="0" x="619.283" y="216.053" width="83.8182" height="69.1818" isinstance="0" showstereotype="2"/>
+              <usecasewidget xmi.id="uc_confirmar" localid="u43vUeWH7qBnk" textcolor="#000000" linecolor="#990000" linewidth="0" usefillcolor="1" usesdiagramfillcolor="0" usesdiagramusefillcolor="0" fillcolor="#ffffc0" font="Segoe UI,9,-1,5,400,0,0,0,0,0,0,0,0,0,0,1" autoresize="0" x="647.306" y="461.471" width="70" height="51" isinstance="0" showstereotype="2"/>
+              <usecasewidget xmi.id="uc_perfil" localid="uZTKxVGUUYufG" textcolor="#000000" linecolor="#990000" linewidth="0" usefillcolor="1" usesdiagramfillcolor="0" usesdiagramusefillcolor="0" fillcolor="#ffffc0" font="Segoe UI,9,-1,5,400,0,0,0,0,0,0,0,0,0,0,1" autoresize="0" x="725.677" y="216.053" width="77.5455" height="69.1818" isinstance="0" showstereotype="2"/>
+              <usecasewidget xmi.id="uc_admin_usuarios" localid="uUqsFrp5iuY5s" textcolor="#000000" linecolor="#990000" linewidth="0" usefillcolor="1" usesdiagramfillcolor="0" usesdiagramusefillcolor="0" fillcolor="#ffffc0" font="Segoe UI,9,-1,5,400,0,0,0,0,0,0,0,0,0,0,1" autoresize="0" x="267.121" y="708.432" width="94" height="51" isinstance="0" showstereotype="2"/>
+              <usecasewidget xmi.id="uc_carrito" localid="u9OuDnOU0IMyx" textcolor="#000000" linecolor="#990000" linewidth="0" usefillcolor="1" usesdiagramfillcolor="0" usesdiagramusefillcolor="0" fillcolor="#ffffc0" font="Segoe UI,9,-1,5,400,0,0,0,0,0,0,0,0,0,0,1" autoresize="0" x="292.457" y="424.471" width="75.9677" height="51" isinstance="0" showstereotype="2"/>
+              <usecasewidget xmi.id="uc_mis_pedidos" localid="uSrLbdp5cfi75" textcolor="#000000" linecolor="#990000" linewidth="0" usefillcolor="1" usesdiagramfillcolor="0" usesdiagramusefillcolor="0" fillcolor="#ffffc0" font="Segoe UI,9,-1,5,400,0,0,0,0,0,0,0,0,0,0,1" autoresize="0" x="509.015" y="424.471" width="90.0303" height="51" isinstance="0" showstereotype="2"/>
+              <usecasewidget xmi.id="uc_registro" localid="u3w4pl0QN5Gwi" textcolor="#000000" linecolor="#990000" linewidth="0" usefillcolor="1" usesdiagramfillcolor="0" usesdiagramusefillcolor="0" fillcolor="#ffffc0" font="Segoe UI,9,-1,5,400,0,0,0,0,0,0,0,0,0,0,1" autoresize="1" x="219.424" y="270.455" width="73" height="51" isinstance="0" showstereotype="2"/>
+              <usecasewidget xmi.id="uc_login" localid="u1XpH1IJW60zi" textcolor="#000000" linecolor="#990000" linewidth="0" usefillcolor="1" usesdiagramfillcolor="0" usesdiagramusefillcolor="0" fillcolor="#ffffc0" font="Segoe UI,9,-1,5,400,0,0,0,0,0,0,0,0,0,0,1" autoresize="0" x="338.167" y="261.364" width="71.1212" height="69.1818" isinstance="0" showstereotype="2"/>
+              <usecasewidget xmi.id="uc_catalogo" localid="uYgtidGd8BZI6" textcolor="#000000" linecolor="#990000" linewidth="0" usefillcolor="1" usesdiagramfillcolor="0" usesdiagramusefillcolor="0" fillcolor="#ffffc0" font="Segoe UI,9,-1,5,400,0,0,0,0,0,0,0,0,0,0,1" autoresize="0" x="528.813" y="216.053" width="70" height="69.1818" isinstance="0" showstereotype="2"/>
+              <usecasewidget xmi.id="uB2DTxo9JuD5l" localid="u0uEatg7Dc4AY" textcolor="#000000" linecolor="#990000" linewidth="0" usefillcolor="1" usesdiagramfillcolor="0" usesdiagramusefillcolor="0" fillcolor="#ffffc0" font="Segoe UI,9,-1,5,400,0,0,0,0,0,0,0,0,0,0,1" autoresize="1" x="523.045" y="539.316" width="70" height="51" isinstance="0" showstereotype="2"/>
+              <usecasewidget xmi.id="uc_pedir" localid="uJSkTZ35lEYNf" textcolor="#000000" linecolor="#990000" linewidth="0" usefillcolor="1" usesdiagramfillcolor="0" usesdiagramusefillcolor="0" fillcolor="#ffffc0" font="Segoe UI,9,-1,5,400,0,0,0,0,0,0,0,0,0,0,1" autoresize="0" x="414.167" y="424.471" width="70" height="51" isinstance="0" showstereotype="2"/>
+              <usecasewidget xmi.id="uc_chat" localid="uwUDDkN0GZjRe" textcolor="#000000" linecolor="#990000" linewidth="0" usefillcolor="1" usesdiagramfillcolor="0" usesdiagramusefillcolor="0" fillcolor="#ffffc0" font="Segoe UI,9,-1,5,400,0,0,0,0,0,0,0,0,0,0,1" autoresize="1" x="816.101" y="226.644" width="70" height="51" isinstance="0" showstereotype="2"/>
+              <usecasewidget xmi.id="uc_incidencias_usuario" localid="uDS2RMFlP5KWC" textcolor="#000000" linecolor="#990000" linewidth="0" usefillcolor="1" usesdiagramfillcolor="0" usesdiagramusefillcolor="0" fillcolor="#ffffc0" font="Segoe UI,9,-1,5,400,0,0,0,0,0,0,0,0,0,0,1" autoresize="0" x="779.101" y="383.953" width="90.7983" height="58.0358" isinstance="0" showstereotype="2"/>
+              <actorwidget xmi.id="actor_comprador" localid="u8AOGMSDm3zlF" textcolor="#000000" linecolor="#990000" linewidth="0" usefillcolor="1" usesdiagramfillcolor="0" usesdiagramusefillcolor="0" fillcolor="#ffffc0" font="Segoe UI,9,-1,5,400,0,0,0,0,0,0,0,0,0,0,1" autoresize="1" x="196.341" y="412.971" width="74" height="74" isinstance="0" showstereotype="2"/>
+              <usecasewidget xmi.id="ugjXf2t6rGlAU" localid="uc78O9bP7efaY" textcolor="#000000" linecolor="#990000" linewidth="0" usefillcolor="1" usesdiagramfillcolor="0" usesdiagramusefillcolor="0" fillcolor="#ffffc0" font="Segoe UI,9,-1,5,400,0,0,0,0,0,0,0,0,0,0,1" autoresize="0" x="634.045" y="534.598" width="145.055" height="51" isinstance="0" showstereotype="2"/>
+              <usecasewidget xmi.id="uc_publicar" localid="uysddYGQs06PF" textcolor="#000000" linecolor="#990000" linewidth="0" usefillcolor="1" usesdiagramfillcolor="0" usesdiagramusefillcolor="0" fillcolor="#ffffc0" font="Segoe UI,9,-1,5,400,0,0,0,0,0,0,0,0,0,0,1" autoresize="0" x="292.457" y="566.63" width="70" height="51" isinstance="0" showstereotype="2"/>
+              <usecasewidget xmi.id="uc_variantes" localid="uTnPkJwdjZjqS" textcolor="#000000" linecolor="#990000" linewidth="0" usefillcolor="1" usesdiagramfillcolor="0" usesdiagramusefillcolor="0" fillcolor="#ffffc0" font="Segoe UI,9,-1,5,400,0,0,0,0,0,0,0,0,0,0,1" autoresize="0" x="406.863" y="564.816" width="84.6067" height="55.564" isinstance="0" showstereotype="2"/>
+              <usecasewidget xmi.id="uc_responder_pedido" localid="u3TKdMcJVTm5C" textcolor="#000000" linecolor="#990000" linewidth="0" usefillcolor="1" usesdiagramfillcolor="0" usesdiagramusefillcolor="0" fillcolor="#ffffc0" font="Segoe UI,9,-1,5,400,0,0,0,0,0,0,0,0,0,0,1" autoresize="0" x="647.306" y="615.816" width="81.5352" height="54.6279" isinstance="0" showstereotype="2"/>
+              <actorwidget xmi.id="actor_admin" localid="uvxoGKyecTGhX" textcolor="#000000" linecolor="#990000" linewidth="0" usefillcolor="1" usesdiagramfillcolor="0" usesdiagramusefillcolor="0" fillcolor="#ffffc0" font="Segoe UI,9,-1,5,400,0,0,0,0,0,0,0,0,0,0,1" autoresize="0" x="156.298" y="691.432" width="85" height="85" isinstance="0" showstereotype="2"/>
+              <usecasewidget xmi.id="uc_admin_marcas" localid="uBVTCdPNQJDRy" textcolor="#000000" linecolor="#990000" linewidth="0" usefillcolor="1" usesdiagramfillcolor="0" usesdiagramusefillcolor="0" fillcolor="#ffffc0" font="Segoe UI,9,-1,5,400,0,0,0,0,0,0,0,0,0,0,1" autoresize="0" x="406.863" y="708.432" width="77.3034" height="51" isinstance="0" showstereotype="2"/>
+              <usecasewidget xmi.id="uc_pedidos_recibidos" localid="uI1CLDr6ZBziL" textcolor="#000000" linecolor="#990000" linewidth="0" usefillcolor="1" usesdiagramfillcolor="0" usesdiagramusefillcolor="0" fillcolor="#ffffc0" font="Segoe UI,9,-1,5,400,0,0,0,0,0,0,0,0,0,0,1" autoresize="0" x="509.015" y="617.63" width="84.0303" height="51" isinstance="0" showstereotype="2"/>
+              <usecasewidget xmi.id="u3opye2cyly00" localid="u3DvEOdMOn5q2" textcolor="#000000" linecolor="#990000" linewidth="0" usefillcolor="1" usesdiagramfillcolor="0" usesdiagramusefillcolor="0" fillcolor="#ffffc0" font="Segoe UI,9,-1,5,400,0,0,0,0,0,0,0,0,0,0,1" autoresize="0" x="523.045" y="315.136" width="82" height="51" isinstance="0" showstereotype="2"/>
+              <usecasewidget xmi.id="u2VPVSttDLNRQ" localid="uVQLxAJkUfnxS" textcolor="#000000" linecolor="#990000" linewidth="0" usefillcolor="1" usesdiagramfillcolor="0" usesdiagramusefillcolor="0" fillcolor="#ffffc0" font="Segoe UI,9,-1,5,400,0,0,0,0,0,0,0,0,0,0,1" autoresize="0" x="664.005" y="315.136" width="86.0959" height="51" isinstance="0" showstereotype="2"/>
+              <usecasewidget xmi.id="uc_admin_eventos" localid="u0CImHcVBqJ9J" textcolor="#000000" linecolor="#990000" linewidth="0" usefillcolor="1" usesdiagramfillcolor="0" usesdiagramusefillcolor="0" fillcolor="#ffffc0" font="Segoe UI,9,-1,5,400,0,0,0,0,0,0,0,0,0,0,1" autoresize="0" x="511.333" y="708.432" width="80.4091" height="51" isinstance="0" showstereotype="2"/>
+              <usecasewidget xmi.id="uc_admin_incidencias" localid="udu0R5Qf6ZULj" textcolor="#000000" linecolor="#990000" linewidth="0" usefillcolor="1" usesdiagramfillcolor="0" usesdiagramusefillcolor="0" fillcolor="#ffffc0" font="Segoe UI,9,-1,5,400,0,0,0,0,0,0,0,0,0,0,1" autoresize="0" x="626.742" y="708.432" width="81.5352" height="51" isinstance="0" showstereotype="2"/>
+            </widgets>
+            <messages/>
+            <associations>
+              <assocwidget xmi.id="uj4nOheiBhoj3" localid="uZwjwvfNsyPsZ" textcolor="none" linecolor="#990000" linewidth="0" usefillcolor="1" usesdiagramfillcolor="1" usesdiagramusefillcolor="1" fillcolor="none" font="Segoe UI,9,-1,5,400,0,0,0,0,0,0,0,0,0,0,1" autoresize="1" seqnum="" type="503" widgetaid="u3opye2cyly00" widgetbid="u2VPVSttDLNRQ" indexa="0" totalcounta="0" indexb="0" totalcountb="0">
+                <linepath layout="Direct">
+                  <startpoint startx="605.045" starty="340.636"/>
+                  <endpoint endx="664.005" endy="340.636"/>
+                </linepath>
+              </assocwidget>
+              <assocwidget xmi.id="uV07zvZ6cWPN0" localid="uioSSjpdLfiZA" textcolor="none" linecolor="#990000" linewidth="0" usefillcolor="1" usesdiagramfillcolor="1" usesdiagramusefillcolor="1" fillcolor="none" font="Segoe UI,9,-1,5,400,0,0,0,0,0,0,0,0,0,0,1" autoresize="1" seqnum="" type="503" widgetaid="uc_recuperar" widgetbid="u3opye2cyly00" indexa="0" totalcounta="0" indexb="0" totalcountb="0">
+                <linepath layout="Direct">
+                  <startpoint startx="498.636" starty="313.075"/>
+                  <endpoint endx="523.045" endy="323.36"/>
+                </linepath>
+              </assocwidget>
+              <assocwidget xmi.id="uLRURYJ4OVyoG" localid="uL49EwpXedRvz" textcolor="none" linecolor="#990000" linewidth="0" usefillcolor="1" usesdiagramfillcolor="1" usesdiagramusefillcolor="1" fillcolor="none" font="Segoe UI,9,-1,5,400,0,0,0,0,0,0,0,0,0,0,1" autoresize="1" seqnum="" type="503" widgetaid="uc_mis_pedidos" widgetbid="uc_confirmar" indexa="0" totalcounta="0" indexb="0" totalcountb="0">
+                <linepath layout="Direct">
+                  <startpoint startx="599.045" starty="462.956"/>
+                  <endpoint endx="647.306" endy="476.876"/>
+                </linepath>
+              </assocwidget>
+              <assocwidget xmi.id="uM6Lq840g52JL" localid="u5GbA8lLXj5Tb" textcolor="none" linecolor="#990000" linewidth="0" usefillcolor="1" usesdiagramfillcolor="1" usesdiagramusefillcolor="1" fillcolor="none" font="Segoe UI,9,-1,5,400,0,0,0,0,0,0,0,0,0,0,1" autoresize="1" seqnum="" type="503" widgetaid="uc_pedir" widgetbid="uc_mis_pedidos" indexa="0" totalcounta="0" indexb="0" totalcountb="0">
+                <linepath layout="Direct">
+                  <startpoint startx="484.167" starty="449.971"/>
+                  <endpoint endx="509.015" endy="449.971"/>
+                </linepath>
+              </assocwidget>
+              <assocwidget xmi.id="uKWBymRFYum6g" localid="unEAL96eqzeOw" textcolor="none" linecolor="#990000" linewidth="0" usefillcolor="1" usesdiagramfillcolor="1" usesdiagramusefillcolor="1" fillcolor="none" font="Segoe UI,9,-1,5,400,0,0,0,0,0,0,0,0,0,0,1" autoresize="1" seqnum="" type="503" widgetaid="uc_publicar" widgetbid="uc_variantes" indexa="0" totalcounta="0" indexb="0" totalcountb="0">
+                <linepath layout="Direct">
+                  <startpoint startx="362.457" starty="592.265"/>
+                  <endpoint endx="406.863" endy="592.435"/>
+                </linepath>
+              </assocwidget>
+              <assocwidget xmi.id="uMgbU1oiS5l4w" localid="u7foSTtX1b8MV" textcolor="none" linecolor="#990000" linewidth="0" usefillcolor="1" usesdiagramfillcolor="1" usesdiagramusefillcolor="1" fillcolor="none" font="Segoe UI,9,-1,5,400,0,0,0,0,0,0,0,0,0,0,1" autoresize="1" seqnum="" type="503" widgetaid="uc_mis_pedidos" widgetbid="uc_reportar" indexa="0" totalcounta="0" indexb="0" totalcountb="0">
+                <linepath layout="Direct">
+                  <startpoint startx="599.045" starty="436.987"/>
+                  <endpoint endx="640.045" endy="425.161"/>
+                </linepath>
+              </assocwidget>
+              <assocwidget xmi.id="ud4MiEXnrKI94" localid="u3i8UlnzqWBCW" textcolor="none" linecolor="#990000" linewidth="0" usefillcolor="1" usesdiagramfillcolor="1" usesdiagramusefillcolor="1" fillcolor="none" font="Segoe UI,9,-1,5,400,0,0,0,0,0,0,0,0,0,0,1" autoresize="1" seqnum="" type="503" widgetaid="actor_admin" widgetbid="uc_admin_usuarios" indexa="0" totalcounta="0" indexb="0" totalcountb="0">
+                <linepath layout="Direct">
+                  <startpoint startx="241.298" starty="733.932"/>
+                  <endpoint endx="267.121" endy="733.932"/>
+                </linepath>
+              </assocwidget>
+              <assocwidget xmi.id="uRPNU19Vd2FPG" localid="uEYVMy1RwRPDl" textcolor="none" linecolor="#990000" linewidth="0" usefillcolor="1" usesdiagramfillcolor="1" usesdiagramusefillcolor="1" fillcolor="none" font="Segoe UI,9,-1,5,400,0,0,0,0,0,0,0,0,0,0,1" autoresize="1" seqnum="" type="503" widgetaid="uc_variantes" widgetbid="uB2DTxo9JuD5l" indexa="0" totalcounta="0" indexb="0" totalcountb="0">
+                <linepath layout="Direct">
+                  <startpoint startx="491.47" starty="581.804"/>
+                  <endpoint endx="523.045" endy="573.747"/>
+                </linepath>
+              </assocwidget>
+              <assocwidget xmi.id="uWsUsEbulClP7" localid="up7SsCQJEbo41" textcolor="none" linecolor="#990000" linewidth="0" usefillcolor="1" usesdiagramfillcolor="1" usesdiagramusefillcolor="1" fillcolor="none" font="Segoe UI,9,-1,5,400,0,0,0,0,0,0,0,0,0,0,1" autoresize="1" seqnum="" type="503" widgetaid="uc_admin_marcas" widgetbid="uc_admin_eventos" indexa="0" totalcounta="0" indexb="0" totalcountb="0">
+                <linepath layout="Direct">
+                  <startpoint startx="484.167" starty="733.932"/>
+                  <endpoint endx="511.333" endy="733.932"/>
+                </linepath>
+              </assocwidget>
+              <assocwidget xmi.id="ueVbpk5bQGHyZ" localid="uFm8ZPzbAXXUC" textcolor="none" linecolor="#990000" linewidth="0" usefillcolor="1" usesdiagramfillcolor="1" usesdiagramusefillcolor="1" fillcolor="none" font="Segoe UI,9,-1,5,400,0,0,0,0,0,0,0,0,0,0,1" autoresize="1" seqnum="" type="503" widgetaid="actor_vendedor" widgetbid="uc_publicar" indexa="0" totalcounta="0" indexb="0" totalcountb="0">
+                <linepath layout="Direct">
+                  <startpoint startx="257.47" starty="592.45"/>
+                  <endpoint endx="292.457" endy="592.29"/>
+                </linepath>
+              </assocwidget>
+              <assocwidget xmi.id="u66wlbpZ7kIgz" localid="uC0rIGIe0UCGR" textcolor="none" linecolor="#990000" linewidth="0" usefillcolor="1" usesdiagramfillcolor="1" usesdiagramusefillcolor="1" fillcolor="none" font="Segoe UI,9,-1,5,400,0,0,0,0,0,0,0,0,0,0,1" autoresize="1" seqnum="" type="503" widgetaid="uB2DTxo9JuD5l" widgetbid="ugjXf2t6rGlAU" indexa="0" totalcounta="0" indexb="0" totalcountb="0">
+                <linepath layout="Direct">
+                  <startpoint startx="593.045" starty="563.704"/>
+                  <endpoint endx="634.045" endy="562.402"/>
+                </linepath>
+              </assocwidget>
+              <assocwidget xmi.id="ue9mWqjjw2NiT" localid="ulmaBn5ccutB2" textcolor="none" linecolor="#990000" linewidth="0" usefillcolor="1" usesdiagramfillcolor="1" usesdiagramusefillcolor="1" fillcolor="none" font="Segoe UI,9,-1,5,400,0,0,0,0,0,0,0,0,0,0,1" autoresize="1" seqnum="" type="503" widgetaid="uc_reportar" widgetbid="uc_incidencias_usuario" indexa="0" totalcounta="0" indexb="0" totalcountb="0">
+                <linepath layout="Direct">
+                  <startpoint startx="724.567" starty="412.971"/>
+                  <endpoint endx="779.101" endy="412.971"/>
+                </linepath>
+              </assocwidget>
+              <assocwidget xmi.id="uaRro82HIUE5h" localid="ufT2TCJnAj5rS" textcolor="none" linecolor="#990000" linewidth="0" usefillcolor="1" usesdiagramfillcolor="1" usesdiagramusefillcolor="1" fillcolor="none" font="Segoe UI,9,-1,5,400,0,0,0,0,0,0,0,0,0,0,1" autoresize="1" seqnum="" type="503" widgetaid="uc_variantes" widgetbid="uc_pedidos_recibidos" indexa="0" totalcounta="0" indexb="0" totalcountb="0">
+                <linepath layout="Direct">
+                  <startpoint startx="509.015" starty="622.287"/>
+                  <endpoint endx="491.47" endy="613.584"/>
+                </linepath>
+              </assocwidget>
+              <assocwidget xmi.id="uDx8DWG0vmxFv" localid="uVnyRaxyGOrRi" textcolor="none" linecolor="#990000" linewidth="0" usefillcolor="1" usesdiagramfillcolor="1" usesdiagramusefillcolor="1" fillcolor="none" font="Segoe UI,9,-1,5,400,0,0,0,0,0,0,0,0,0,0,1" autoresize="1" seqnum="" type="503" widgetaid="uc_pedidos_recibidos" widgetbid="uc_responder_pedido" indexa="0" totalcounta="0" indexb="0" totalcountb="0">
+                <linepath layout="Direct">
+                  <startpoint startx="593.045" starty="643.13"/>
+                  <endpoint endx="647.306" endy="643.13"/>
+                </linepath>
+              </assocwidget>
+              <assocwidget xmi.id="umBrsVedPs2lu" localid="uQDHx1drclyRu" textcolor="none" linecolor="#990000" linewidth="0" usefillcolor="1" usesdiagramfillcolor="1" usesdiagramusefillcolor="1" fillcolor="none" font="Segoe UI,9,-1,5,400,0,0,0,0,0,0,0,0,0,0,1" autoresize="1" seqnum="" type="503" widgetaid="uc_admin_usuarios" widgetbid="uc_admin_marcas" indexa="0" totalcounta="0" indexb="0" totalcountb="0">
+                <linepath layout="Direct">
+                  <startpoint startx="361.121" starty="733.932"/>
+                  <endpoint endx="406.863" endy="733.932"/>
+                </linepath>
+              </assocwidget>
+              <assocwidget xmi.id="uV4QTTOA4mLRR" localid="ufnGHmH2Gwtsb" textcolor="none" linecolor="#990000" linewidth="0" usefillcolor="1" usesdiagramfillcolor="1" usesdiagramusefillcolor="1" fillcolor="none" font="Segoe UI,9,-1,5,400,0,0,0,0,0,0,0,0,0,0,1" autoresize="1" seqnum="" type="503" widgetaid="uc_admin_eventos" widgetbid="uc_admin_incidencias" indexa="0" totalcounta="0" indexb="0" totalcountb="0">
+                <linepath layout="Direct">
+                  <startpoint startx="591.742" starty="733.932"/>
+                  <endpoint endx="626.742" endy="733.932"/>
+                </linepath>
+              </assocwidget>
+              <assocwidget xmi.id="ub4rLm1vcO0VS" localid="uk4SXqK6VsCcf" textcolor="none" linecolor="#990000" linewidth="0" usefillcolor="1" usesdiagramfillcolor="1" usesdiagramusefillcolor="1" fillcolor="none" font="Segoe UI,9,-1,5,400,0,0,0,0,0,0,0,0,0,0,1" autoresize="1" seqnum="" type="503" widgetaid="uc_perfil" widgetbid="uc_chat" indexa="0" totalcounta="0" indexb="0" totalcountb="0">
+                <linepath layout="Direct">
+                  <startpoint startx="803.222" starty="251.315"/>
+                  <endpoint endx="816.101" endy="251.538"/>
+                </linepath>
+              </assocwidget>
+              <assocwidget xmi.id="urabQNcOKvdli" localid="uZ8eYgYOKHSLF" textcolor="none" linecolor="#990000" linewidth="0" usefillcolor="1" usesdiagramfillcolor="1" usesdiagramusefillcolor="1" fillcolor="none" font="Segoe UI,9,-1,5,400,0,0,0,0,0,0,0,0,0,0,1" autoresize="1" seqnum="" type="503" widgetaid="uc_recuperar" widgetbid="uc_catalogo" indexa="0" totalcounta="0" indexb="0" totalcountb="0">
+                <linepath layout="Direct">
+                  <startpoint startx="498.636" starty="279.984"/>
+                  <endpoint endx="528.813" endy="266.4"/>
+                </linepath>
+              </assocwidget>
+              <assocwidget xmi.id="urHA9SOtOTad6" localid="uvNwu4CCChipZ" textcolor="none" linecolor="#990000" linewidth="0" usefillcolor="1" usesdiagramfillcolor="1" usesdiagramusefillcolor="1" fillcolor="none" font="Segoe UI,9,-1,5,400,0,0,0,0,0,0,0,0,0,0,1" autoresize="1" seqnum="" type="503" widgetaid="uc_catalogo" widgetbid="uc_detalle" indexa="0" totalcounta="0" indexb="0" totalcountb="0">
+                <linepath layout="Direct">
+                  <startpoint startx="598.813" starty="250.644"/>
+                  <endpoint endx="619.283" endy="250.644"/>
+                </linepath>
+              </assocwidget>
+              <assocwidget xmi.id="uEDDoUI6Ehc32" localid="unWN9xCe0MTMV" textcolor="none" linecolor="#990000" linewidth="0" usefillcolor="1" usesdiagramfillcolor="1" usesdiagramusefillcolor="1" fillcolor="none" font="Segoe UI,9,-1,5,400,0,0,0,0,0,0,0,0,0,0,1" autoresize="1" seqnum="" type="503" widgetaid="uc_detalle" widgetbid="uc_perfil" indexa="0" totalcounta="0" indexb="0" totalcountb="0">
+                <linepath layout="Direct">
+                  <startpoint startx="703.101" starty="250.644"/>
+                  <endpoint endx="725.677" endy="250.644"/>
+                </linepath>
+              </assocwidget>
+              <assocwidget xmi.id="uM33i0u5slM73" localid="uXqfDrZGisaRu" textcolor="none" linecolor="#990000" linewidth="0" usefillcolor="1" usesdiagramfillcolor="1" usesdiagramusefillcolor="1" fillcolor="none" font="Segoe UI,9,-1,5,400,0,0,0,0,0,0,0,0,0,0,1" autoresize="1" seqnum="" type="503" widgetaid="uc_login" widgetbid="uc_recuperar" indexa="0" totalcounta="0" indexb="0" totalcountb="0">
+                <linepath layout="Direct">
+                  <startpoint startx="409.288" starty="296.413"/>
+                  <endpoint endx="422.697" endy="296.586"/>
+                </linepath>
+              </assocwidget>
+              <assocwidget xmi.id="uRoyXQdR1vRav" localid="uLPIT92K3LvCH" textcolor="none" linecolor="#990000" linewidth="0" usefillcolor="1" usesdiagramfillcolor="1" usesdiagramusefillcolor="1" fillcolor="none" font="Segoe UI,9,-1,5,400,0,0,0,0,0,0,0,0,0,0,1" autoresize="1" seqnum="" type="503" widgetaid="actor_usuario" widgetbid="uc_registro" indexa="0" totalcounta="0" indexb="0" totalcountb="0">
+                <linepath layout="Direct">
+                  <startpoint startx="194.341" starty="302.685"/>
+                  <endpoint endx="219.424" endy="299.944"/>
+                </linepath>
+              </assocwidget>
+              <assocwidget xmi.id="uyT2SxKF7QBxC" localid="uyRNrtlO6Vov2" textcolor="none" linecolor="#990000" linewidth="0" usefillcolor="1" usesdiagramfillcolor="1" usesdiagramusefillcolor="1" fillcolor="none" font="Segoe UI,9,-1,5,400,0,0,0,0,0,0,0,0,0,0,1" autoresize="1" seqnum="" type="503" widgetaid="uc_registro" widgetbid="uc_login" indexa="0" totalcounta="0" indexb="0" totalcountb="0">
+                <linepath layout="Direct">
+                  <startpoint startx="292.424" starty="295.955"/>
+                  <endpoint endx="338.167" endy="295.955"/>
+                </linepath>
+              </assocwidget>
+              <assocwidget xmi.id="u6U8MAXoP3FgV" localid="uBpIijM0Ag08q" textcolor="none" linecolor="#990000" linewidth="0" usefillcolor="1" usesdiagramfillcolor="1" usesdiagramusefillcolor="1" fillcolor="none" font="Segoe UI,9,-1,5,400,0,0,0,0,0,0,0,0,0,0,1" autoresize="1" seqnum="" type="503" widgetaid="actor_comprador" widgetbid="uc_carrito" indexa="0" totalcounta="0" indexb="0" totalcountb="0">
+                <linepath layout="Direct">
+                  <startpoint startx="270.341" starty="449.971"/>
+                  <endpoint endx="292.457" endy="449.971"/>
+                </linepath>
+              </assocwidget>
+              <assocwidget xmi.id="uegWoxrsAs7kq" localid="uIJ6E5RydLcHa" textcolor="none" linecolor="#990000" linewidth="0" usefillcolor="1" usesdiagramfillcolor="1" usesdiagramusefillcolor="1" fillcolor="none" font="Segoe UI,9,-1,5,400,0,0,0,0,0,0,0,0,0,0,1" autoresize="1" seqnum="" type="503" widgetaid="uc_carrito" widgetbid="uc_pedir" indexa="0" totalcounta="0" indexb="0" totalcountb="0">
+                <linepath layout="Direct">
+                  <startpoint startx="368.424" starty="449.971"/>
+                  <endpoint endx="414.167" endy="449.971"/>
+                </linepath>
+              </assocwidget>
+            </associations>
+          </diagram>
+          <diagram xmi.id="uXlqQ1RwNr0kt" name="use case diagram_1" type="2" documentation="" backgroundcolor="#2d2d2d" usebackgroundcolor="1" fillcolor="#f9f6ff" font="Segoe UI,9,-1,5,400,0,0,0,0,0,0,0,0,0,0,1" griddotcolor="#ffffff" linecolor="#990000" linewidth="0" textcolor="#000000" usefillcolor="1" usealignmentguides="1" showattribassocs="1" showatts="1" showattsig="1" showops="1" showopsig="1" showpackage="1" showpubliconly="0" showscope="1" showstereotype="2" localid="-1" showgrid="0" snapgrid="0" snapcsgrid="0" snapx="25" snapy="25" zoom="100" canvasheight="800" canvaswidth="1100" isopen="0">
+            <widgets/>
+            <messages/>
+            <associations/>
+          </diagram>
+        </diagrams>
+      </xmi:Extension>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Model" xmi:id="Component_View" name="Component View" stereotype="folder"/>
+    <packagedElement xmi:type="uml:Model" xmi:id="Deployment_View" name="Deployment View" stereotype="folder"/>
+    <packagedElement xmi:type="uml:Model" xmi:id="Entity_Relationship_Model" name="Entity Relationship Model" stereotype="folder"/>
+  </uml:Model>
+  <xmi:Extension extender="umbrello">
+    <docsettings viewid="u1J1KPhwpg9Nc" documentation="" uniqueid="uUdx9Frlbowii"/>
+    <listview>
+      <listitem id="Views" type="800" open="1">
+        <listitem id="Component_View" type="821" open="1"/>
+        <listitem id="Deployment_View" type="827" open="1"/>
+        <listitem id="Entity_Relationship_Model" type="836" open="1"/>
+        <listitem id="Logical_View" type="801" open="1">
+          <listitem id="usMTXoG70jJio" type="807" label="class diagram" open="0"/>
+          <listitem id="Datatypes" type="830" open="0">
+            <listitem id="u2EsHWYhLTh9G" type="829" open="1"/>
+            <listitem id="uITaZEN5DfZyu" type="829" open="1"/>
+          </listitem>
+        </listitem>
+        <listitem id="Use_Case_View" type="802" open="1">
+          <listitem id="uc_responder_pedido" type="812" open="0"/>
+          <listitem id="actor_admin" type="811" open="0"/>
+          <listitem id="uc_carrito" type="812" open="0"/>
+          <listitem id="actor_comprador" type="811" open="0"/>
+          <listitem id="uc_confirmar" type="812" open="0"/>
+          <listitem id="uc_catalogo" type="812" open="0"/>
+          <listitem id="u3opye2cyly00" type="812" open="1"/>
+          <listitem id="uc_mis_pedidos" type="812" open="0"/>
+          <listitem id="uc_perfil" type="812" open="0"/>
+          <listitem id="u2VPVSttDLNRQ" type="812" open="1"/>
+          <listitem id="uc_reportar" type="812" open="0"/>
+          <listitem id="uc_publicar" type="812" open="0"/>
+          <listitem id="uIqDzi9IBu1bf" type="812" open="1"/>
+          <listitem id="uc_admin_eventos" type="812" open="0"/>
+          <listitem id="uc_admin_marcas" type="812" open="0"/>
+          <listitem id="uc_admin_usuarios" type="812" open="0"/>
+          <listitem id="uc_variantes" type="812" open="0"/>
+          <listitem id="uc_login" type="812" open="0"/>
+          <listitem id="uc_pedir" type="812" open="0"/>
+          <listitem id="uc_recuperar" type="812" open="0"/>
+          <listitem id="uc_registro" type="812" open="0"/>
+          <listitem id="uc_admin_incidencias" type="812" open="0"/>
+          <listitem id="uc_chat" type="812" open="0"/>
+          <listitem id="u1J1KPhwpg9Nc" type="805" label="use case diagram" open="0"/>
+          <listitem id="uXlqQ1RwNr0kt" type="805" label="use case diagram_1" open="0"/>
+          <listitem id="actor_usuario" type="811" open="0"/>
+          <listitem id="actor_vendedor" type="811" open="0"/>
+          <listitem id="uc_detalle" type="812" open="0"/>
+          <listitem id="uc_incidencias_usuario" type="812" open="0"/>
+          <listitem id="ugjXf2t6rGlAU" type="812" open="1"/>
+          <listitem id="uc_pedidos_recibidos" type="812" open="0"/>
+          <listitem id="uB2DTxo9JuD5l" type="812" open="1"/>
+        </listitem>
+      </listitem>
+    </listview>
+  </xmi:Extension>
+</xmi:XMI>
