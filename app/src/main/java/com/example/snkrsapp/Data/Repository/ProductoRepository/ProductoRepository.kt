@@ -4,6 +4,7 @@ import android.net.Uri
 import com.example.snkrsapp.Data.RemoteData.ProductoDao.CompletarMarcaRespuesta
 import com.example.snkrsapp.Data.RemoteData.ProductoDao.CrearMarcaSolicitud
 import com.example.snkrsapp.Data.RemoteData.PublicacionDao.AgregarPublicacionesSolicitud
+import com.example.snkrsapp.Domain.ColorPublicacion
 import com.example.snkrsapp.Domain.EstadoCrearMarca
 import com.example.snkrsapp.Domain.EstadoEliminarMarcas
 import com.example.snkrsapp.Domain.EstadoProductoNuevo
@@ -49,7 +50,12 @@ interface ProductoRepository {
     ): Flow<List<Publicacion>>
 
     suspend fun subirImagenACloudinary(uri: Uri): String?
-    suspend fun agregarAlCarrito(token: String, idPublicacion: Int): Flow<Boolean>
+    suspend fun traerColores(token: String): Flow<List<ColorPublicacion>>
+    suspend fun agregarAlCarrito(
+        token: String,
+        idVariante: Int,
+        cantidad: Int
+    ): Flow<Boolean>
     suspend fun eliminarMarcas(token: String, listaIds: List<Int>): Flow<EstadoEliminarMarcas>
     suspend fun completarRegistroMarca(
         token: String,

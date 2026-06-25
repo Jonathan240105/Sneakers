@@ -48,12 +48,68 @@ interface PublicacionDao {
     @POST(Endpoints.AgregarAlCarrito)
     suspend fun agregarAlCarrito(
         @Header("Authorization") token: String,
-        @Query("idPublicacion") idPublicacion: Int
+        @Body body: AgregarCarritoSolicitud
     ): Response<AgregarACarritoRespuesta>
+
+    @POST(Endpoints.PedirCarrito)
+    suspend fun pedirCarrito(
+        @Header("Authorization") token: String,
+        @Body body: PedirCarritoSolicitud
+    ): Response<OperacionCarritoRespuesta>
 
     @POST(Endpoints.ComprarCarrito)
     suspend fun comprarCarrito(
-        @Header("Authorization") token: String
+        @Header("Authorization") token: String,
+        @Body body: ComprarCarritoSolicitud
     ): Response<CompraRespuesta>
+
+    @GET(Endpoints.ObtenerColores)
+    suspend fun obtenerColores(
+        @Header("Authorization") token: String
+    ): Response<List<ColorPublicacionRespuesta>>
+
+    @GET(Endpoints.ObtenerPedidosPendientesVendedor)
+    suspend fun obtenerPedidosPendientesVendedor(
+        @Header("Authorization") token: String
+    ): Response<PedidosPendientesRespuesta>
+
+    @POST(Endpoints.ResponderPedidoVendedor)
+    suspend fun responderPedidoVendedor(
+        @Header("Authorization") token: String,
+        @Body body: ResponderPedidoSolicitud
+    ): Response<OperacionCarritoRespuesta>
+
+    @GET(Endpoints.ObtenerPedidosComprador)
+    suspend fun obtenerPedidosComprador(
+        @Header("Authorization") token: String
+    ): Response<PedidosPendientesRespuesta>
+
+    @POST(Endpoints.ConfirmarPedidoRecibido)
+    suspend fun confirmarPedidoRecibido(
+        @Header("Authorization") token: String,
+        @Body body: ConfirmarPedidoSolicitud
+    ): Response<OperacionCarritoRespuesta>
+
+    @POST(Endpoints.ReportarPedido)
+    suspend fun reportarPedido(
+        @Header("Authorization") token: String,
+        @Body body: ReportarPedidoSolicitud
+    ): Response<OperacionCarritoRespuesta>
+
+    @GET(Endpoints.ObtenerIncidenciasAdmin)
+    suspend fun obtenerIncidenciasAdmin(
+        @Header("Authorization") token: String
+    ): Response<IncidenciasAdminRespuesta>
+
+    @GET(Endpoints.ObtenerIncidenciasUsuario)
+    suspend fun obtenerIncidenciasUsuario(
+        @Header("Authorization") token: String
+    ): Response<IncidenciasAdminRespuesta>
+
+    @POST(Endpoints.ResponderIncidenciaAdmin)
+    suspend fun responderIncidenciaAdmin(
+        @Header("Authorization") token: String,
+        @Body body: ResponderIncidenciaSolicitud
+    ): Response<OperacionCarritoRespuesta>
 
 }
